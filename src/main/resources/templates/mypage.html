@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('마이페이지')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main class="container">
+    <div class="page-head">
+        <div>
+            <h1>마이페이지</h1>
+            <p>내 정보와 프로필 사진을 관리합니다. (회원 전용)</p>
+        </div>
+    </div>
+
+    <div class="stack">
+
+        <section class="card">
+            <h2>프로필</h2>
+            <div class="row" style="gap:24px">
+                <!-- TODO: 프로필 사진이 있으면 <img th:src="@{/files/profile/...}"> 로 바꾼다 -->
+                <div class="avatar">A</div>
+                <div>
+                    <p style="margin:0"><strong>닉네임 샘플</strong></p>
+                    <p class="muted" style="margin:4px 0 0">sample_id</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>프로필 사진 변경</h2>
+            <!-- TODO: 파일 로직 담당 - 확장자·크기 검증, UUID 파일명으로 저장 -->
+            <form th:action="@{/mypage/profile-image}" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="profileImage">사진 선택</label>
+                    <input type="file" id="profileImage" name="file" accept="image/png, image/jpeg" required>
+                    <div class="form-hint">JPG, PNG · 최대 5MB</div>
+                </div>
+                <button type="submit" class="btn btn-small">변경하기</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>계정</h2>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-outline btn-small">로그아웃</button>
+            </form>
+        </section>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

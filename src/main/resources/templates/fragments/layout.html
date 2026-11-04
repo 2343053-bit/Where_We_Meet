@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' | 어디서 만날래?'">어디서 만날래?</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+</head>
+<body>
+
+<header th:fragment="header" class="site-header">
+    <a th:href="@{/}" class="logo">어디서 만날래?</a>
+    <nav>
+        <a th:href="@{/}">장소 찾기</a>
+        <a th:href="@{/meetings}">만남 기록</a>
+        <a th:href="@{/places/saved}">관심 장소</a>
+    </nav>
+    <!-- TODO: 로그인 기능을 만들 때 sec:authorize로 로그인/비로그인 메뉴를 나눈다 -->
+    <div class="auth">
+        <a th:href="@{/login}">로그인</a>
+        <a th:href="@{/signup}" class="btn btn-small">회원가입</a>
+    </div>
+</header>
+
+<footer th:fragment="footer" class="site-footer">
+    <p>2026 웹프로그래밍 기말 프로젝트 · 어디서 만날래?</p>
+</footer>
+
+</body>
+</html>

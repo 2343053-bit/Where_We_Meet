@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('관심 장소')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main class="container">
+    <div class="page-head">
+        <div>
+            <h1>관심 장소</h1>
+            <p>추천 결과에서 저장한 장소입니다. (회원 전용)</p>
+        </div>
+    </div>
+
+    <!-- TODO: th:each="place : ${savedPlaces}" 로 반복한다 -->
+    <div class="grid">
+
+        <article class="card">
+            <h2 class="card-title">샘플 장소 A</h2>
+            <p class="card-sub">서울 ○○구 · 카페</p>
+            <div class="row" style="margin-top:16px">
+                <a href="#" class="btn btn-outline btn-small">지도에서 보기</a>
+                <!-- TODO: 삭제는 DELETE /places/saved/{id} -->
+                <form th:action="@{/places/saved/1/delete}" method="post"
+                      onsubmit="return confirm('관심 장소에서 삭제할까요?');">
+                    <button type="submit" class="btn btn-danger btn-small">삭제</button>
+                </form>
+            </div>
+        </article>
+
+        <article class="card">
+            <h2 class="card-title">샘플 장소 B</h2>
+            <p class="card-sub">서울 △△구 · 음식점</p>
+            <div class="row" style="margin-top:16px">
+                <a href="#" class="btn btn-outline btn-small">지도에서 보기</a>
+                <form th:action="@{/places/saved/2/delete}" method="post"
+                      onsubmit="return confirm('관심 장소에서 삭제할까요?');">
+                    <button type="submit" class="btn btn-danger btn-small">삭제</button>
+                </form>
+            </div>
+        </article>
+
+    </div>
+
+    <div class="empty" style="display:none">
+        <p>저장한 관심 장소가 없습니다.</p>
+        <a th:href="@{/}" class="btn">장소 찾으러 가기</a>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
