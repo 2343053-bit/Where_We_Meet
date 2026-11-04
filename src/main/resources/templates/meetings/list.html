@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('만남 기록')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main class="container">
+    <div class="page-head">
+        <div>
+            <h1>만남 기록</h1>
+            <p>저장한 만남을 다시 볼 수 있습니다. (회원 전용)</p>
+        </div>
+        <a th:href="@{/}" class="btn btn-small">새 만남 찾기</a>
+    </div>
+
+    <!-- TODO: th:each="meeting : ${meetings}" 로 반복한다. 목록이 비면 아래 .empty 를 th:if 로 보여준다 -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>날짜</th>
+                <th>제목</th>
+                <th>장소</th>
+                <th>인원</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>2026-11-02</td>
+                <td>스터디 모임</td>
+                <td>샘플 장소 A</td>
+                <td>3명</td>
+                <td><a th:href="@{/meetings/1}">상세보기</a></td>
+            </tr>
+            <tr>
+                <td>2026-10-28</td>
+                <td>동아리 회식</td>
+                <td>샘플 장소 B</td>
+                <td>5명</td>
+                <td><a th:href="@{/meetings/2}">상세보기</a></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="empty" style="display:none">
+        <p>아직 저장한 만남이 없습니다.</p>
+        <a th:href="@{/}" class="btn">첫 만남 찾기</a>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
