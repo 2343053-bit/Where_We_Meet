@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>어디서 만날래?</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<!--
+    메인 화면: 전체 화면 지도 위에 UI 를 띄우는 구조라 공통 header/footer 는 쓰지 않는다.
+    로그인/회원가입은 페이지 이동 없이 <dialog> 모달로 띄운다. (static/js/main.js)
+-->
+<body class="map-page">
+
+<!-- 전체 화면 지도 -->
+<div id="map" aria-label="지도"></div>
+
+<!-- 상단 바 -->
+<header class="map-topbar">
+    <a th:href="@{/}" class="logo">어디서 만날래?</a>
+    <nav>
+        <a th:href="@{/meetings}">만남 기록</a>
+        <a th:href="@{/places/saved}">관심 장소</a>
+    </nav>
+    <!-- TODO: 로그인 기능을 만들 때 sec:authorize 로 로그인/비로그인 메뉴를 나눈다 -->
+    <div class="auth">
+        <a th:href="@{/login}" data-modal="login" class="btn btn-outline btn-small">로그인</a>
+        <a th:href="@{/signup}" data-modal="signup" class="btn btn-small">회원가입</a>
+    </div>
+</header>
+
+<!-- 검색 패널 -->
+<aside class="search-panel">
+    <h1>어디서 만날래?</h1>
+    <p class="muted panel-desc">출발 위치를 입력하면 모두에게 공평한 만남 장소를 찾아드려요.</p>
+
+    <!-- TODO: 다음 단계에서 서버가 좌표 변환 → 중간 지점 계산 → 장소 검색을 처리한다 -->
+    <form id="searchForm" th:action="@{/result}" method="get" novalidate>
+        <div class="form-group">
+            <label>출발 위치 <span class="muted" id="participantCount">(2/5명)</span></label>
+            <ol id="participantList" class="participant-list">
+                <li class="participant-row">
+                    <span class="participant-no">1</span>
+                    <input type="text" name="locations" placeholder="참가자 1 출발 위치 (예: 강남역)" aria-label="참가자 1 출발 위치">
+                    <button type="button" class="remove-btn" aria-label="참가자 삭제">&times;</button>
+                </li>
+                <li class="participant-row">
+                    <span class="participant-no">2</span>
+                    <input type="text" name="locations" placeholder="참가자 2 출발 위치 (예: 홍대입구역)" aria-label="참가자 2 출발 위치">
+                    <button type="button" class="remove-btn" aria-label="참가자 삭제">&times;</button>
+                </li>
+            </ol>
+            <button type="button" id="addParticipant" class="btn btn-outline btn-small btn-block">+ 참가자 추가</button>
+            <div id="participantError" class="field-error" hidden></div>
+        </div>
+
+        <div class="form-group">
+            <label for="keyword">장소 종류</label>
+            <div class="chips" role="group" aria-label="자주 찾는 장소 종류">
+                <button type="button" class="chip" data-keyword="카페">카페</button>
+                <button type="button" class="chip" data-keyword="음식점">음식점</button>
+                <button type="button" class="chip" data-keyword="PC방">PC방</button>
+                <button type="button" class="chip" data-keyword="술집">술집</button>
+            </div>
+            <input type="text" id="keyword" name="keyword" placeholder="직접 입력 (예: 보드게임카페)">
+            <div id="keywordError" class="field-error" hidden></div>
+        </div>
+
+        <button type="submit" class="btn btn-block">중간 장소 찾기</button>
+    </form>
+</aside>
+
+<!-- 지도 위 알림 (API 키 오류 등) -->
+<div id="mapToast" class="map-toast" role="status" hidden></div>
+
+<!-- 로그인 / 회원가입 모달 -->
+<dialog id="loginModal" class="auth-modal" aria-label="로그인">
+    <div class="modal-body">
+        <button type="button" class="modal-close" data-close aria-label="닫기">&times;</button>
+        <div th:replace="~{fragments/auth :: loginForm}"></div>
+    </div>
+</dialog>
+
+<dialog id="signupModal" class="auth-modal" aria-label="회원가입">
+    <div class="modal-body">
+        <button type="button" class="modal-close" data-close aria-label="닫기">&times;</button>
+        <div th:replace="~{fragments/auth :: signupForm}"></div>
+    </div>
+</dialog>
+
+<script th:inline="javascript">
+    window.KAKAO_JS_KEY = /*[[${kakaoJsKey}]]*/ '';
+</script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
