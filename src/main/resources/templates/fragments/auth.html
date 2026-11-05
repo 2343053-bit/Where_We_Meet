@@ -24,8 +24,8 @@
 
     <form th:action="@{/login}" method="post">
         <div class="form-group">
-            <label for="login-username">아이디</label>
-            <input type="text" id="login-username" name="username" required autofocus autocomplete="username">
+            <label for="login-id">아이디</label>
+            <input type="text" id="login-id" name="id" required autofocus autocomplete="username">
         </div>
         <div class="form-group">
             <label for="login-password">비밀번호</label>
@@ -47,8 +47,8 @@
     <!-- TODO: 회원가입 기능을 만들 때 th:object + @Valid + th:errors 로 서버 검증을 붙인다 -->
     <form th:action="@{/signup}" method="post">
         <div class="form-group">
-            <label for="signup-username">아이디</label>
-            <input type="text" id="signup-username" name="username" autofocus autocomplete="username"
+            <label for="signup-id">아이디</label>
+            <input type="text" id="signup-id" name="id" autofocus autocomplete="username"
                    required minlength="4" maxlength="20" pattern="[A-Za-z0-9_]+">
             <div class="form-hint">영문, 숫자, 밑줄 4~20자</div>
         </div>
