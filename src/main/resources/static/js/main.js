@@ -131,15 +131,28 @@
         return list.querySelectorAll('.participant-row');
     }
 
+    // 참가자 한 줄의 입력칸: 클래스 → 서버로 보낼 필드 이름 / 화면 표시 이름
+    // key 는 domain/ParticipantLocation 의 필드 이름과 같아야 서버에서 바로 받을 수 있다.
+    var PARTICIPANT_FIELDS = [
+        { cls: 'participant-name', key: 'participantName', label: '이름' },
+        { cls: 'participant-lat',  key: 'latitude',        label: '위도' },
+        { cls: 'participant-lng',  key: 'longitude',       label: '경도' }
+    ];
+
+    // 추가/삭제 후 번호, name(participants[i].필드), aria-label 을 다시 매긴다.
     function refreshParticipants() {
         var all = rows();
         all.forEach(function (row, i) {
             var no = i + 1;
-            var input = row.querySelector('input');
             row.querySelector('.participant-no').textContent = no;
-            input.placeholder = '참가자 ' + no + ' 출발 위치';
-            input.setAttribute('aria-label', '참가자 ' + no + ' 출발 위치');
-            row.querySelector('.remove-btn').disabled = all.length <= MIN_PARTICIPANTS;
+            PARTICIPANT_FIELDS.forEach(function (field) {
+                var input = row.querySelector('.' + field.cls);
+                input.name = 'participants[' + i + '].' + field.key;
+                input.setAttribute('aria-label', '참가자 ' + no + ' ' + field.label);
+            });
+            var removeBtn = row.querySelector('.remove-btn');
+            removeBtn.setAttribute('aria-label', '참가자 ' + no + ' 삭제');
+            removeBtn.disabled = all.length <= MIN_PARTICIPANTS;
         });
         addBtn.disabled = all.length >= MAX_PARTICIPANTS;
         addBtn.textContent = all.length >= MAX_PARTICIPANTS ? '최대 5명까지 입력할 수 있어요' : '+ 참가자 추가';
@@ -149,12 +162,13 @@
     addBtn.addEventListener('click', function () {
         if (rows().length >= MAX_PARTICIPANTS) return;
         var row = rows()[0].cloneNode(true);
-        var input = row.querySelector('input');
-        input.value = '';
-        input.classList.remove('is-invalid');
+        row.querySelectorAll('input').forEach(function (input) {
+            input.value = '';
+            input.classList.remove('is-invalid');
+        });
         list.appendChild(row);
         refreshParticipants();
-        input.focus();
+        row.querySelector('.participant-name').focus();
     });
 
     list.addEventListener('click', function (e) {
@@ -164,8 +178,14 @@
         refreshParticipants();
     });
 
+    // 빨간 표시가 된 칸을 고치면, 값이 올바를 때만 표시를 지운다.
     list.addEventListener('input', function (e) {
-        if (e.target.value.trim()) e.target.classList.remove('is-invalid');
+        var input = e.target;
+        if (!input.classList.contains('is-invalid')) return;
+        var valid = input.classList.contains('participant-lat') ? isValidCoordinate(input.value, 90)
+                  : input.classList.contains('participant-lng') ? isValidCoordinate(input.value, 180)
+                  : input.value.trim() !== '';
+        if (valid) input.classList.remove('is-invalid');
     });
 
     // 장소 종류 빠른 선택
@@ -194,28 +214,45 @@
         el.hidden = !message;
     }
 
-    form.addEventListener('submit', function (e) {
-        var inputs = list.querySelectorAll('input');
-        var firstInvalid = null;
-        var emptyCount = 0;
+    // 위도는 -90 ~ 90, 경도는 -180 ~ 180 범위의 숫자여야 한다.
+    function isValidCoordinate(raw, limit) {
+        if (raw.trim() === '') return false;
+        var n = Number(raw);
+        return isFinite(n) && Math.abs(n) <= limit;
+    }
 
-        inputs.forEach(function (input) {
-            input.value = input.value.trim();
-            var empty = input.value === '';
-            input.classList.toggle('is-invalid', empty);
-            if (empty) {
-                emptyCount++;
-                firstInvalid = firstInvalid || input;
-            }
+    form.addEventListener('submit', function (e) {
+        var participantRows = rows();
+        var firstInvalid = null;
+        var nameMissing = false;
+        var latInvalid = false;
+        var lngInvalid = false;
+
+        function mark(input, invalid) {
+            input.classList.toggle('is-invalid', invalid);
+            if (invalid) firstInvalid = firstInvalid || input;
+            return invalid;
+        }
+
+        participantRows.forEach(function (row) {
+            var nameInput = row.querySelector('.participant-name');
+            var latInput = row.querySelector('.participant-lat');
+            var lngInput = row.querySelector('.participant-lng');
+
+            nameInput.value = nameInput.value.trim();
+            if (mark(nameInput, nameInput.value === '')) nameMissing = true;
+            if (mark(latInput, !isValidCoordinate(latInput.value, 90))) latInvalid = true;
+            if (mark(lngInput, !isValidCoordinate(lngInput.value, 180))) lngInvalid = true;
         });
 
-        if (inputs.length < MIN_PARTICIPANTS || inputs.length > MAX_PARTICIPANTS) {
-            setError(participantError, '참가자는 2명 이상 5명 이하로 입력해 주세요.');
-        } else if (emptyCount > 0) {
-            setError(participantError, '모든 참가자의 출발 위치를 입력해 주세요.');
-        } else {
-            setError(participantError, null);
+        var messages = [];
+        if (participantRows.length < MIN_PARTICIPANTS || participantRows.length > MAX_PARTICIPANTS) {
+            messages.push('참가자는 2명 이상 5명 이하로 입력해 주세요.');
         }
+        if (nameMissing) messages.push('모든 참가자의 이름을 입력해 주세요.');
+        if (latInvalid) messages.push('위도는 -90 ~ 90 사이의 숫자로 입력해 주세요. (예: 37.5665)');
+        if (lngInvalid) messages.push('경도는 -180 ~ 180 사이의 숫자로 입력해 주세요. (예: 126.9780)');
+        setError(participantError, messages.join('\n') || null);
 
         keywordInput.value = keywordInput.value.trim();
         var keywordEmpty = keywordInput.value === '';
