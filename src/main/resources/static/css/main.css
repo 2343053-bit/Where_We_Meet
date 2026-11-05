@@ -61,14 +61,55 @@ body.map-page {
 .search-panel h1 { font-size: 20px; margin-bottom: 4px; }
 .search-panel .panel-desc { margin: 0 0 20px; font-size: 14px; }
 
+.participant-hint { margin: -2px 0 10px; }
 .participant-list { list-style: none; margin: 0 0 8px; padding: 0; }
-.participant-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.participant-row input[type="text"] { flex: 1; min-width: 0; }
-.participant-row input.is-invalid,
+.participant-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--border);
+}
+.participant-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+/* 이름은 한 줄 전체, 위도·경도는 아래 줄에 반반 */
+.participant-fields {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+.participant-fields .participant-name { grid-column: 1 / -1; }
+
+/* common.css 는 type="number" 입력칸을 꾸미지 않으므로 여기서 같은 모양을 준다.
+   이름(text) 칸에는 common.css 의 .form-group input[type="text"] 가 먼저 적용되므로
+   선택자 우선순위를 그보다 높여(.form-group 포함) 세 칸 모양을 똑같이 맞춘다. */
+.form-group .participant-fields input {
+    width: 100%;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #fff;
+}
+.form-group .participant-fields input:focus { outline: 2px solid var(--primary); border-color: transparent; }
+/* 숫자 입력칸의 위/아래 화살표 숨김 (좁은 칸에서 자리를 차지하므로) */
+.participant-fields input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+.participant-fields input[type="number"]::-webkit-outer-spin-button,
+.participant-fields input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.form-group .participant-fields input.is-invalid,
 #keyword.is-invalid { border-color: var(--danger); background: #fef2f2; }
+
+#participantError { white-space: pre-line; }
 
 .participant-no {
     flex: none;
+    margin-top: 6px;
     width: 24px; height: 24px;
     border-radius: 50%;
     background: var(--primary);
@@ -79,6 +120,7 @@ body.map-page {
 
 .remove-btn {
     flex: none;
+    margin-top: 2px;
     width: 32px; height: 32px;
     border: none;
     border-radius: 8px;

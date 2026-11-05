@@ -13,9 +13,9 @@ public class PageController {
     private String kakaoJsKey;
 
     @GetMapping("/")
-    public String index(Model model) {
+    public String main(Model model) {
         model.addAttribute("kakaoJsKey", kakaoJsKey);
-        return "index";
+        return "main";
     }
 
     @GetMapping("/login")
