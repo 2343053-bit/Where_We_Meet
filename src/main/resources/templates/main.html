@@ -2,119 +2,37 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>어디서 만날래?</title>
-    <link rel="stylesheet" th:href="@{/css/common.css}">
-    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <title>참가자 입력</title>
 </head>
-<!--
-    메인 화면: 전체 화면 지도 위에 UI 를 띄우는 구조라 공통 header/footer 는 쓰지 않는다.
-    로그인/회원가입은 페이지 이동 없이 <dialog> 모달로 띄운다. (static/js/main.js)
--->
-<body class="map-page">
+<body>
+<form th:action="@{/result}" th:object="${participantForm}" method="post">
+    <fieldset>
+        <legend>참가자 1</legend>
+        <label>이름
+            <input type="text" th:field="*{participants[0].participantName}" required>
+        </label>
+        <label>위도
+            <input type="number" step="any" th:field="*{participants[0].latitude}" required>
+        </label>
+        <label>경도
+            <input type="number" step="any" th:field="*{participants[0].longitude}" required>
+        </label>
+    </fieldset>
 
-<!-- 전체 화면 지도 -->
-<div id="map" aria-label="지도"></div>
+    <fieldset>
+        <legend>참가자 2</legend>
+        <label>이름
+            <input type="text" th:field="*{participants[1].participantName}" required>
+        </label>
+        <label>위도
+            <input type="number" step="any" th:field="*{participants[1].latitude}" required>
+        </label>
+        <label>경도
+            <input type="number" step="any" th:field="*{participants[1].longitude}" required>
+        </label>
+    </fieldset>
 
-<!-- 상단 바 -->
-<header class="map-topbar">
-    <a th:href="@{/}" class="logo">어디서 만날래?</a>
-    <nav>
-        <a th:href="@{/meetings}">만남 기록</a>
-        <a th:href="@{/places/saved}">관심 장소</a>
-    </nav>
-    <!-- TODO: 로그인 기능을 만들 때 sec:authorize 로 로그인/비로그인 메뉴를 나눈다 -->
-    <div class="auth">
-        <a th:href="@{/login}" data-modal="login" class="btn btn-outline btn-small">로그인</a>
-        <a th:href="@{/signup}" data-modal="signup" class="btn btn-small">회원가입</a>
-    </div>
-</header>
-
-<!-- 검색 패널 -->
-<aside class="search-panel">
-    <h1>어디서 만날래?</h1>
-    <p class="muted panel-desc">출발 위치를 입력하면 모두에게 공평한 만남 장소를 찾아드려요.</p>
-
-    <!-- TODO: 다음 단계에서 서버가 좌표 변환 → 중간 지점 계산 → 장소 검색을 처리한다 -->
-    <form id="searchForm" th:action="@{/result}" method="get" novalidate>
-        <div class="form-group">
-            <label>출발 위치 <span class="muted" id="participantCount">(2/5명)</span></label>
-            <div class="form-hint participant-hint">참가자 이름과 출발 위치의 위도·경도를 입력하세요. 예) 서울시청 37.5665, 126.9780</div>
-            <!--
-                name 은 participants[번호].participantName / .latitude / .longitude 형식이다.
-                (서버에서 List<ParticipantLocation> 으로 바로 받을 수 있는 형식, 번호는 main.js 가 추가/삭제 때마다 다시 매긴다)
-            -->
-            <ol id="participantList" class="participant-list">
-                <li class="participant-row">
-                    <span class="participant-no">1</span>
-                    <div class="participant-fields">
-                        <input type="text" class="participant-name" name="participants[0].participantName" maxlength="20"
-                               placeholder="이름" aria-label="참가자 1 이름">
-                        <input type="number" class="participant-lat" name="participants[0].latitude"
-                               step="any" min="-90" max="90" inputmode="decimal"
-                               placeholder="위도" aria-label="참가자 1 위도">
-                        <input type="number" class="participant-lng" name="participants[0].longitude"
-                               step="any" min="-180" max="180" inputmode="decimal"
-                               placeholder="경도" aria-label="참가자 1 경도">
-                    </div>
-                    <button type="button" class="remove-btn" aria-label="참가자 1 삭제">&times;</button>
-                </li>
-                <li class="participant-row">
-                    <span class="participant-no">2</span>
-                    <div class="participant-fields">
-                        <input type="text" class="participant-name" name="participants[1].participantName" maxlength="20"
-                               placeholder="이름" aria-label="참가자 2 이름">
-                        <input type="number" class="participant-lat" name="participants[1].latitude"
-                               step="any" min="-90" max="90" inputmode="decimal"
-                               placeholder="위도" aria-label="참가자 2 위도">
-                        <input type="number" class="participant-lng" name="participants[1].longitude"
-                               step="any" min="-180" max="180" inputmode="decimal"
-                               placeholder="경도" aria-label="참가자 2 경도">
-                    </div>
-                    <button type="button" class="remove-btn" aria-label="참가자 2 삭제">&times;</button>
-                </li>
-            </ol>
-            <button type="button" id="addParticipant" class="btn btn-outline btn-small btn-block">+ 참가자 추가</button>
-            <div id="participantError" class="field-error" hidden></div>
-        </div>
-
-        <div class="form-group">
-            <label for="keyword">장소 종류</label>
-            <div class="chips" role="group" aria-label="자주 찾는 장소 종류">
-                <button type="button" class="chip" data-keyword="카페">카페</button>
-                <button type="button" class="chip" data-keyword="음식점">음식점</button>
-                <button type="button" class="chip" data-keyword="PC방">PC방</button>
-                <button type="button" class="chip" data-keyword="술집">술집</button>
-            </div>
-            <input type="text" id="keyword" name="keyword" placeholder="직접 입력 (예: 보드게임카페)">
-            <div id="keywordError" class="field-error" hidden></div>
-        </div>
-
-        <button type="submit" class="btn btn-block">중간 장소 찾기</button>
-    </form>
-</aside>
-
-<!-- 지도 위 알림 (API 키 오류 등) -->
-<div id="mapToast" class="map-toast" role="status" hidden></div>
-
-<!-- 로그인 / 회원가입 모달 -->
-<dialog id="loginModal" class="auth-modal" aria-label="로그인">
-    <div class="modal-body">
-        <button type="button" class="modal-close" data-close aria-label="닫기">&times;</button>
-        <div th:replace="~{fragments/auth :: loginForm}"></div>
-    </div>
-</dialog>
-
-<dialog id="signupModal" class="auth-modal" aria-label="회원가입">
-    <div class="modal-body">
-        <button type="button" class="modal-close" data-close aria-label="닫기">&times;</button>
-        <div th:replace="~{fragments/auth :: signupForm}"></div>
-    </div>
-</dialog>
-
-<script th:inline="javascript">
-    window.KAKAO_JS_KEY = /*[[${kakaoJsKey}]]*/ '';
-</script>
-<script th:src="@{/js/main.js}"></script>
+    <button type="submit">제출</button>
+</form>
 </body>
 </html>
