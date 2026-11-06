@@ -3,8 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <title>참가자 위치 입력</title>
+    <style>
+        #form-results {
+            display: grid;
+            grid-template-columns: minmax(260px, 320px) minmax(280px, 1fr);
+            gap: 16px;
+            align-items: start;
+        }
+
+        #participants fieldset {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        #participants input {
+            width: 100%;
+        }
+
+        #results {
+            padding: 0 16px;
+            border: 1px solid #aaa;
+        }
+
+        @media (max-width: 700px) {
+            #form-results {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
+<div id="map" style="width: 100%; height: 70vh;"></div>
+<script th:src="@{https://dapi.kakao.com/v2/maps/sdk.js(appkey=${kakaoJsKey})}"></script>
+	<script>
+		var container = document.getElementById('map');
+		var options = {
+			center: new kakao.maps.LatLng(35.117, 128.968),
+			level: 3
+		};
+
+		var map = new kakao.maps.Map(container, options);
+	</script>
+<hr>
+<div id="form-results">
 <form th:action="@{/main}" th:object="${participantForm}" method="post">
     <div id="participants">
         <fieldset>
@@ -26,6 +68,21 @@
     <button type="button" id="addParticipant">+</button>
     <button type="submit">제출</button>
 </form>
+
+<section id="results" th:if="${meetingPoint != null}">
+    <!-- 참가자의 이름과 위치를 표시하는 부분
+    <div th:each="participant, stat : ${participants}">
+        <h3 th:text="|참가자 ${stat.count}|"></h3>
+        <p>이름: <span th:text="${participant.participantName}"></span></p>
+        <p>위도: <span th:text="${participant.latitude}"></span></p>
+        <p>경도: <span th:text="${participant.longitude}"></span></p>
+    </div>
+    -->
+    <h3>참가자 평균 위치</h3>
+    <p>평균 위도: <span th:text="${meetingPoint.meetingLatitude}"></span></p>
+    <p>평균 경도: <span th:text="${meetingPoint.meetingLongitude}"></span></p>
+</section>
+</div>
 
 <script>
     const participants = document.getElementById("participants");
