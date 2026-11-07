@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>참가자 평균 위치 결과</title>
+</head>
+<body>
+<div th:each="participant, stat : ${participants}">
+    <h3 th:text="|참가자 ${stat.count}|"></h3>
+    <p>이름: <span th:text="${participant.participantName}"></span></p>
+    <p>위도: <span th:text="${participant.latitude}"></span></p>
+    <p>경도: <span th:text="${participant.longitude}"></span></p>
+</div>
+    <h3>참가자 평균 위치</h3>
+    <p>평균 위도: <span th:text="${meetingPoint.meetingLatitude}"></span></p>
+    <p>평균 경도: <span th:text="${meetingPoint.meetingLongitude}"></span></p>
+</body>
+</html>
