@@ -8,18 +8,18 @@ import jakarta.persistence.Id;
 public class Member {
     
     @Id // 기본 키 설정
-    private String id;
+    private String username;
     
     private String nickname;
     private String password;
 
 
     // getter와 setter 메서드입니다.
-    public String getId() {
-        return id;
+    public String getUsername() {
+        return username;
     }
-    public void setId(String id) {
-        this.id = id;
+    public void setUsername(String username) {
+        this.username = username;
     }
     public String getNickname() {
         return nickname;

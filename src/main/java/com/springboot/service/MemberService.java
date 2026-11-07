@@ -22,7 +22,7 @@ public class MemberService {
     // 회원 가입을 처리하는 메서드입니다. 회원 정보를 저장합니다.
     @Transactional
     public void signup(Member member) {
-        if (memberRepository.existsById(member.getId())) {
+        if (memberRepository.existsByUsername(member.getUsername())) {
             throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
         }
 
