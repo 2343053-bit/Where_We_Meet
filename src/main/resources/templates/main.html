@@ -36,14 +36,61 @@
 <body>
 <div id="map" style="width: 100%; height: 70vh;"></div>
 <script th:src="@{https://dapi.kakao.com/v2/maps/sdk.js(appkey=${kakaoJsKey})}"></script>
-	<script>
+
+	<!-- th:inline="javascript" : 이 <script> 안에서도 Thymeleaf 가 서버 값을 넣어 주도록 켜는 설정
+    (없으면 아래 /*[[...]]*/ 부분이 그대로 브라우저로 가서 주석 취급 → 값이 항상 null.) -->
+	<script th:inline="javascript">
 		var container = document.getElementById('map');
 		var options = {
 			center: new kakao.maps.LatLng(35.117, 128.968),
 			level: 3
 		};
 
-		var map = new kakao.maps.Map(container, options);
+        var map = new kakao.maps.Map(container, options); //지도 생성.
+		// 마커 위치들을 모아 둘 범위 상자. 나중에 이 범위가 다 보이게 지도를 맞춘다.
+		var bounds = new kakao.maps.LatLngBounds();
+
+		var meetingLat = /*[[${meetingPoint?.meetingLatitude}]]*/ null; // 얘네 때문에 th:inline="javascript" 를 작성했다.
+		var meetingLng = /*[[${meetingPoint?.meetingLongitude}]]*/ null;
+
+		// 제출해서 중간 지점이 계산된 경우에만 마커를 찍는다.
+		if (meetingLat != null) {
+			var markerPosition = new kakao.maps.LatLng(meetingLat, meetingLng);  // 마커 위치. (위도, 경도 순)
+			var marker = new kakao.maps.Marker({ position: markerPosition });    // 마커 생성.
+			marker.setMap(map);                                                  // 지도 위에 올리기.
+			map.setCenter(markerPosition);                                       // 지도 중심도 중간 지점으로 이동.
+			bounds.extend(markerPosition);                                       // 범위 상자에 중간 지점 추가.
+		}
+        // ── 참가자 위치 마커 ───────────────────────
+		//   참가자 목록을 JS 배열로 받는다.
+		//   participantForm 은 컨트롤러의 @ModelAttribute 가 화면에 자동으로 넘겨 주는 폼 객체를 사용했음.
+		//   나중에 컨트롤러 39번 줄 주석을 풀면, 화면의 participantForm?.participants를 participants로 바꾸기만 하면 됨.
+		//   서버가 처리하면 [{"participantName":"철수","latitude":37.5,"longitude":127.0}, ...] 모양이 된다.
+
+		var participants = /*[[${participantForm?.participants}]]*/ [];
+
+		// 참가자 수만큼 반복.
+		for (var i = 0; i < participants.length; i++) { // participants.length 는 참가자 수, participants[i] 는 i 번째 참가자. (0부터 셈.)
+
+			// 처음 접속하면 빈 입력칸(위도·경도 null)이 2개 있으므로 건너뛴다.
+			if (participants[i].latitude == null || participants[i].longitude == null) {
+				continue;
+			}
+
+			// 마커 생성. map: map 으로 바로 지도에 올린다.
+			var marker = new kakao.maps.Marker({
+				map: map,                                                                              // 마커를 표시할 지도.
+				position: new kakao.maps.LatLng(participants[i].latitude, participants[i].longitude),  // 참가자 위치. (위도, 경도 순.)
+				title: participants[i].participantName                                                 // 마우스를 올리면 이름 표시.
+			});
+
+            bounds.extend(marker.getPosition()); // 범위 상자에 방금 만든 마커의 위치 추가.
+		}
+        // 범위 상자에 좌표가 하나라도 있으면 그 좌표들이 다 보이게 지도 범위를 맞춘다.
+		// 처음 접속하면 상자가 비어 있으므로 건너뛴다.
+		if (!bounds.isEmpty()) {
+			map.setBounds(bounds); // 지도의 중심과 확대 레벨이 자동으로 바뀐다.
+		}
 	</script>
 <hr>
 <div id="form-results">
