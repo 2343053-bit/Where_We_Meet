@@ -67,21 +67,21 @@
 		//   나중에 컨트롤러 39번 줄 주석을 풀면, 화면의 participantForm?.participants를 participants로 바꾸기만 하면 됨.
 		//   서버가 처리하면 [{"participantName":"철수","latitude":37.5,"longitude":127.0}, ...] 모양이 된다.
 
-		var participants = /*[[${participantForm?.participants}]]*/ [];
+		var participantList = /*[[${participantForm?.participants}]]*/ []; // 아래 +/- 버튼 코드의 participants 와 이름이 겹치면 버튼이 동작하지 않아서 participantList 로 지음.
 
 		// 참가자 수만큼 반복.
-		for (var i = 0; i < participants.length; i++) { // participants.length 는 참가자 수, participants[i] 는 i 번째 참가자. (0부터 셈.)
+		for (var i = 0; i < participantList.length; i++) { // participantList.length 는 참가자 수, participantList[i] 는 i 번째 참가자. (0부터 셈.)
 
 			// 처음 접속하면 빈 입력칸(위도·경도 null)이 2개 있으므로 건너뛴다.
-			if (participants[i].latitude == null || participants[i].longitude == null) {
+			if (participantList[i].latitude == null || participantList[i].longitude == null) {
 				continue;
 			}
 
 			// 마커 생성. map: map 으로 바로 지도에 올린다.
 			var marker = new kakao.maps.Marker({
 				map: map,                                                                              // 마커를 표시할 지도.
-				position: new kakao.maps.LatLng(participants[i].latitude, participants[i].longitude),  // 참가자 위치. (위도, 경도 순.)
-				title: participants[i].participantName                                                 // 마우스를 올리면 이름 표시.
+				position: new kakao.maps.LatLng(participantList[i].latitude, participantList[i].longitude),  // 참가자 위치. (위도, 경도 순.)
+				title: participantList[i].participantName                                                    // 마우스를 올리면 이름 표시.
 			});
 
             bounds.extend(marker.getPosition()); // 범위 상자에 방금 만든 마커의 위치 추가.
