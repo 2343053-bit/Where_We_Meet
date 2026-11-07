@@ -26,7 +26,7 @@ public class SecurityConfig {
             .userDetailsService(userDetailsService)
             // 요청별로 로그인 필요 여부를 결정한다.
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/signup", "/css/**", "/js/**")
+                .requestMatchers("/login", "/signup", "/main", "/css/**", "/js/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
