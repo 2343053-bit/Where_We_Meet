@@ -11,35 +11,38 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
     
-    @Bean // PasswordEncoder 빈을 생성하는 메서드입니다. 이 메서드는 BCryptPasswordEncoder를 반환하여 비밀번호를 암호화하는 데 사용됩니다.  
+    // 회원가입 시 비밀번호를 암호화하고 로그인 시 입력값과 저장된 암호를 비교한다.
+    @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // 비밀번호를 암호화하는 PasswordEncoder 빈을 생성.
+        return new BCryptPasswordEncoder();
     }
 
-    @Bean // SecurityFilterChain 빈을 생성하는 메서드입니다. 이 메서드는 HttpSecurity를 사용하여 보안 구성을 설정합니다.
+    // HTTP 요청의 인증 여부와 로그인·로그아웃 처리 규칙을 정의한다.
+    @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http,
-            UserDetailsService userDetailsService) throws Exception { // throws Exception은 HttpSecurity 설정 중 발생할 수 있는 예외를 처리하기 위해 선언되었습니다.
+            HttpSecurity http, // 보안 필터 체인의 접근 권한과 인증 방식을 설정한다.
+            UserDetailsService userDetailsService) throws Exception { // 로그인 아이디로 DB 회원을 조회해 인증에 사용할 정보를 제공한다.
         http
             .userDetailsService(userDetailsService)
-            .authorizeHttpRequests(auth -> auth // auth는 HttpSecurity의 authorizeHttpRequests 메서드에서 제공하는 객체로, 요청에 대한 권한을 설정하는 데 사용됩니다.
-                .requestMatchers("/login", "/signup", "/css/**", "/js/**") // 로그인, 회원가입, CSS, JS 경로에 대한 요청은 인증 없이 접근 가능하도록 설정
+            // 요청별로 로그인 필요 여부를 결정한다.
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login", "/signup", "/css/**", "/js/**")
                 .permitAll()
-                .anyRequest() // 그 외의 모든 요청은 인증이 필요하도록 설정
+                .anyRequest()
                 .authenticated()
             )
 
-            // 로그인 페이지와 관련된 설정을 구성합니다. 
-            // formLogin 메서드를 사용하여 로그인 페이지, 로그인 처리 URL, 사용자 이름 및 비밀번호 매개변수, 로그인 성공 및 실패 시 이동할 URL 등을 설정합니다.
+            // HTML 로그인 폼을 사용한 인증 흐름을 설정한다.
             .formLogin(form -> form
-                .loginPage("/login")
-                .loginProcessingUrl("/login") // 로그인 처리 URL을 설정합니다. 사용자가 로그인 폼을 제출하면 이 URL로 요청이 전송됩니다.
-                .usernameParameter("username")
-                .passwordParameter("password")
-                .defaultSuccessUrl("/main", true) // 로그인 성공 시 이동할 URL을 설정합니다. true를 전달하여 항상 이 URL로 리다이렉트되도록 합니다.
-                .failureUrl("/login?error=true") // 로그인 실패 시 이동할 URL을 설정합니다. 로그인 실패 시 쿼리 파라미터 error=true를 추가하여 로그인 페이지로 리다이렉트됩니다.
+                .loginPage("/login") // 인증되지 않은 사용자가 이동할 로그인 화면
+                .loginProcessingUrl("/login") // 로그인 폼의 POST 요청을 Spring Security가 처리하는 주소
+                .usernameParameter("username") // 로그인 폼에서 사용자 식별자를 담는 input의 name
+                .passwordParameter("password") // 로그인 폼에서 비밀번호를 담는 input의 name
+                .defaultSuccessUrl("/main", true) // 인증 성공 후 이동할 주소
+                .failureUrl("/login?error=true") // 인증 실패 후 이동할 주소
                 .permitAll()
             )
+            // 로그아웃 후 세션을 정리하고 로그인 화면으로 이동한다.
             .logout(logout -> logout
                 .logoutSuccessUrl("/login?logout=true")
                 .permitAll()
