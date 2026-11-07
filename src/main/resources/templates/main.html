@@ -2,119 +2,184 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>어디서 만날래?</title>
-    <link rel="stylesheet" th:href="@{/css/common.css}">
-    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <title>참가자 위치 입력</title>
+    <style>
+        #form-results {
+            display: grid;
+            grid-template-columns: minmax(260px, 320px) minmax(280px, 1fr);
+            gap: 16px;
+            align-items: start;
+        }
+
+        #participants fieldset {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        #participants input {
+            width: 100%;
+        }
+
+        #results {
+            padding: 0 16px;
+            border: 1px solid #aaa;
+        }
+
+        @media (max-width: 700px) {
+            #form-results {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-<!--
-    메인 화면: 전체 화면 지도 위에 UI 를 띄우는 구조라 공통 header/footer 는 쓰지 않는다.
-    로그인/회원가입은 페이지 이동 없이 <dialog> 모달로 띄운다. (static/js/main.js)
--->
-<body class="map-page">
+<body>
+<div id="map" style="width: 100%; height: 70vh;"></div>
+<script th:src="@{https://dapi.kakao.com/v2/maps/sdk.js(appkey=${kakaoJsKey})}"></script>
 
-<!-- 전체 화면 지도 -->
-<div id="map" aria-label="지도"></div>
+	<!-- th:inline="javascript" : 이 <script> 안에서도 Thymeleaf 가 서버 값을 넣어 주도록 켜는 설정
+    (없으면 아래 /*[[...]]*/ 부분이 그대로 브라우저로 가서 주석 취급 → 값이 항상 null.) -->
+	<script th:inline="javascript">
+		var container = document.getElementById('map');
+		var options = {
+			center: new kakao.maps.LatLng(35.117, 128.968),
+			level: 3
+		};
 
-<!-- 상단 바 -->
-<header class="map-topbar">
-    <a th:href="@{/}" class="logo">어디서 만날래?</a>
-    <nav>
-        <a th:href="@{/meetings}">만남 기록</a>
-        <a th:href="@{/places/saved}">관심 장소</a>
-    </nav>
-    <!-- TODO: 로그인 기능을 만들 때 sec:authorize 로 로그인/비로그인 메뉴를 나눈다 -->
-    <div class="auth">
-        <a th:href="@{/login}" data-modal="login" class="btn btn-outline btn-small">로그인</a>
-        <a th:href="@{/signup}" data-modal="signup" class="btn btn-small">회원가입</a>
+        var map = new kakao.maps.Map(container, options); //지도 생성.
+		// 마커 위치들을 모아 둘 범위 상자. 나중에 이 범위가 다 보이게 지도를 맞춘다.
+		var bounds = new kakao.maps.LatLngBounds();
+
+		var meetingLat = /*[[${meetingPoint?.meetingLatitude}]]*/ null; // 얘네 때문에 th:inline="javascript" 를 작성했다.
+		var meetingLng = /*[[${meetingPoint?.meetingLongitude}]]*/ null;
+
+		// 제출해서 중간 지점이 계산된 경우에만 마커를 찍는다.
+		if (meetingLat != null) {
+			var markerPosition = new kakao.maps.LatLng(meetingLat, meetingLng);  // 마커 위치. (위도, 경도 순)
+			var marker = new kakao.maps.Marker({ position: markerPosition });    // 마커 생성.
+			marker.setMap(map);                                                  // 지도 위에 올리기.
+			map.setCenter(markerPosition);                                       // 지도 중심도 중간 지점으로 이동.
+			bounds.extend(markerPosition);                                       // 범위 상자에 중간 지점 추가.
+		}
+        // ── 참가자 위치 마커 ───────────────────────
+		//   참가자 목록을 JS 배열로 받는다.
+		//   participantForm 은 컨트롤러의 @ModelAttribute 가 화면에 자동으로 넘겨 주는 폼 객체를 사용했음.
+		//   나중에 컨트롤러 39번 줄 주석을 풀면, 화면의 participantForm?.participants를 participants로 바꾸기만 하면 됨.
+		//   서버가 처리하면 [{"participantName":"철수","latitude":37.5,"longitude":127.0}, ...] 모양이 된다.
+
+		var participantList = /*[[${participantForm?.participants}]]*/ []; // 아래 +/- 버튼 코드의 participants 와 이름이 겹치면 버튼이 동작하지 않아서 participantList 로 지음.
+
+		// 참가자 수만큼 반복.
+		for (var i = 0; i < participantList.length; i++) { // participantList.length 는 참가자 수, participantList[i] 는 i 번째 참가자. (0부터 셈.)
+
+			// 처음 접속하면 빈 입력칸(위도·경도 null)이 2개 있으므로 건너뛴다.
+			if (participantList[i].latitude == null || participantList[i].longitude == null) {
+				continue;
+			}
+
+			// 마커 생성. map: map 으로 바로 지도에 올린다.
+			var marker = new kakao.maps.Marker({
+				map: map,                                                                              // 마커를 표시할 지도.
+				position: new kakao.maps.LatLng(participantList[i].latitude, participantList[i].longitude),  // 참가자 위치. (위도, 경도 순.)
+				title: participantList[i].participantName                                                    // 마우스를 올리면 이름 표시.
+			});
+
+            bounds.extend(marker.getPosition()); // 범위 상자에 방금 만든 마커의 위치 추가.
+		}
+        // 범위 상자에 좌표가 하나라도 있으면 그 좌표들이 다 보이게 지도 범위를 맞춘다.
+		// 처음 접속하면 상자가 비어 있으므로 건너뛴다.
+		if (!bounds.isEmpty()) {
+			map.setBounds(bounds); // 지도의 중심과 확대 레벨이 자동으로 바뀐다.
+		}
+	</script>
+<hr>
+<div id="form-results">
+<form th:action="@{/main}" th:object="${participantForm}" method="post">
+    <div id="participants">
+        <fieldset>
+            <legend>참가자 1</legend>
+            <input type="text" th:field="*{participants[0].participantName}" placeholder="이름" required>
+            <input type="number" step="any" th:field="*{participants[0].latitude}" placeholder="위도" required>
+            <input type="number" step="any" th:field="*{participants[0].longitude}" placeholder="경도" required>
+        </fieldset>
+
+        <fieldset>
+            <legend>참가자 2</legend>
+            <input type="text" th:field="*{participants[1].participantName}" placeholder="이름" required>
+            <input type="number" step="any" th:field="*{participants[1].latitude}" placeholder="위도" required>
+            <input type="number" step="any" th:field="*{participants[1].longitude}" placeholder="경도" required>
+        </fieldset>
     </div>
-</header>
 
-<!-- 검색 패널 -->
-<aside class="search-panel">
-    <h1>어디서 만날래?</h1>
-    <p class="muted panel-desc">출발 위치를 입력하면 모두에게 공평한 만남 장소를 찾아드려요.</p>
+    <button type="button" id="removeParticipant">-</button>
+    <button type="button" id="addParticipant">+</button>
+    <button type="submit">제출</button>
+</form>
 
-    <!-- TODO: 다음 단계에서 서버가 좌표 변환 → 중간 지점 계산 → 장소 검색을 처리한다 -->
-    <form id="searchForm" th:action="@{/result}" method="get" novalidate>
-        <div class="form-group">
-            <label>출발 위치 <span class="muted" id="participantCount">(2/5명)</span></label>
-            <div class="form-hint participant-hint">참가자 이름과 출발 위치의 위도·경도를 입력하세요. 예) 서울시청 37.5665, 126.9780</div>
-            <!--
-                name 은 participants[번호].participantName / .latitude / .longitude 형식이다.
-                (서버에서 List<ParticipantLocation> 으로 바로 받을 수 있는 형식, 번호는 main.js 가 추가/삭제 때마다 다시 매긴다)
-            -->
-            <ol id="participantList" class="participant-list">
-                <li class="participant-row">
-                    <span class="participant-no">1</span>
-                    <div class="participant-fields">
-                        <input type="text" class="participant-name" name="participants[0].participantName" maxlength="20"
-                               placeholder="이름" aria-label="참가자 1 이름">
-                        <input type="number" class="participant-lat" name="participants[0].latitude"
-                               step="any" min="-90" max="90" inputmode="decimal"
-                               placeholder="위도" aria-label="참가자 1 위도">
-                        <input type="number" class="participant-lng" name="participants[0].longitude"
-                               step="any" min="-180" max="180" inputmode="decimal"
-                               placeholder="경도" aria-label="참가자 1 경도">
-                    </div>
-                    <button type="button" class="remove-btn" aria-label="참가자 1 삭제">&times;</button>
-                </li>
-                <li class="participant-row">
-                    <span class="participant-no">2</span>
-                    <div class="participant-fields">
-                        <input type="text" class="participant-name" name="participants[1].participantName" maxlength="20"
-                               placeholder="이름" aria-label="참가자 2 이름">
-                        <input type="number" class="participant-lat" name="participants[1].latitude"
-                               step="any" min="-90" max="90" inputmode="decimal"
-                               placeholder="위도" aria-label="참가자 2 위도">
-                        <input type="number" class="participant-lng" name="participants[1].longitude"
-                               step="any" min="-180" max="180" inputmode="decimal"
-                               placeholder="경도" aria-label="참가자 2 경도">
-                    </div>
-                    <button type="button" class="remove-btn" aria-label="참가자 2 삭제">&times;</button>
-                </li>
-            </ol>
-            <button type="button" id="addParticipant" class="btn btn-outline btn-small btn-block">+ 참가자 추가</button>
-            <div id="participantError" class="field-error" hidden></div>
-        </div>
-
-        <div class="form-group">
-            <label for="keyword">장소 종류</label>
-            <div class="chips" role="group" aria-label="자주 찾는 장소 종류">
-                <button type="button" class="chip" data-keyword="카페">카페</button>
-                <button type="button" class="chip" data-keyword="음식점">음식점</button>
-                <button type="button" class="chip" data-keyword="PC방">PC방</button>
-                <button type="button" class="chip" data-keyword="술집">술집</button>
-            </div>
-            <input type="text" id="keyword" name="keyword" placeholder="직접 입력 (예: 보드게임카페)">
-            <div id="keywordError" class="field-error" hidden></div>
-        </div>
-
-        <button type="submit" class="btn btn-block">중간 장소 찾기</button>
-    </form>
-</aside>
-
-<!-- 지도 위 알림 (API 키 오류 등) -->
-<div id="mapToast" class="map-toast" role="status" hidden></div>
-
-<!-- 로그인 / 회원가입 모달 -->
-<dialog id="loginModal" class="auth-modal" aria-label="로그인">
-    <div class="modal-body">
-        <button type="button" class="modal-close" data-close aria-label="닫기">&times;</button>
-        <div th:replace="~{fragments/auth :: loginForm}"></div>
+<section id="results" th:if="${meetingPoint != null}">
+    <!-- 참가자의 이름과 위치를 표시하는 부분
+    <div th:each="participant, stat : ${participants}">
+        <h3 th:text="|참가자 ${stat.count}|"></h3>
+        <p>이름: <span th:text="${participant.participantName}"></span></p>
+        <p>위도: <span th:text="${participant.latitude}"></span></p>
+        <p>경도: <span th:text="${participant.longitude}"></span></p>
     </div>
-</dialog>
+    -->
+    <h3>참가자 평균 위치</h3>
+    <p>평균 위도: <span th:text="${meetingPoint.meetingLatitude}"></span></p>
+    <p>평균 경도: <span th:text="${meetingPoint.meetingLongitude}"></span></p>
+</section>
+</div>
 
-<dialog id="signupModal" class="auth-modal" aria-label="회원가입">
-    <div class="modal-body">
-        <button type="button" class="modal-close" data-close aria-label="닫기">&times;</button>
-        <div th:replace="~{fragments/auth :: signupForm}"></div>
-    </div>
-</dialog>
+<script>
+    const participants = document.getElementById("participants");
+    const addButton = document.getElementById("addParticipant");
+    const removeButton = document.getElementById("removeParticipant");
+    const minParticipants = 2;
+    const maxParticipants = 5;
 
-<script th:inline="javascript">
-    window.KAKAO_JS_KEY = /*[[${kakaoJsKey}]]*/ '';
+    function updateButtons() {
+        const count = participants.children.length;
+        addButton.disabled = count >= maxParticipants;
+        removeButton.disabled = count <= minParticipants;
+    }
+
+    addButton.addEventListener("click", () => {
+        const index = participants.children.length;
+        const fieldset = document.createElement("fieldset");
+        const legend = document.createElement("legend");
+        legend.textContent = `참가자 ${index + 1}`;
+        fieldset.appendChild(legend);
+
+        [
+            { property: "participantName", type: "text", placeholder: "이름" },
+            { property: "latitude", type: "number", placeholder: "위도" },
+            { property: "longitude", type: "number", placeholder: "경도" }
+        ].forEach((field) => {
+            const input = document.createElement("input");
+            input.type = field.type;
+            input.name = `participants[${index}].${field.property}`;
+            input.placeholder = field.placeholder;
+            input.required = true;
+            if (field.type === "number") {
+                input.step = "any";
+            }
+            fieldset.appendChild(input);
+            fieldset.appendChild(document.createTextNode(" "));
+        });
+
+        participants.appendChild(fieldset);
+        updateButtons();
+    });
+
+    removeButton.addEventListener("click", () => {
+        if (participants.children.length > minParticipants) {
+            participants.lastElementChild.remove();
+            updateButtons();
+        }
+    });
+
+    updateButtons();
 </script>
-<script th:src="@{/js/main.js}"></script>
 </body>
 </html>
