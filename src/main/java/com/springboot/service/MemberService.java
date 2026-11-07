@@ -12,7 +12,7 @@ public class MemberService {
     
     private final MemberRepository memberRepository; // 회원 정보를 관리하는 Repository
     private final PasswordEncoder passwordEncoder; // 비밀번호 암호화를 위한 PasswordEncoder
-
+    
     public MemberService(MemberRepository memberRepository,
             PasswordEncoder passwordEncoder) {
         this.memberRepository = memberRepository;
