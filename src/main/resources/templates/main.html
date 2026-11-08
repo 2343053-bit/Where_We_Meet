@@ -37,7 +37,8 @@
 <a href="/login">로그인</a>
 <a href="/signup">회원가입</a>
 <div id="map" style="width: 100%; height: 70vh;"></div>
-<script th:src="@{https://dapi.kakao.com/v2/maps/sdk.js(appkey=${kakaoJsKey})}"></script>
+<!-- 장소 검색 기능은 기본 지도에 들어 있지 않아서 libraries='services' 를 추가해야 한다. -->
+<script th:src="@{https://dapi.kakao.com/v2/maps/sdk.js(appkey=${kakaoJsKey},libraries='services')}"></script>
 
 	<!-- th:inline="javascript" : 이 <script> 안에서도 Thymeleaf 가 서버 값을 넣어 주도록 켜는 설정
     (없으면 아래 /*[[...]]*/ 부분이 그대로 브라우저로 가서 주석 취급 → 값이 항상 null.) -->
@@ -114,6 +115,43 @@
 		// 처음 접속하면 상자가 비어 있으므로 건너뛴다.
 		if (!bounds.isEmpty()) {
 			map.setBounds(bounds); // 지도의 중심과 확대 레벨이 자동으로 바뀐다.
+		}
+
+        // ── 중간 지점 주변 장소 검색 ───────────────────────
+		if (meetingLat != null) {
+			var placeInfowindow = new kakao.maps.InfoWindow({ zIndex: 1 }); // 장소 마커를 클릭하면 장소 이름을 보여 줄 말풍선. (하나를 돌려 씀) zIndex 는 다른 말풍선보다 위에 보이게.
+			var ps = new kakao.maps.services.Places();                       // 장소 검색 객체 생성.
+
+			// '카페' 를 검색한다. 검색이 끝나면 placesSearchCB 함수가 실행된다. (콜백)
+			ps.keywordSearch('카페', placesSearchCB, {                       // 지금은 '카페' 고정. 폼에 장소 종류 입력칸(keyword)이 생기면 '카페' 대신 participantForm 의 keyword 값을 넣도록 바꾼다.
+			                                                                 // (주의: th:inline 안에서는 주석 속에 서버 값 넣는 대괄호 두 개 문법을 쓰면 Thymeleaf 가 실제로 실행해서 에러가 난다.)
+				location: new kakao.maps.LatLng(meetingLat, meetingLng),     // 검색 기준 위치. (중간 지점)
+				radius: 1000,                                                // 기준 위치에서 1000m 안에서만 찾는다.
+				sort: kakao.maps.services.SortBy.DISTANCE                    // 가까운 순서로 정렬한다.
+			});
+		}
+
+		// 검색이 끝나면 카카오가 호출해 주는 함수. data = 검색된 장소 목록, status = 검색 결과 상태.
+		function placesSearchCB(data, status, pagination) {
+			if (status === kakao.maps.services.Status.OK) {   // 검색 결과가 있을 때만.
+				for (var i = 0; i < data.length; i++) {        // 검색된 장소 수만큼 반복.
+					displayMarker(data[i]);                    // i 번째 장소의 마커를 만든다.
+				}
+			}
+		}
+
+		// 장소 하나(place)를 받아 지도에 마커를 표시하는 함수.
+		function displayMarker(place) {
+			var marker = new kakao.maps.Marker({
+				map: map,                                                // 마커를 표시할 지도.
+				position: new kakao.maps.LatLng(place.y, place.x)        // 장소 위치. y 가 위도, x 가 경도라서 y 를 먼저 넣는다. LatLng 얘 위도부터받음.
+			});
+
+			// 마커를 클릭하면 장소 이름을 말풍선에 보여 준다.
+			kakao.maps.event.addListener(marker, 'click', function() {
+				placeInfowindow.setContent('<div style="padding:5px;font-size:12px;">' + place.place_name + '</div>'); // 말풍선 내용을 이 장소 이름으로 바꾼다.
+				placeInfowindow.open(map, marker);                                                                     // 클릭한 마커 위에 연다.
+			});
 		}
 	</script>
 <hr>
