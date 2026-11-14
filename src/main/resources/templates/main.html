@@ -43,6 +43,56 @@
 <!-- 다음(카카오) 우편번호 서비스. "주소 검색" 버튼을 누르면 뜨는 주소 검색 팝업(daum.Postcode)을 쓰려고 추가했다. (키 필요 없음) -->
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 
+<hr>
+<div id="form-results">
+<!-- id="participantForm" : 아래 스크립트에서 제출 이벤트를 가로채려고 폼에 id 를 붙였다. -->
+<form id="participantForm" th:action="@{/main}" th:object="${participantForm}" method="post">
+    <div id="participants">
+        <!-- 위도·경도를 직접 입력하던 칸을 주소 입력칸 + 주소 검색 버튼으로 바꿨다.
+        - 주소 칸(.address) : 주소 검색 팝업으로만 채운다. (readonly → 직접 입력 금지)
+                              name 이 없어서 서버로는 전송되지 않는다. (ParticipantLocation 에 address 필드가 없음)
+        - 위도·경도 칸     : type="hidden" 으로 숨겨 두고, 제출할 때 스크립트가 주소를 좌표로 바꿔서 채운다.
+                              서버는 기존처럼 위도·경도만 받으므로 컨트롤러는 수정할 필요가 없다. -->
+        <fieldset>
+            <legend>참가자 1</legend>
+            <input type="text" th:field="*{participants[0].participantName}" placeholder="이름" required>
+            <input type="text" class="address" placeholder="주소 (예: 부산 사하구 낙동대로 550)" readonly required>
+            <button type="button" class="searchAddress">주소 검색</button>
+            <input type="hidden" th:field="*{participants[0].latitude}">
+            <input type="hidden" th:field="*{participants[0].longitude}">
+        </fieldset>
+
+        <fieldset>
+            <legend>참가자 2</legend>
+            <input type="text" th:field="*{participants[1].participantName}" placeholder="이름" required>
+            <input type="text" class="address" placeholder="주소 (예: 부산 사하구 낙동대로 550)" readonly required>
+            <button type="button" class="searchAddress">주소 검색</button>
+            <input type="hidden" th:field="*{participants[1].latitude}">
+            <input type="hidden" th:field="*{participants[1].longitude}">
+        </fieldset>
+    </div>
+
+    <button type="button" id="removeParticipant">-</button>
+    <button type="button" id="addParticipant">+</button>
+    <button type="submit">제출</button>
+</form>
+
+<section id="results" th:if="${meetingPoint != null}">
+    <!-- 참가자의 이름과 위치를 표시하는 부분
+    <div th:each="participant, stat : ${participants}">
+        <h3 th:text="|참가자 ${stat.count}|"></h3>
+        <p>이름: <span th:text="${participant.participantName}"></span></p>
+        <p>위도: <span th:text="${participant.latitude}"></span></p>
+        <p>경도: <span th:text="${participant.longitude}"></span></p>
+    </div>
+    -->
+    <h3>참가자 평균 위치</h3>
+    <p>평균 위도: <span th:text="${meetingPoint.meetingLatitude}"></span></p>
+    <p>평균 경도: <span th:text="${meetingPoint.meetingLongitude}"></span></p>
+</section>
+</div>
+<!-- 지도 스크립트는 반드시 폼 "뒤"에 둔다. 폼 앞에 긴 스크립트가 있으면 Thymeleaf 가 화면을 먼저 보내 버려서
+     폼의 보안 토큰(CSRF)을 못 만들고 화면이 잘린다. ("Cannot create a session after the response has been committed") -->
 	<!-- th:inline="javascript" : 이 <script> 안에서도 Thymeleaf 가 서버 값을 넣어 주도록 켜는 설정
     (없으면 아래 /*[[...]]*/ 부분이 그대로 브라우저로 가서 주석 취급 → 값이 항상 null.) -->
 	<script th:inline="javascript">
@@ -208,55 +258,6 @@
 			});
 		}
 	</script>
-<hr>
-<div id="form-results">
-<!-- id="participantForm" : 아래 스크립트에서 제출 이벤트를 가로채려고 폼에 id 를 붙였다. -->
-<form id="participantForm" th:action="@{/main}" th:object="${participantForm}" method="post">
-    <div id="participants">
-        <!-- 위도·경도를 직접 입력하던 칸을 주소 입력칸 + 주소 검색 버튼으로 바꿨다.
-        - 주소 칸(.address) : 주소 검색 팝업으로만 채운다. (readonly → 직접 입력 금지)
-                              name 이 없어서 서버로는 전송되지 않는다. (ParticipantLocation 에 address 필드가 없음)
-        - 위도·경도 칸     : type="hidden" 으로 숨겨 두고, 제출할 때 스크립트가 주소를 좌표로 바꿔서 채운다.
-                              서버는 기존처럼 위도·경도만 받으므로 컨트롤러는 수정할 필요가 없다. -->
-        <fieldset>
-            <legend>참가자 1</legend>
-            <input type="text" th:field="*{participants[0].participantName}" placeholder="이름" required>
-            <input type="text" class="address" placeholder="주소 (예: 부산 사하구 낙동대로 550)" readonly required>
-            <button type="button" class="searchAddress">주소 검색</button>
-            <input type="hidden" th:field="*{participants[0].latitude}">
-            <input type="hidden" th:field="*{participants[0].longitude}">
-        </fieldset>
-
-        <fieldset>
-            <legend>참가자 2</legend>
-            <input type="text" th:field="*{participants[1].participantName}" placeholder="이름" required>
-            <input type="text" class="address" placeholder="주소 (예: 부산 사하구 낙동대로 550)" readonly required>
-            <button type="button" class="searchAddress">주소 검색</button>
-            <input type="hidden" th:field="*{participants[1].latitude}">
-            <input type="hidden" th:field="*{participants[1].longitude}">
-        </fieldset>
-    </div>
-
-    <button type="button" id="removeParticipant">-</button>
-    <button type="button" id="addParticipant">+</button>
-    <button type="submit">제출</button>
-</form>
-
-<section id="results" th:if="${meetingPoint != null}">
-    <!-- 참가자의 이름과 위치를 표시하는 부분
-    <div th:each="participant, stat : ${participants}">
-        <h3 th:text="|참가자 ${stat.count}|"></h3>
-        <p>이름: <span th:text="${participant.participantName}"></span></p>
-        <p>위도: <span th:text="${participant.latitude}"></span></p>
-        <p>경도: <span th:text="${participant.longitude}"></span></p>
-    </div>
-    -->
-    <h3>참가자 평균 위치</h3>
-    <p>평균 위도: <span th:text="${meetingPoint.meetingLatitude}"></span></p>
-    <p>평균 경도: <span th:text="${meetingPoint.meetingLongitude}"></span></p>
-</section>
-</div>
-
 <script>
     const participants = document.getElementById("participants");
     const addButton = document.getElementById("addParticipant");
