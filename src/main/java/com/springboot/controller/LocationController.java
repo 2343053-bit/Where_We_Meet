@@ -37,7 +37,12 @@ public class LocationController {
         MeetingPoint result = meetingPointService.findMeetingPoint(participantForm.getParticipants());
         model.addAttribute("meetingPoint", result); // 중간 지점 정보를 모델에 추가
         //model.addAttribute("participants", participantForm.getParticipants()); // 참가자 위치 정보를 모델에 추가
-        model.addAttribute("kakaoJsKey", kakaoJsKey); // Kakao JavaScript 키를 모델에 추가
+        //model.addAttribute("kakaoJsKey", kakaoJsKey); // Kakao JavaScript 키를 모델에 추가
         return "main";
+    }
+
+    @ModelAttribute 
+    public void addAttributes(Model model) {
+        model.addAttribute("kakaoJsKey", kakaoJsKey);
     }
 }
