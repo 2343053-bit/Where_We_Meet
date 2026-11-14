@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>참가자 위치 입력</title>
+    <style>
+        #form-results {
+            display: grid;
+            grid-template-columns: minmax(260px, 320px) minmax(280px, 1fr);
+            gap: 16px;
+            align-items: start;
+        }
+
+        #participants fieldset {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        #participants input {
+            width: 100%;
+        }
+
+        #results {
+            padding: 0 16px;
+            border: 1px solid #aaa;
+        }
+
+        @media (max-width: 700px) {
+            #form-results {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<a href="/login">로그인</a>
+<a href="/signup">회원가입</a>
+<div id="map" style="width: 100%; height: 70vh;"></div>
+<!-- 장소 검색 기능은 기본 지도에 들어 있지 않아서 libraries='services' 를 추가해야 한다. -->
+<script th:src="@{https://dapi.kakao.com/v2/maps/sdk.js(appkey=${kakaoJsKey},libraries='services')}"></script>
+
+	<!-- th:inline="javascript" : 이 <script> 안에서도 Thymeleaf 가 서버 값을 넣어 주도록 켜는 설정
+    (없으면 아래 /*[[...]]*/ 부분이 그대로 브라우저로 가서 주석 취급 → 값이 항상 null.) -->
+	<script th:inline="javascript">
+		var container = document.getElementById('map');
+		var options = {
+			center: new kakao.maps.LatLng(35.117, 128.968),
+			level: 3
+		};
+
+        var map = new kakao.maps.Map(container, options); //지도 생성.
+		// 마커 위치들을 모아 둘 범위 상자. 나중에 이 범위가 다 보이게 지도를 맞춘다.
+		var bounds = new kakao.maps.LatLngBounds();
+
+		var meetingLat = /*[[${meetingPoint?.meetingLatitude}]]*/ null; // 얘네 때문에 th:inline="javascript" 를 작성했다.
+		var meetingLng = /*[[${meetingPoint?.meetingLongitude}]]*/ null;
+
+		// 제출해서 중간 지점이 계산된 경우에만 마커를 찍는다.
+		if (meetingLat != null) {
+			var markerPosition = new kakao.maps.LatLng(meetingLat, meetingLng);  // 마커 위치. (위도, 경도 순) ← 마커보다 먼저 만들어야 한다.
+
+			// 중간 지점은 노란 마커 이미지로 표시해서 참가자 마커(기본 파란 마커)와 구분한다.
+			var imageSrc = 'https://t1.kakaocdn.net/localimg/localimages/07/mapapidoc/markerStar.png'; // 마커 이미지 주소. (카카오 샘플의 노란 별 마커) 
+            // 다른 그림을 쓰려면 위 줄과 아래 두 줄(크기, offset)을 그림에 맞게 바꾼다.
+            var imageSize = new kakao.maps.Size(24, 35);                    // 마커 이미지 크기. (가로, 세로 px)
+			var imageOption = { offset: new kakao.maps.Point(12, 35) };     // 이미지의 어느 점을 좌표에 맞출지. (가로 가운데 12, 맨 아래 35 = 핀의 뾰족한 끝)
+			var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);           // 마커 이미지 생성.
+			var marker = new kakao.maps.Marker({ position: markerPosition, image: markerImage });     // 마커 생성.
+
+			marker.setMap(map);                                                  // 지도 위에 올리기.
+			map.setCenter(markerPosition);                                       // 지도 중심도 중간 지점으로 이동.
+			bounds.extend(markerPosition);                                       // 범위 상자에 중간 지점 추가.
+
+            // 중간 지점 마커 위에 "중간 지점" 말풍선 표시.
+			var infowindow = new kakao.maps.InfoWindow({
+				position: markerPosition,                             // 말풍선 위치.
+				content: '<div style="padding:5px;">중간 지점</div>' // 말풍선 내용. -----------------------추후 html 태그로 바꿔서 참가자 이름과 평균 위치를 표시하도록 수정 가능.
+			});
+			infowindow.open(map, marker);                             // marker 위에 말풍선 열기.
+		}
+        // ── 참가자 위치 마커 ───────────────────────
+		//   참가자 목록을 JS 배열로 받는다.
+		//   participantForm 은 컨트롤러의 @ModelAttribute 가 화면에 자동으로 넘겨 주는 폼 객체를 사용했음.
+		//   나중에 컨트롤러 39번 줄 주석을 풀면, 화면의 participantForm?.participants를 participants로 바꾸기만 하면 됨.
+		//   서버가 처리하면 [{"participantName":"철수","latitude":37.5,"longitude":127.0}, ...] 모양이 된다.
+
+		var participantList = /*[[${participantForm?.participants}]]*/ []; // 아래 +/- 버튼 코드의 participants 와 이름이 겹치면 버튼이 동작하지 않아서 participantList 로 지음.
+
+		// 참가자 수만큼 반복.
+		for (var i = 0; i < participantList.length; i++) { // participantList.length 는 참가자 수, participantList[i] 는 i 번째 참가자. (0부터 셈.)
+
+			// 처음 접속하면 빈 입력칸(위도·경도 null)이 2개 있으므로 건너뛴다.
+			if (participantList[i].latitude == null || participantList[i].longitude == null) {
+				continue;
+			}
+
+			// 마커 생성. map: map 으로 바로 지도에 올린다.
+			var marker = new kakao.maps.Marker({
+				map: map,                                                                              // 마커를 표시할 지도.
+				position: new kakao.maps.LatLng(participantList[i].latitude, participantList[i].longitude),  // 참가자 위치. (위도, 경도 순.)
+				title: participantList[i].participantName                                                    // 마우스를 올리면 이름 표시.
+			});
+
+            bounds.extend(marker.getPosition()); // 범위 상자에 방금 만든 마커의 위치 추가.
+
+			// 참가자 마커 위에 이름 말풍선 표시.
+			var infowindow = new kakao.maps.InfoWindow({
+				position: marker.getPosition(),                                                         // 말풍선 위치.
+				content: '<div style="padding:5px;">' + participantList[i].participantName + '</div>'  // 말풍선 내용. 이름을 글자 사이에 끼워 넣음.
+			});
+			infowindow.open(map, marker);                                                               // marker 위에 말풍선 열기.
+		}
+        // 범위 상자에 좌표가 하나라도 있으면 그 좌표들이 다 보이게 지도 범위를 맞춘다.
+		// 처음 접속하면 상자가 비어 있으므로 건너뛴다.
+		if (!bounds.isEmpty()) {
+			map.setBounds(bounds); // 지도의 중심과 확대 레벨이 자동으로 바뀐다.
+		}
+
+        // ── 중간 지점 주변 장소 검색 ───────────────────────
+		if (meetingLat != null) {
+			var placeInfowindow = new kakao.maps.InfoWindow({ zIndex: 1 }); // 장소 마커를 클릭하면 장소 이름을 보여 줄 말풍선. (하나를 돌려 씀) zIndex 는 다른 말풍선보다 위에 보이게.
+			var ps = new kakao.maps.services.Places();                       // 장소 검색 객체 생성.
+
+			// '카페' 를 검색한다. 검색이 끝나면 placesSearchCB 함수가 실행된다. (콜백)
+			ps.keywordSearch('카페', placesSearchCB, {                       // 지금은 '카페' 고정. 폼에 장소 종류 입력칸(keyword)이 생기면 '카페' 대신 participantForm 의 keyword 값을 넣도록 바꾼다.
+			                                                                 // (주의: th:inline 안에서는 주석 속에 서버 값 넣는 대괄호 두 개 문법을 쓰면 Thymeleaf 가 실제로 실행해서 에러가 난다.)
+				location: new kakao.maps.LatLng(meetingLat, meetingLng),     // 검색 기준 위치. (중간 지점)
+				radius: 1000,                                                // 기준 위치에서 1000m 안에서만 찾는다.
+				sort: kakao.maps.services.SortBy.DISTANCE                    // 가까운 순서로 정렬한다.
+			});
+		}
+
+		// 검색이 끝나면 카카오가 호출해 주는 함수. data = 검색된 장소 목록, status = 검색 결과 상태.
+		function placesSearchCB(data, status, pagination) {
+			if (status === kakao.maps.services.Status.OK) {   // 검색 결과가 있을 때만.
+				for (var i = 0; i < data.length; i++) {        // 검색된 장소 수만큼 반복.
+					displayMarker(data[i]);                    // i 번째 장소의 마커를 만든다.
+				}
+			}
+		}
+
+		// 장소 하나(place)를 받아 지도에 마커를 표시하는 함수.
+		function displayMarker(place) {
+			var marker = new kakao.maps.Marker({
+				map: map,                                                // 마커를 표시할 지도.
+				position: new kakao.maps.LatLng(place.y, place.x)        // 장소 위치. y 가 위도, x 가 경도라서 y 를 먼저 넣는다. LatLng 얘 위도부터받음.
+			});
+
+			// 마커를 클릭하면 장소 이름을 말풍선에 보여 준다.
+			kakao.maps.event.addListener(marker, 'click', function() {
+				placeInfowindow.setContent('<div style="padding:5px;font-size:12px;">' + place.place_name + '</div>'); // 말풍선 내용을 이 장소 이름으로 바꾼다.
+				placeInfowindow.open(map, marker);                                                                     // 클릭한 마커 위에 연다.
+			});
+		}
+	</script>
+<hr>
+<div id="form-results">
+<form id="participantForm" th:action="@{/main}" th:object="${participantForm}" method="post">
+    <div id="participants">
+        <fieldset>
+            <legend>참가자 1</legend>
+            <input type="text" th:field="*{participants[0].participantName}" placeholder="이름" required>
+            <input type="text" class="address" placeholder="주소 (예: 부산 사하구 낙동대로 550)" required>
+            <input type="hidden" th:field="*{participants[0].latitude}">
+            <input type="hidden" th:field="*{participants[0].longitude}">
+        </fieldset>
+
+        <fieldset>
+            <legend>참가자 2</legend>
+            <input type="text" th:field="*{participants[1].participantName}" placeholder="이름" required>
+            <input type="text" class="address" placeholder="주소 (예: 부산 사하구 낙동대로 550)" required>
+            <input type="hidden" th:field="*{participants[1].latitude}">
+            <input type="hidden" th:field="*{participants[1].longitude}">
+        </fieldset>
+    </div>
+
+    <button type="button" id="removeParticipant">-</button>
+    <button type="button" id="addParticipant">+</button>
+    <button type="submit">제출</button>
+</form>
+
+<section id="results" th:if="${meetingPoint != null}">
+    <!-- 참가자의 이름과 위치를 표시하는 부분
+    <div th:each="participant, stat : ${participants}">
+        <h3 th:text="|참가자 ${stat.count}|"></h3>
+        <p>이름: <span th:text="${participant.participantName}"></span></p>
+        <p>위도: <span th:text="${participant.latitude}"></span></p>
+        <p>경도: <span th:text="${participant.longitude}"></span></p>
+    </div>
+    -->
+    <h3>참가자 평균 위치</h3>
+    <p>평균 위도: <span th:text="${meetingPoint.meetingLatitude}"></span></p>
+    <p>평균 경도: <span th:text="${meetingPoint.meetingLongitude}"></span></p>
+</section>
+</div>
+
+<script>
+    const participants = document.getElementById("participants");
+    const addButton = document.getElementById("addParticipant");
+    const removeButton = document.getElementById("removeParticipant");
+    const minParticipants = 2;
+    const maxParticipants = 5;
+
+    function updateButtons() {
+        const count = participants.children.length;
+        addButton.disabled = count >= maxParticipants;
+        removeButton.disabled = count <= minParticipants;
+    }
+
+    addButton.addEventListener("click", () => {
+        const index = participants.children.length;
+        const fieldset = document.createElement("fieldset");
+        const legend = document.createElement("legend");
+        legend.textContent = `참가자 ${index + 1}`;
+        fieldset.appendChild(legend);
+
+        [
+            { property: "participantName", type: "text",   placeholder: "이름" },
+            { property: "address",         type: "text",   placeholder: "주소" },
+            { property: "latitude",        type: "hidden" },
+             { property: "longitude",       type: "hidden" }
+        ].forEach((field) => {
+            const input = document.createElement("input");
+            input.type = field.type;
+            input.name = `participants[${index}].${field.property}`;
+            input.placeholder = field.placeholder;
+            input.required = true;
+            if (field.type === "number") {
+                input.step = "any";
+            }
+            fieldset.appendChild(input);
+            fieldset.appendChild(document.createTextNode(" "));
+        });
+
+        participants.appendChild(fieldset);
+        updateButtons();
+    });
+
+    removeButton.addEventListener("click", () => {
+        if (participants.children.length > minParticipants) {
+            participants.lastElementChild.remove();
+            updateButtons();
+        }
+    });
+
+    updateButtons();
+
+    const form = document.getElementById("participantForm");
+    const geocoder = new kakao.maps.services.Geocoder();
+
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();                                   // 일단 제출을 막는다.
+        const fieldsets = participants.querySelectorAll("fieldset");
+        let done = 0;
+        let failed = false;
+
+        fieldsets.forEach((fs, i) => {
+            const address = fs.querySelector(".address").value;
+            geocoder.addressSearch(address, (result, status) => {   // 비동기: 결과가 나중에 온다.
+                if (failed) return;
+                if (status !== kakao.maps.services.Status.OK) {
+                    failed = true;
+                    alert(`참가자 ${i + 1}의 주소를 찾을 수 없습니다.`);
+                    return;
+                }
+                fs.querySelector(`[name="participants[${i}].latitude"]`).value  = result[0].y; // y = 위도
+                fs.querySelector(`[name="participants[${i}].longitude"]`).value = result[0].x; // x = 경도
+                done++;
+                if (done === fieldsets.length) form.submit();     // 전부 끝나면 진짜 제출.
+            });
+        });
+    });
+
+
+</script>
+</body>
+</html>
