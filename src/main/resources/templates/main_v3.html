@@ -39,6 +39,7 @@
 <div id="map" style="width: 100%; height: 70vh;"></div>
 <!-- 장소 검색 기능은 기본 지도에 들어 있지 않아서 libraries='services' 를 추가해야 한다. -->
 <script th:src="@{https://dapi.kakao.com/v2/maps/sdk.js(appkey=${kakaoJsKey},libraries='services')}"></script>
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 
 	<!-- th:inline="javascript" : 이 <script> 안에서도 Thymeleaf 가 서버 값을 넣어 주도록 켜는 설정
     (없으면 아래 /*[[...]]*/ 부분이 그대로 브라우저로 가서 주석 취급 → 값이 항상 null.) -->
@@ -161,7 +162,8 @@
         <fieldset>
             <legend>참가자 1</legend>
             <input type="text" th:field="*{participants[0].participantName}" placeholder="이름" required>
-            <input type="text" class="address" placeholder="주소 (예: 부산 사하구 낙동대로 550)" required>
+            <input type="text" class="address" placeholder="주소 (예: 부산 사하구 낙동대로 550)" readonly required>
+            <button type="button" class="searchAddress">주소 검색</button>
             <input type="hidden" th:field="*{participants[0].latitude}">
             <input type="hidden" th:field="*{participants[0].longitude}">
         </fieldset>
@@ -169,7 +171,8 @@
         <fieldset>
             <legend>참가자 2</legend>
             <input type="text" th:field="*{participants[1].participantName}" placeholder="이름" required>
-            <input type="text" class="address" placeholder="주소 (예: 부산 사하구 낙동대로 550)" required>
+            <input type="text" class="address" placeholder="주소 (예: 부산 사하구 낙동대로 550)" readonly required>
+            <button type="button" class="searchAddress">주소 검색</button>
             <input type="hidden" th:field="*{participants[1].latitude}">
             <input type="hidden" th:field="*{participants[1].longitude}">
         </fieldset>
@@ -224,12 +227,25 @@
             const input = document.createElement("input");
             input.type = field.type;
             input.name = `participants[${index}].${field.property}`;
-            input.placeholder = field.placeholder;
-            input.required = true;
-            if (field.type === "number") {
-                input.step = "any";
+
+            if (field.type !== "hidden") {            // 숨김 칸에는 placeholder 와 required 를 붙이지 않는다.
+                input.placeholder = field.placeholder;
+                input.required = true;
             }
+
             fieldset.appendChild(input);
+
+            if (field.property === "address") {       // 주소 칸이면
+                input.className = "address";          // 제출 코드가 이 클래스로 찾는다.
+                input.readOnly = true;                // 직접 입력 금지
+
+                const searchButton = document.createElement("button");
+                searchButton.type = "button";         // 없으면 누를 때 폼이 제출된다.
+                searchButton.className = "searchAddress";
+                searchButton.textContent = "주소 검색";
+                fieldset.appendChild(searchButton);   // 주소 칸 바로 뒤에 버튼
+            }
+
             fieldset.appendChild(document.createTextNode(" "));
         });
 
@@ -257,6 +273,11 @@
 
         fieldsets.forEach((fs, i) => {
             const address = fs.querySelector(".address").value;
+            if (!address) {                                     // readonly 칸은 required 검사가 안 되므로 직접 확인.
+                if (!failed) alert(`참가자 ${i + 1}의 주소를 검색해 주세요.`);
+                failed = true;
+                return;
+            }
             geocoder.addressSearch(address, (result, status) => {   // 비동기: 결과가 나중에 온다.
                 if (failed) return;
                 if (status !== kakao.maps.services.Status.OK) {
@@ -271,7 +292,14 @@
             });
         });
     });
-
+    
+    participants.addEventListener("click", (e) => {
+        if (!e.target.classList.contains("searchAddress")) return;
+        const addressInput = e.target.closest("fieldset").querySelector(".address");
+        new daum.Postcode({
+            oncomplete: (data) => { addressInput.value = data.roadAddress; }
+        }).open();
+    });
 
 </script>
 </body>
