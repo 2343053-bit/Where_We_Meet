@@ -175,7 +175,7 @@
 			// 1) 이전 카페의 경로 선을 지우고, "계산 중" 문구를 먼저 띄운다. (서버 답이 오기까지 1~2초 걸림)
 			clearRouteLines();
 			lastClickedPlaceId = place.id;
-			placeInfowindow.setContent('<div class="info-window--place">' + place.place_name + '<br>승용차 경로 계산 중...</div>');
+			placeInfowindow.setContent('<div class="info-window info-window--place">' + place.place_name + '<br>승용차 경로 계산 중...</div>');
 			placeInfowindow.open(map, marker);
 
 			// 2) 참가자마다 서버(/api/route/car/path)에 "이 참가자 → 이 카페 경로"를 물어본다.
@@ -201,7 +201,7 @@
 					if (lastClickedPlaceId !== place.id) {
 						return; // 그사이 다른 카페를 눌렀으면 이 결과는 버린다.
 					}
-					var html = '<div class="info-window--place">' + place.place_name;
+					var html = '<div class="info-window info-window--place">' + place.place_name;
 					for (var j = 0; j < results.length; j++) {
 						var color = routeColors[j % routeColors.length]; // j 번째 참가자의 선 색. (% : 5명을 넘으면 색을 처음부터 다시 씀)
 
@@ -234,6 +234,6 @@
 					placeInfowindow.setContent(html);
 				})
 				.catch(function() { // 서버나 네트워크 오류.
-					placeInfowindow.setContent('<div class="info-window--place">' + place.place_name + '<br>경로를 불러오지 못했습니다.</div>');
+					placeInfowindow.setContent('<div class="info-window info-window--place">' + place.place_name + '<br>경로를 불러오지 못했습니다.</div>');
 				});
 		}
