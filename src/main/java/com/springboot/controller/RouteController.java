@@ -40,9 +40,6 @@ public class RouteController {
     }
 
     // 승용차 이동시간 + 경로 좌표 조회. (지도에 경로 선을 그리기 위해)
-    // 요청 예) GET /api/route/car/path?originLat=37.4979&originLng=127.0276&destLat=37.5572&destLng=126.9245
-    // 응답 예) { "seconds": 2170, "path": [[37.4978, 127.0275], [37.4979, 127.0277], ...] }   (점 하나 = [위도, 경도])
-    //          실패하면 { "seconds": -1, "path": [] }
     // record(CarRoute)를 그대로 돌려주면 Spring 이 필드 이름(seconds, path) 그대로 JSON 으로 바꿔서 보낸다.
     @GetMapping("/car/path")
     public RouteService.CarRoute getCarRoute(@RequestParam double originLat,
