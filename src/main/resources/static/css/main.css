@@ -1,3 +1,8 @@
+#map {
+    width: 100%;
+    height: 70vh;
+}
+
 #form-results {
     display: grid;
     grid-template-columns: minmax(260px, 320px) minmax(280px, 1fr);
@@ -25,3 +30,6 @@
         grid-template-columns: 1fr;
     }
 }
+
+.info-window { padding: 5px;}
+.info-window--place { font-size: 12px;}
