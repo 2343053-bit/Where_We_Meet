@@ -38,4 +38,14 @@ public class RouteController {
         // Map.of("seconds", 값) 을 돌려주면 Spring 이 자동으로 JSON { "seconds": 값 } 으로 바꿔서 보낸다.
         return Map.of("seconds", seconds);
     }
+
+    // 승용차 이동시간 + 경로 좌표 조회. (지도에 경로 선을 그리기 위해)
+    // record(CarRoute)를 그대로 돌려주면 Spring 이 필드 이름(seconds, path) 그대로 JSON 으로 바꿔서 보낸다.
+    @GetMapping("/car/path")
+    public RouteService.CarRoute getCarRoute(@RequestParam double originLat,
+                                             @RequestParam double originLng,
+                                             @RequestParam double destLat,
+                                             @RequestParam double destLng) {
+        return routeService.getCarRoute(originLat, originLng, destLat, destLng);
+    }
 }
