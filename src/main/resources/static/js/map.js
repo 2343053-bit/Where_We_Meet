@@ -20,7 +20,7 @@
 					position: currentLocationPosition
 				});
 				var currentLocationInfoWindow = new kakao.maps.InfoWindow({
-					content: '<div style="padding:5px;">여기에 계신가요?!</div>',
+					content: '<div class="info-window">여기에 계신가요?!</div>',
 					removable: true
 				});
 
@@ -80,7 +80,7 @@
             // 중간 지점 마커 위에 "중간 지점" 말풍선 표시.
 			var infowindow = new kakao.maps.InfoWindow({
 				position: markerPosition,                             // 말풍선 위치.
-				content: '<div style="padding:5px;">중간 지점</div>' // 말풍선 내용. -----------------------추후 html 태그로 바꿔서 참가자 이름과 평균 위치를 표시하도록 수정 가능.
+				content: '<div class="info-window">중간 지점</div>' // 말풍선 내용. -----------------------추후 html 태그로 바꿔서 참가자 이름과 평균 위치를 표시하도록 수정 가능.
 			});
 			infowindow.open(map, marker);                             // marker 위에 말풍선 열기.
 		}
@@ -111,7 +111,7 @@
 			// 참가자 마커 위에 이름 말풍선 표시.
 			var infowindow = new kakao.maps.InfoWindow({
 				position: marker.getPosition(),                                                         // 말풍선 위치.
-				content: '<div style="padding:5px;">' + participantList[i].participantName + '</div>'  // 말풍선 내용. 이름을 글자 사이에 끼워 넣음.
+				content: '<div class="info-window">' + participantList[i].participantName + '</div>'  // 말풍선 내용. 이름을 글자 사이에 끼워 넣음.
 			});
 			infowindow.open(map, marker);                                                               // marker 위에 말풍선 열기.
 		}
@@ -175,7 +175,7 @@
 			// 1) 이전 카페의 경로 선을 지우고, "계산 중" 문구를 먼저 띄운다. (서버 답이 오기까지 1~2초 걸림)
 			clearRouteLines();
 			lastClickedPlaceId = place.id;
-			placeInfowindow.setContent('<div style="padding:5px;font-size:12px;">' + place.place_name + '<br>승용차 경로 계산 중...</div>');
+			placeInfowindow.setContent('<div class="info-window--place">' + place.place_name + '<br>승용차 경로 계산 중...</div>');
 			placeInfowindow.open(map, marker);
 
 			// 2) 참가자마다 서버(/api/route/car/path)에 "이 참가자 → 이 카페 경로"를 물어본다.
@@ -201,7 +201,7 @@
 					if (lastClickedPlaceId !== place.id) {
 						return; // 그사이 다른 카페를 눌렀으면 이 결과는 버린다.
 					}
-					var html = '<div style="padding:5px;font-size:12px;">' + place.place_name;
+					var html = '<div class="info-window--place">' + place.place_name;
 					for (var j = 0; j < results.length; j++) {
 						var color = routeColors[j % routeColors.length]; // j 번째 참가자의 선 색. (% : 5명을 넘으면 색을 처음부터 다시 씀)
 
@@ -234,6 +234,6 @@
 					placeInfowindow.setContent(html);
 				})
 				.catch(function() { // 서버나 네트워크 오류.
-					placeInfowindow.setContent('<div style="padding:5px;font-size:12px;">' + place.place_name + '<br>경로를 불러오지 못했습니다.</div>');
+					placeInfowindow.setContent('<div class="info-window--place">' + place.place_name + '<br>경로를 불러오지 못했습니다.</div>');
 				});
 		}
