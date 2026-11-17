@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.springboot.domain.MeetingPoint;
+import com.springboot.repository.ParticipantForm;
 import com.springboot.service.MeetingPointService;
 
 
