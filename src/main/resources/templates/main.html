@@ -66,13 +66,15 @@
             <p>평균 경도: <span th:text="${meetingPoint.meetingLongitude}"></span></p>
         </section>
     </div>
+    <!-- 지도 스크립트는 반드시 폼 "뒤"에 둔다. 폼 앞에 긴 스크립트가 있으면 Thymeleaf 가 화면을 먼저 보내 버려서
+     폼의 보안 토큰(CSRF)을 못 만들고 화면이 잘린다. ("Cannot create a session after the response has been committed") -->
     <!-- th:inline="javascript" : 이 <script> 안에서도 Thymeleaf 가 서버 값을 넣어 주도록 켜는 설정
     (없으면 아래 /*[[...]]*/ 부분이 그대로 브라우저로 가서 주석 취급 → 값이 항상 null.) -->
     <script th:inline="javascript">
         window.APP_DATA = { // window.APP_DATA : 전역 변수로 만들어서 다른 스크립트에서도 접근 가능.
             meetingPoint: /*[[${meetingPoint}]]*/ null,
             participants: /*[[${participantForm?.participants}]]*/ []
-        }; // 이 변수들은 JavaScript에서 사용되며, Thymeleaf를 통해 서버에서 전달된 값을 사용한다.
+        };
     </script>
     <script th:src="@{/js/map.js}"></script> 
     <script th:src="@{/js/main.js}"></script>
