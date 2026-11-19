@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- 모든 페이지 상단 메뉴. 메뉴를 추가/변경할 때는 이 파일만 고친다. -->
+<header th:fragment="siteHeader">
+    <nav>
+        <a th:href="@{/login}">로그인</a>
+        <a th:href="@{/signup}">회원가입</a>
+    </nav>
+</header>
+</html>

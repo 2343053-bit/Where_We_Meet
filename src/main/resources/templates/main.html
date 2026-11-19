@@ -2,15 +2,13 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <title>참가자 위치 입력</title>
-    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <th:block th:replace="~{fragments/head :: common('참가자 위치 입력')}"></th:block>
     <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 
+
 <body>
-    <a href="/login">로그인</a>
-    <a href="/signup">회원가입</a>
+    <header th:replace="~{fragments/header :: siteHeader}"></header>
     <div id="map"></div>
     <p id="current-location-status" role="status" hidden></p>
     <!-- 장소 검색 기능은 기본 지도에 들어 있지 않아서 libraries='services' 를 추가해야 한다. -->
