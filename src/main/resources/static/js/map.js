@@ -1,23 +1,22 @@
-import { searchNearbyPlaces } from './map/places.js';
-import { drawResult } from './map/resultMarkers.js';
+import { readAppData } from './appData.js';
+import { createMap } from './map/createMap.js';
 import { showCurrentLocation } from './map/currentLocation.js';
+import { drawResult } from './map/resultMarkers.js';
+import { searchNearbyPlaces } from './map/places.js';
 
-var appData = window.APP_DATA || {};
+
+var appData = readAppData();
 var meetingPoint = appData.meetingPoint;
 var meetingLat = meetingPoint ? meetingPoint.meetingLatitude : null;
 var meetingLng = meetingPoint ? meetingPoint.meetingLongitude : null;
 var participantList = appData.participants || [];
 
-var container = document.getElementById('map');
-var options = {
-	center: new kakao.maps.LatLng(35.117, 128.968), // 동아대 위치
-	level: 3
-};
-
-var map = new kakao.maps.Map(container, options); //지도 생성.
+// 지도 생성 및 반환.
+var map = createMap(document.getElementById('map')); 
 
 // 지도 생성 직후 현재 위치를 한 번 요청한다.
 showCurrentLocation(map, document.getElementById('current-location-status')); // 지도와 안내 문구 요소를 위치 처리 함수에 전달한다.
+
 // ── 지도에 참가자 마커와 중간 지점 마커를 표시하고, 지도 범위를 참가자와 중간 지점이 다 보이게 맞춘다. ───────────────────────
 drawResult(map, meetingLat, meetingLng, participantList);
 
