@@ -1,3 +1,5 @@
+import { fetchCarRoute } from '../api/routeApi.js';
+
 // ── 카페 클릭 → 참가자별 승용차 경로 선 + 이동시간 ───────────────────────
 var routeColors = ['#E53935', '#1E88E5', '#43A047', '#FB8C00', '#8E24AA']; // 참가자별 선 색. (빨강, 파랑, 초록, 주황, 보라 / 최대 5명)
 var routeLines = [];            // 지금 지도에 그려져 있는 경로 선들. (다른 카페를 누르면 지우려고 모아 둔다)
@@ -19,21 +21,17 @@ export function showCarRoutes(map, placeInfowindow, place, marker, participantLi
 	placeInfowindow.setContent('<div class="info-window info-window--place">' + place.place_name + '<br>승용차 경로 계산 중...</div>');
 	placeInfowindow.open(map, marker);
 
-	// 2) 참가자마다 서버(/api/route/car/path)에 "이 참가자 → 이 카페 경로"를 물어본다.
-	//    fetch : 브라우저 JS 가 서버 주소에 요청을 보내는 기능. (터미널의 curl 과 같은 역할) 답은 나중에 온다.
 	var names = [];     // 참가자 이름 목록. (답 순서와 같은 순서로 쌓는다)
 	var requests = [];  // 서버 요청 목록.
 	for (var i = 0; i < participantList.length; i++) {
 		if (participantList[i].latitude == null || participantList[i].longitude == null) {
 			continue; // 빈 입력칸은 건너뛴다.
 		}
-		var url = '/api/route/car/path'
-			+ '?originLat=' + participantList[i].latitude   // 출발: 참가자 위치.
-			+ '&originLng=' + participantList[i].longitude
-			+ '&destLat=' + place.y                         // 도착: 카페 위치. (장소 검색 결과는 y 가 위도)
-			+ '&destLng=' + place.x;                        //                    (x 가 경도)
 		names.push(participantList[i].participantName);
-		requests.push(fetch(url).then(function (response) { return response.json(); })); // 요청 보내고, 답(JSON 글자)을 JS 객체로 바꾸는 것까지 예약.
+		requests.push(fetchCarRoute(
+			{ lat: participantList[i].latitude, lng: participantList[i].longitude },  // 출발: 참가자
+			{ lat: place.y, lng: place.x }                                            // 도착: 카페 (y = 위도)
+		));
 	}
 
 	// 3) Promise.all : 모든 참가자의 답이 다 오면 한 번에 처리한다.
