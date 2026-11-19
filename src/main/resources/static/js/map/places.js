@@ -6,7 +6,6 @@ export function searchNearbyPlaces(map, meetingLat, meetingLng, participantList)
 
     // '카페' 를 검색한다. 검색이 끝나면 placesSearchCB 함수가 실행된다. (콜백)
     ps.keywordSearch('카페', placesSearchCB, {                       // 지금은 '카페' 고정. 폼에 장소 종류 입력칸(keyword)이 생기면 '카페' 대신 participantForm 의 keyword 값을 넣도록 바꾼다.
-        // (주의: th:inline 안에서는 주석 속에 서버 값 넣는 대괄호 두 개 문법을 쓰면 Thymeleaf 가 실제로 실행해서 에러가 난다.)
         location: new kakao.maps.LatLng(meetingLat, meetingLng),     // 검색 기준 위치. (중간 지점)
         radius: 1000,                                                // 기준 위치에서 1000m 안에서만 찾는다.
         sort: kakao.maps.services.SortBy.DISTANCE                    // 가까운 순서로 정렬한다.
@@ -27,12 +26,12 @@ export function searchNearbyPlaces(map, meetingLat, meetingLng, participantList)
             map: map,                                                // 마커를 표시할 지도.
             position: new kakao.maps.LatLng(place.y, place.x)        // 장소 위치. y 가 위도, x 가 경도라서 y 를 먼저 넣는다. LatLng 얘 위도부터받음.
         });
-    
-        // 마커를 클릭하면 참가자별 승용차 경로를 지도에 선으로 그리고, 이동시간을 말풍선에 보여 준다. (아래 showCarRoutes)
+
+        // 마커를 클릭하면 참가자별 승용차 경로를 지도에 선으로 그리고, 이동시간을 말풍선에 보여 준다. (carRoutes.js의 showCarRoutes)
         kakao.maps.event.addListener(marker, 'click', function () {
             showCarRoutes(map, placeInfowindow, place, marker, participantList);
         });
     }
-    
+
 
 }

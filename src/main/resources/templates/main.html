@@ -73,7 +73,7 @@
     <script th:inline="javascript">
         window.APP_DATA = { // window.APP_DATA : 전역 변수로 만들어서 다른 스크립트에서도 접근 가능.
             meetingPoint: /*[[${meetingPoint}]]*/ null,
-            participants: /*[[${participantForm?.participants}]]*/ []
+            participants: /*[[${participantForm?.participants}]]*/[]
         };
     </script>
     <script type="module" th:src="@{/js/main.js}"></script>
