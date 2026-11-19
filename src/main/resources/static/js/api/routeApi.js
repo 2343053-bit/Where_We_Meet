@@ -11,4 +11,3 @@ export function fetchCarRoute(origin, dest) {
 }
 //  참가자마다 서버(/api/route/car/path)에 "이 참가자 → 이 카페 경로"를 물어본다.
 //  fetch : 브라우저 JS 가 서버 주소에 요청을 보내는 기능. (터미널의 curl 과 같은 역할) 답은 나중에 온다.
-ㄴ
