@@ -14,7 +14,10 @@ var meetingLng = meetingPoint ? meetingPoint.meetingLongitude : null;
 var participantList = appData.participants;
 
 const participantsEl = document.getElementById("participants");
-initParticipantList(participantsEl, document.getElementById("addParticipant"), document.getElementById("removeParticipant"));
+initParticipantList(participantsEl, 
+    document.getElementById("addParticipant"), 
+    document.getElementById("removeParticipant"),
+    document.getElementById("participant-template"));
 initAddressSearch(participantsEl);
 initSubmit(document.getElementById("participantForm"), participantsEl);
 

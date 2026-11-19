@@ -28,15 +28,20 @@
                     </fieldset>
                 </th:block>
             </div>
-    </div>
+            <!-- + 버튼이 복제해서 쓰는 빈 입력칸. @INDEX@ / @NUM@ 은 JS 가 번호로 바꾼다. -->
+            <template id="participant-template">
+                <fieldset th:replace="~{fragments/participant :: participant('@INDEX@', '@NUM@', null)}"></fieldset>
+            </template>
 
-    <button type="button" id="removeParticipant">-</button>
-    <button type="button" id="addParticipant">+</button>
-    <button type="submit">제출</button>
-    </form>
 
-    <section id="results" th:if="${meetingPoint != null}">
-        <!-- 참가자의 이름과 위치를 표시하는 부분
+            <button type="button" id="removeParticipant">-</button>
+            <button type="button" id="addParticipant">+</button>
+            <button type="submit">제출</button>
+        </form>
+
+        <section id="results" th:if="${meetingPoint != null}">
+
+            <!-- 참가자의 이름과 위치를 표시하는 부분
     <div th:each="participant, stat : ${participants}">
         <h3 th:text="|참가자 ${stat.count}|"></h3>
         <p>이름: <span th:text="${participant.participantName}"></span></p>
@@ -44,10 +49,10 @@
         <p>경도: <span th:text="${participant.longitude}"></span></p>
     </div>
     -->
-        <h3>참가자 평균 위치</h3>
-        <p>평균 위도: <span th:text="${meetingPoint.meetingLatitude}"></span></p>
-        <p>평균 경도: <span th:text="${meetingPoint.meetingLongitude}"></span></p>
-    </section>
+            <h3>참가자 평균 위치</h3>
+            <p>평균 위도: <span th:text="${meetingPoint.meetingLatitude}"></span></p>
+            <p>평균 경도: <span th:text="${meetingPoint.meetingLongitude}"></span></p>
+        </section>
     </div>
     <!-- 지도 스크립트는 반드시 폼 "뒤"에 둔다. 폼 앞에 긴 스크립트가 있으면 Thymeleaf 가 화면을 먼저 보내 버려서
      폼의 보안 토큰(CSRF)을 못 만들고 화면이 잘린다. ("Cannot create a session after the response has been committed") -->
