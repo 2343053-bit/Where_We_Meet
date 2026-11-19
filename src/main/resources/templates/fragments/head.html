@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- 모든 페이지 공통 <head> 내용. title 만 페이지마다 다르게 받는다.
+     페이지 전용 CSS 는 각 페이지에서 이 조각 "아래"에 추가한다. (base.css 가 먼저 와야 덮어쓸 수 있음) -->
+<th:block th:fragment="common(title)">
+    <meta charset="UTF-8">
+    <title th:text="${title}">Where We Meet</title>
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+</th:block>
+</html>
