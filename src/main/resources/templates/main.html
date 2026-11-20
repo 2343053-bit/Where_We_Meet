@@ -20,6 +20,9 @@
     <div id="form-results">
         <!-- id="participantForm" : 아래 스크립트에서 제출 이벤트를 가로채려고 폼에 id 를 붙였다. -->
         <form id="participantForm" th:action="@{/main}" th:object="${participantForm}" method="post">
+            <label for="keyword">검색어:</label>
+            <input type="text" th:field="*{keyword}" id="keyword" placeholder="예: 카페">
+
             <div id="participants">
                 <th:block th:each="p, stat : *{participants}">
                     <fieldset th:replace="~{fragments/participant :: participant(${stat.index}, ${stat.count}, ${p})}">
@@ -50,6 +53,7 @@
             <h3>참가자 평균 위치</h3>
             <p>평균 위도: <span th:text="${meetingPoint.meetingLatitude}"></span></p>
             <p>평균 경도: <span th:text="${meetingPoint.meetingLongitude}"></span></p>
+            <p>평균 위치 주소: <span id="meeting-address">주소 확인 중...</span></p>
         </section>
     </div>
     <!-- 지도 스크립트는 반드시 폼 "뒤"에 둔다. 폼 앞에 긴 스크립트가 있으면 Thymeleaf 가 화면을 먼저 보내 버려서

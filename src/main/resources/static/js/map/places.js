@@ -1,11 +1,11 @@
 import { showCarRoutes } from './carRoutes.js';
 
-export function searchNearbyPlaces(map, meetingLat, meetingLng, participantList) {
+export function searchNearbyPlaces(map, meetingLat, meetingLng, participantList, keyword) {
     var placeInfowindow = new kakao.maps.InfoWindow({ zIndex: 1 }); // 장소 마커를 클릭하면 장소 이름을 보여 줄 말풍선. (하나를 돌려 씀) zIndex 는 다른 말풍선보다 위에 보이게.
     var ps = new kakao.maps.services.Places();                       // 장소 검색 객체 생성.
 
-    // '카페' 를 검색한다. 검색이 끝나면 placesSearchCB 함수가 실행된다. (콜백)
-    ps.keywordSearch('카페', placesSearchCB, {                       // 지금은 '카페' 고정. 폼에 장소 종류 입력칸(keyword)이 생기면 '카페' 대신 participantForm 의 keyword 값을 넣도록 바꾼다.
+    // 검색어 주변 장소를 찾고, 검색이 끝나면 placesSearchCB 함수가 실행된다.
+    ps.keywordSearch(keyword, placesSearchCB, {
         location: new kakao.maps.LatLng(meetingLat, meetingLng),     // 검색 기준 위치. (중간 지점)
         radius: 1000,                                                // 기준 위치에서 1000m 안에서만 찾는다.
         sort: kakao.maps.services.SortBy.DISTANCE                    // 가까운 순서로 정렬한다.
