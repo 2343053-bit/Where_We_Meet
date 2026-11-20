@@ -25,8 +25,12 @@ initSubmit(document.getElementById("participantForm"), participantsEl);
 var map = createMap(document.getElementById('map'));
 
 // 지도 생성 직후 현재 위치를 한 번 요청한다.
-showCurrentLocation(map, document.getElementById('current-location-status')); // 지도와 안내 문구 요소를 위치 처리 함수에 전달한다.
+const locationKey = 'currentLocationRequested';
 
+if (sessionStorage.getItem(locationKey) !== 'true') {
+    sessionStorage.setItem(locationKey, 'true');
+    showCurrentLocation(map, document.getElementById('current-location-status'));
+}
 // ── 지도에 참가자 마커와 중간 지점 마커를 표시하고, 지도 범위를 참가자와 중간 지점이 다 보이게 맞춘다. ───────────────────────
 drawResult(map, meetingLat, meetingLng, participantList);
 
