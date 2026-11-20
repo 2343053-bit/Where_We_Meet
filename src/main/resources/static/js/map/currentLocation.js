@@ -1,3 +1,4 @@
+import { showAddressInInfoWindow } from './CoorsdtoAddr.js';
 export function showCurrentLocation(locationMap, statusElement) {
 	// 브라우저에서 위치를 받으면 좌표로 마커와 안내창을 만들고 지도 중심을 이동한다.
 	function displayCurrentLocation(position) {
@@ -10,11 +11,15 @@ export function showCurrentLocation(locationMap, statusElement) {
 			position: currentLocationPosition
 		});
 		var currentLocationInfoWindow = new kakao.maps.InfoWindow({
-			content: '<div class="info-window">현위치</div>',
 			removable: true
 		});
 
-		currentLocationInfoWindow.open(locationMap, currentLocationMarker);
+		showAddressInInfoWindow(
+			locationMap,
+			currentLocationMarker,
+			currentLocationInfoWindow
+		);
+
 		locationMap.setCenter(currentLocationPosition);
 	}
 
