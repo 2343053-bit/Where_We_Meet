@@ -53,6 +53,7 @@
             <h3>참가자 평균 위치</h3>
             <p>평균 위도: <span th:text="${meetingPoint.meetingLatitude}"></span></p>
             <p>평균 경도: <span th:text="${meetingPoint.meetingLongitude}"></span></p>
+            <p>평균 위치 주소: <span id="meeting-address">주소 확인 중...</span></p>
         </section>
     </div>
     <!-- 지도 스크립트는 반드시 폼 "뒤"에 둔다. 폼 앞에 긴 스크립트가 있으면 Thymeleaf 가 화면을 먼저 보내 버려서

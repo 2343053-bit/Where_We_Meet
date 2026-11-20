@@ -6,12 +6,28 @@ import { searchNearbyPlaces } from './map/places.js';
 import { initParticipantList } from "./participants/participantList.js";
 import { initAddressSearch } from "./participants/addressSearch.js";
 import { initSubmit } from "./participants/submit.js";
+import { coordsToAddress } from './api/geocoder.js';
 
 var appData = readAppData();
 var meetingPoint = appData.meetingPoint;
 var meetingLat = meetingPoint ? meetingPoint.meetingLatitude : null;
 var meetingLng = meetingPoint ? meetingPoint.meetingLongitude : null;
+// 중간 지점 좌표가 있을 때만 해당 좌표를 주소로 변환한다.
+if (meetingLat != null && meetingLng != null) {
+    // 주소 조회는 비동기이므로 Promise가 완료된 뒤 화면을 갱신한다.
+    coordsToAddress(meetingLat, meetingLng)
+        .then(address => {
+            // 변환된 주소를 평균 위치 주소 영역에 표시한다.
+            document.getElementById('meeting-address').textContent = address;
+        })
+        .catch(error => {
+            // 변환에 실패하면 사용자에게 안내하고 오류 원인은 콘솔에 기록한다.
+            document.getElementById('meeting-address').textContent = '주소를 찾을 수 없습니다.';
+            console.error(error);
+        });
+}
 var participantList = appData.participants;
+
 var keyword = document.getElementById('keyword').value.trim() || '카페';
 
 const participantsEl = document.getElementById("participants");

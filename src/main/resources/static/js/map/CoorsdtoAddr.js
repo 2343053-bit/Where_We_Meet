@@ -23,7 +23,7 @@ export function showAddressInInfoWindow(map, marker, infoWindow) {
 
         // 말풍선 제목을 추가한다.
         var title = document.createElement('div');
-        title.textContent = '현위치';
+        title.innerHTML = '<span class="title">현위치</span>';
         content.appendChild(title);
 
         // 도로명 주소나 지번 주소가 없는 경우를 대비해 기본 문구를 둔다.
@@ -47,4 +47,11 @@ export function showAddressInInfoWindow(map, marker, infoWindow) {
         infoWindow.setContent(content);
         infoWindow.open(map, marker);
     });
+}
+
+export function addressFromCoordinates(latitude, longitude, callback) {
+    var geocoder = new kakao.maps.services.Geocoder();
+
+    // Kakao Geocoder에는 경도, 위도 순으로 전달한다.
+    geocoder.coord2Address(longitude, latitude, callback);
 }
