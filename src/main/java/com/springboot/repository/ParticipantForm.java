@@ -7,6 +7,7 @@ import java.util.List;
 // 이 클래스는 ParticipantLocation 객체 목록을 담는 데 사용됩니다.
 public class ParticipantForm {
     private List<ParticipantLocation> participantList = new ArrayList<>(); // 참가자 위치 목록을 저장하는 리스트
+    private String keyword;
 
     public ParticipantForm() {
         participantList.add(new ParticipantLocation("", null, null));
@@ -20,5 +21,13 @@ public class ParticipantForm {
 
     public void setParticipants(List<ParticipantLocation> participants) {
         this.participantList = participants;
+    }
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
     }
 }

@@ -10,7 +10,7 @@ export function showCurrentLocation(locationMap, statusElement) {
 			position: currentLocationPosition
 		});
 		var currentLocationInfoWindow = new kakao.maps.InfoWindow({
-			content: '<div class="info-window">여기에 계신가요?!</div>',
+			content: '<div class="info-window">현위치</div>',
 			removable: true
 		});
 
