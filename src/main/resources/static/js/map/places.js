@@ -1,4 +1,5 @@
 import { showCarRoutes } from './carRoutes.js';
+import { renderPlaceList, showPlaceStatus } from './placePanel.js';
 
 export function searchNearbyPlaces(map, meetingLat, meetingLng, participantList, keyword) {
     var placeInfowindow = new kakao.maps.InfoWindow({ zIndex: 1 }); // 장소 마커를 클릭하면 장소 이름을 보여 줄 말풍선. (하나를 돌려 씀) zIndex 는 다른 말풍선보다 위에 보이게.
@@ -17,6 +18,11 @@ export function searchNearbyPlaces(map, meetingLat, meetingLng, participantList,
             for (var i = 0; i < data.length; i++) {        // 검색된 장소 수만큼 반복.
                 displayMarker(data[i]);                    // i 번째 장소의 마커를 만든다.
             }
+            renderPlaceList(data);                         // 오른쪽 패널에 장소 카드 목록을 그린다. (placePanel.js)
+        } else if (status === kakao.maps.services.Status.ZERO_RESULT) {   // 검색은 됐는데 결과가 0개.
+            showPlaceStatus('중간 지점 1km 안에 "' + keyword + '" 검색 결과가 없습니다.');
+        } else {                                                          // 그 밖의 오류. (Status.ERROR)
+            showPlaceStatus('장소를 불러오지 못했습니다.');
         }
     }
 
