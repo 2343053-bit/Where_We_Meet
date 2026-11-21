@@ -2,11 +2,13 @@ package com.springboot.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import com.springboot.domain.Member;
 import com.springboot.service.MemberService;
+
 
 @Controller
 public class MemberController {
@@ -27,13 +29,44 @@ public class MemberController {
     @PostMapping("/signup")
     public String processSignup(@ModelAttribute("memberForm") Member memberForm) {
         memberService.signup(memberForm); // 회원 가입 로직을 호출하여 회원 정보를 저장합니다.
-        
         return "redirect:/login"; // 회원 가입 후 로그인 페이지로 리다이렉트합니다.
     }
 
+    @GetMapping("/fail")
+    public String showFailPage() {
+        return "fail"; // 로그인 실패 시 보여줄 뷰 이름을 반환합니다.
+    }
 
     @GetMapping("/login")
     public String showLoginForm() {
         return "login"; // 로그인 폼을 보여주는 뷰 이름을 반환합니다.
     }
+
+    @GetMapping("/mypage")
+    public String showMypage(Authentication authentication, Model model) {
+        Member member = memberService.findByUsername(authentication.getName());
+        model.addAttribute("member", member);
+        return "mypage"; // 마이페이지 뷰 이름을 반환합니다.
+    }
+
+    @GetMapping("/mypage/edit")
+    public String showEditMypage(Authentication authentication, Model model) {
+        model.addAttribute("memberForm", memberService.findByUsername(authentication.getName()));
+        return "edit_mypage";
+    }
+
+    @PostMapping("/mypage/edit")
+    public String updateMypage(
+            @ModelAttribute("memberForm") Member memberForm,
+            Authentication authentication,
+            Model model) {
+        try {
+            memberService.updateProfile(authentication.getName(), memberForm);
+            return "redirect:/mypage";
+        } catch (IllegalArgumentException exception) {
+            model.addAttribute("errorMessage", exception.getMessage());
+            return "edit_mypage";
+        }
+    }
+    
 }

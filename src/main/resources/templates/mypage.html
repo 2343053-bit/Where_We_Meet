@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <th:block th:replace="~{fragments/head :: common('마이페이지')}"></th:block>
+</head>
+
+<body>
+    <header th:replace="${isAuthenticated} ? ~{fragments/header_mypage :: siteHeader} : ~{fragments/header :: siteHeader}"></header>
+
+    <main>
+        <fieldset>
+            <legend>회원 정보</legend>
+            <dl>
+                <dt>닉네임: </dt>
+                <dd th:text="${member.nickname}"></dd>
+
+                <dt>휴대전화: </dt>
+                <dd th:text="${member.phoneNumber}"></dd>
+
+                <dt>이메일: </dt>
+                <dd th:text="${member.email}"></dd>
+
+                <dt>주소: </dt>
+                <dd th:text="${member.address}"></dd>
+            </dl>
+        </fieldset>
+        <form th:action="@{/main}" method="get">
+            <button type="submit">홈으로</button>
+        </form>
+        <form th:action="@{/mypage/edit}" method="get">
+            <button type="submit">회원정보 수정</button>
+        </form>
+    </main>
+</body>
+
+</html>
