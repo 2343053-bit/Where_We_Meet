@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" role="img" aria-label="장소">
+  <!-- 그 밖의 장소 기본 이미지: 파란 배경 + 위치 핀 -->
+  <rect width="72" height="72" rx="8" fill="#E3ECF8"/>
+  <path d="M36 14a14 14 0 0 0-14 14c0 11 14 28 14 28s14-17 14-28a14 14 0 0 0-14-14z" fill="#3B6FB6"/>
+  <circle cx="36" cy="28" r="5" fill="#E3ECF8"/>
+</svg>

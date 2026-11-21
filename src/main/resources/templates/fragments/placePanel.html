@@ -21,12 +21,23 @@
          <template> 안의 내용은 화면에 보이지 않는다. -->
     <template id="place-card-template">
         <li class="place-card">
-            <h3 class="place-card__name">장소 이름</h3>
-            <p class="place-card__category">카테고리</p>
-            <p class="place-card__address">주소</p>
-            <p class="place-card__phone">전화번호</p>
-            <p class="place-card__distance">중간 지점에서 거리</p>
-            <a class="place-card__link" target="_blank" rel="noopener">카카오맵에서 보기</a>
+            <!-- 장소 사진. 지금은 카테고리별 기본 이미지(/images/places/)를 쓴다.
+                 <a> 로 감싸서 사진을 눌러도 "카카오맵에서 보기"와 똑같이 상세 페이지가 새 탭으로 열린다. -->
+            <a class="place-card__photo-link" target="_blank" rel="noopener">
+                <img class="place-card__photo" width="72" height="72" alt="">
+            </a>
+            <div class="place-card__body">
+                <h3 class="place-card__name">장소 이름</h3>
+                <p class="place-card__category">카테고리</p>
+                <p class="place-card__address">주소</p>
+                <p class="place-card__phone">전화번호</p>
+                <p class="place-card__distance">중간 지점에서 거리</p>
+                <div class="place-card__actions">
+                    <a class="place-card__link" target="_blank" rel="noopener">카카오맵에서 보기</a>
+                    <!-- 누르면 카카오맵 장소 상세 주소를 클립보드에 복사한다. type="button" : 폼 안에 들어가도 제출 버튼이 되지 않게. -->
+                    <button type="button" class="place-card__share">공유</button>
+                </div>
+            </div>
         </li>
     </template>
 </aside>
