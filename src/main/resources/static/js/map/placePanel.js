@@ -1,6 +1,7 @@
 // 지도 오른쪽 "주변 장소" 패널(fragments/placePanel.html)을 채우는 함수들.
 // 값은 전부 textContent 로 넣는다. (innerHTML 을 쓰면 장소 이름 속 <, > 같은 글자가 HTML 로 실행될 수 있다)
 import { copyText } from '../util/clipboard.js';   // map/ 에서 한 칸 위로
+import { t } from '../util/i18n.js';               // 다국어 처리. t('키') → 지금 언어의 문장 (messages.properties)
 
 // 안내 문구를 보여 주고 목록은 비운다. (결과 없음, 오류 등)
 export function showPlaceStatus(message) {
@@ -45,10 +46,10 @@ export function renderPlaceList(places, onSelect) {
 function shareLink(button) {
     copyText(button.dataset.url)
         .then(function () {
-            flashButtonText(button, '복사됨!');
+            flashButtonText(button, t('panel.copied'));
         })
         .catch(function (error) {
-            flashButtonText(button, '복사 실패');
+            flashButtonText(button, t('panel.copyFailed'));
             console.error(error);
         });
 }
@@ -58,7 +59,7 @@ function flashButtonText(button, message) {
     button.textContent = message;
     clearTimeout(button.resetTimer);                           // 연달아 누르면 이전 타이머를 취소해서 글자가 꼬이지 않게.
     button.resetTimer = setTimeout(function () {
-        button.textContent = '공유';
+        button.textContent = t('panel.share');   // HTML(placePanel.html)의 공유 버튼과 같은 키. 언어가 바뀌어도 같은 글자로 돌아온다.
     }, 1500);
 }
 
@@ -71,7 +72,7 @@ function createPlaceCard(template, place) {
     card.querySelector('.place-card__address').textContent =
         place.road_address_name || place.address_name;                // 도로명 주소가 없으면 지번 주소.
     card.querySelector('.place-card__distance').textContent =
-        '중간 지점에서 ' + formatDistance(place.distance);
+        t('panel.distance', formatDistance(place.distance));         // 중간 지점에서 {0} → "중간 지점에서 350m" / "350m from the midpoint"
 
     // 전화번호는 없는 가게가 많아서, 없으면 그 줄을 지운다.
     var phoneEl = card.querySelector('.place-card__phone');
@@ -89,7 +90,7 @@ function createPlaceCard(template, place) {
     // 사진과 사진 링크. 사진을 눌러도 카카오맵 상세 페이지가 열리도록 링크 주소를 똑같이 넣는다.
     var photoLink = card.querySelector('.place-card__photo-link');
     photoLink.href = placeUrl;
-    photoLink.setAttribute('aria-label', place.place_name + ' 카카오맵에서 보기');   // 화면 낭독기가 읽어 줄 링크 이름.
+    photoLink.setAttribute('aria-label', t('panel.photoLabel', place.place_name));   // 화면 낭독기가 읽어 줄 링크 이름. ({0} = 장소 이름)
     card.querySelector('.place-card__photo').src = getPlaceImage(place);
     return card;
 }

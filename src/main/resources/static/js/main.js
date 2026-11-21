@@ -7,7 +7,7 @@ import { initParticipantList } from "./participants/participantList.js";
 import { initAddressSearch } from "./participants/addressSearch.js";
 import { initSubmit } from "./participants/submit.js";
 import { coordsToAddress } from './api/geocoder.js';
-import { initMessages } from './util/i18n.js';
+import { initMessages, t } from './util/i18n.js';   // { 이름1, 이름2 } : 한 파일에서 여러 개를 한 번에 가져온다.
 import { initLangSwitch } from './util/langSwitch.js';
 
 var appData = readAppData();
@@ -25,7 +25,7 @@ if (meetingLat != null && meetingLng != null) {
         })
         .catch(error => {
             // 변환에 실패하면 사용자에게 안내하고 오류 원인은 콘솔에 기록한다.
-            document.getElementById('meeting-address').textContent = '주소를 찾을 수 없습니다.';
+            document.getElementById('meeting-address').textContent = t('meeting.addressNotFound');
             console.error(error);
         });
 }
