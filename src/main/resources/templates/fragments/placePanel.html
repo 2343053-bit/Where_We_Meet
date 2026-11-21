@@ -6,11 +6,12 @@
        그래서 이 조각은 "틀"과 "카드 1개 모양(template)"만 만들고, 내용은 placePanel.js 가 채운다.
        (참가자 입력칸의 participant-template 과 같은 방식) -->
 <aside th:fragment="placePanel(searched)" id="place-panel">
-    <h2>주변 장소</h2>
+    <h2 th:text="#{panel.title}">주변 장소</h2>
 
-    <!-- 안내 문구. 제출 전 / 검색 중 / 결과 없음 / 오류일 때 보이고, 결과가 있으면 JS 가 숨긴다. -->
+    <!-- 안내 문구. 제출 전 / 검색 중 / 결과 없음 / 오류일 때 보이고, 결과가 있으면 JS 가 숨긴다.
+         조건 ? A : B  → searched 가 true 면 A(찾는 중), 아니면 B(제출 안내). A, B 자리에 #{키} 를 바로 쓸 수 있다. -->
     <p id="place-status" role="status"
-       th:text="${searched} ? '장소를 찾는 중...' : '참가자 위치를 제출하면 중간 지점 주변 장소가 여기에 표시됩니다.'">
+       th:text="${searched} ? #{panel.searching} : #{panel.empty}">
         참가자 위치를 제출하면 중간 지점 주변 장소가 여기에 표시됩니다.
     </p>
 
@@ -18,7 +19,9 @@
     <ul id="place-list"></ul>
 
     <!-- 장소 카드 1개 모양. JS 가 장소마다 복제해서 class 이름으로 칸을 찾아 값을 넣는다.
-         <template> 안의 내용은 화면에 보이지 않는다. -->
+         <template> 안의 내용은 화면에 보이지 않는다.
+         이름·카테고리·주소·전화번호·거리 칸은 JS 가 항상 덮어쓰므로 번역하지 않았다. (미리보기용 글자)
+         "카카오맵에서 보기", "공유" 는 그대로 화면에 나오므로 th:text 로 번역한다. -->
     <template id="place-card-template">
         <li class="place-card">
             <div class="place-card__body">
@@ -28,9 +31,9 @@
                 <p class="place-card__phone">전화번호</p>
                 <p class="place-card__distance">중간 지점에서 거리</p>
                 <div class="place-card__actions">
-                    <a class="place-card__link" target="_blank" rel="noopener">카카오맵에서 보기</a>
+                    <a class="place-card__link" target="_blank" rel="noopener" th:text="#{panel.viewOnKakaoMap}">카카오맵에서 보기</a>
                     <!-- 누르면 카카오맵 장소 상세 주소를 클립보드에 복사한다. type="button" : 폼 안에 들어가도 제출 버튼이 되지 않게. -->
-                    <button type="button" class="place-card__share">공유</button>
+                    <button type="button" class="place-card__share" th:text="#{panel.share}">공유</button>
                 </div>
             </div>
             <!-- 장소 사진(카드 오른쪽). 지금은 카테고리별 기본 이미지(/images/places/)를 쓴다.

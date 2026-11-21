@@ -1,6 +1,7 @@
 // 지도 오른쪽 "주변 장소" 패널(fragments/placePanel.html)을 채우는 함수들.
 // 값은 전부 textContent 로 넣는다. (innerHTML 을 쓰면 장소 이름 속 <, > 같은 글자가 HTML 로 실행될 수 있다)
 import { copyText } from '../util/clipboard.js';   // map/ 에서 한 칸 위로
+import { t, getLang } from '../util/i18n.js';      // 다국어 처리. t('키') → 지금 언어의 문장, getLang() → 지금 언어 코드
 
 // 안내 문구를 보여 주고 목록은 비운다. (결과 없음, 오류 등)
 export function showPlaceStatus(message) {
@@ -45,10 +46,10 @@ export function renderPlaceList(places, onSelect) {
 function shareLink(button) {
     copyText(button.dataset.url)
         .then(function () {
-            flashButtonText(button, '복사됨!');
+            flashButtonText(button, t('panel.copied'));
         })
         .catch(function (error) {
-            flashButtonText(button, '복사 실패');
+            flashButtonText(button, t('panel.copyFailed'));
             console.error(error);
         });
 }
@@ -58,7 +59,7 @@ function flashButtonText(button, message) {
     button.textContent = message;
     clearTimeout(button.resetTimer);                           // 연달아 누르면 이전 타이머를 취소해서 글자가 꼬이지 않게.
     button.resetTimer = setTimeout(function () {
-        button.textContent = '공유';
+        button.textContent = t('panel.share');   // HTML(placePanel.html)의 공유 버튼과 같은 키. 언어가 바뀌어도 같은 글자로 돌아온다.
     }, 1500);
 }
 
@@ -67,11 +68,11 @@ function createPlaceCard(template, place) {
     var card = template.content.firstElementChild.cloneNode(true);   // template 안의 <li> 를 통째로 복사. (true = 안쪽 태그까지)
 
     card.querySelector('.place-card__name').textContent = place.place_name;
-    card.querySelector('.place-card__category').textContent = place.category_name;
+    card.querySelector('.place-card__category').textContent = getCategoryText(place);   // 한국어: 음식점 > 카페 > 커피전문점 / 영어: Cafe
     card.querySelector('.place-card__address').textContent =
         place.road_address_name || place.address_name;                // 도로명 주소가 없으면 지번 주소.
     card.querySelector('.place-card__distance').textContent =
-        '중간 지점에서 ' + formatDistance(place.distance);
+        t('panel.distance', formatDistance(place.distance));         // 중간 지점에서 {0} → "중간 지점에서 350m" / "350m from the midpoint"
 
     // 전화번호는 없는 가게가 많아서, 없으면 그 줄을 지운다.
     var phoneEl = card.querySelector('.place-card__phone');
@@ -89,9 +90,22 @@ function createPlaceCard(template, place) {
     // 사진과 사진 링크. 사진을 눌러도 카카오맵 상세 페이지가 열리도록 링크 주소를 똑같이 넣는다.
     var photoLink = card.querySelector('.place-card__photo-link');
     photoLink.href = placeUrl;
-    photoLink.setAttribute('aria-label', place.place_name + ' 카카오맵에서 보기');   // 화면 낭독기가 읽어 줄 링크 이름.
+    photoLink.setAttribute('aria-label', t('panel.photoLabel', place.place_name));   // 화면 낭독기가 읽어 줄 링크 이름. ({0} = 장소 이름)
     card.querySelector('.place-card__photo').src = getPlaceImage(place);
     return card;
+}
+
+// 장소 종류 글자.
+//   카카오의 category_name("음식점 > 카페 > 커피전문점")은 종류가 너무 많아 번역할 수 없다.
+//   그래서 한국어 화면은 그대로 자세히 보여 주고, 다른 언어는 큰 분류 코드(category_group_code, 18개)를 번역해서 보여 준다.
+function getCategoryText(place) {
+    var code = place.category_group_code;   // 예) "CE7". 카카오 결과에서 빈 값("")인 장소도 있다.
+    if (getLang() === 'ko' || !code) {
+        return place.category_name;          // 한국어 화면이거나 코드가 없으면 카카오 글자 그대로.
+    }
+    var key = 'category.' + code;           // 예) "category.CE7" → 사전에서 "Cafe"
+    var text = t(key);
+    return text === key ? place.category_name : text;   // t() 는 사전에 없는 키면 키를 그대로 돌려준다. 그때는 카카오 글자로.
 }
 
 // 카테고리별 기본 이미지. 키는 카카오의 category_group_code. (CE7 = 카페, FD6 = 음식점)

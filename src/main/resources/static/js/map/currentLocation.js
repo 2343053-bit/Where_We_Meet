@@ -1,4 +1,5 @@
 import { showAddressInInfoWindow } from './CoorsdtoAddr.js';
+import { t } from '../util/i18n.js';   // 다국어 처리. t('키') → 지금 언어의 문장 (messages.properties)
 export function showCurrentLocation(locationMap, statusElement) {
 	// 브라우저에서 위치를 받으면 좌표로 마커와 안내창을 만들고 지도 중심을 이동한다.
 	function displayCurrentLocation(position) {
@@ -27,21 +28,21 @@ export function showCurrentLocation(locationMap, statusElement) {
 	function displayLocationError(error) {
 		statusElement.hidden = false;
 		if (error.code === error.PERMISSION_DENIED) {
-			statusElement.textContent = '현재 위치 권한을 허용해주세요.';
+			statusElement.textContent = t('location.denied');
 		} else if (error.code === error.TIMEOUT) {
-			statusElement.textContent = '현재 위치 확인 시간이 초과되었습니다.';
+			statusElement.textContent = t('location.timeout');
 		} else {
-			statusElement.textContent = '현재 위치를 가져오지 못했습니다.';
+			statusElement.textContent = t('location.failed');
 		}
 	}
 
 	// Geolocation API는 보안 연결에서만 사용할 수 있으므로 실행 전에 환경을 확인한다.
 	if (!window.isSecureContext) {
 		statusElement.hidden = false;
-		statusElement.textContent = '현재 위치 기능은 HTTPS 또는 localhost에서 사용할 수 있습니다.';
+		statusElement.textContent = t('location.insecure');
 	} else if (!navigator.geolocation) {
 		statusElement.hidden = false;
-		statusElement.textContent = '이 브라우저는 현재 위치 기능을 지원하지 않습니다.';
+		statusElement.textContent = t('location.unsupported');
 	} else {
 		// 위치 조회는 비동기이므로 지도는 먼저 표시되고, 좌표를 받으면 마커와 중심이 갱신된다.
 		navigator.geolocation.getCurrentPosition(

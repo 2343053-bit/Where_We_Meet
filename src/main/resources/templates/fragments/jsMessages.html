@@ -13,7 +13,52 @@
         'route.calculating': /*[[#{route.calculating}]]*/ '',
         'route.minutes':     /*[[#{route.minutes}]]*/ '',
         'route.none':        /*[[#{route.none}]]*/ '',
-        'route.loadFailed':  /*[[#{route.loadFailed}]]*/ ''
+        'route.loadFailed':  /*[[#{route.loadFailed}]]*/ '',
+
+        // 현재 위치 안내 (map/currentLocation.js)
+        'location.denied':      /*[[#{location.denied}]]*/ '',
+        'location.timeout':     /*[[#{location.timeout}]]*/ '',
+        'location.failed':      /*[[#{location.failed}]]*/ '',
+        'location.insecure':    /*[[#{location.insecure}]]*/ '',
+        'location.unsupported': /*[[#{location.unsupported}]]*/ '',
+
+        // 제출 경고창 (participants/submit.js)
+        'submit.noAddress':       /*[[#{submit.noAddress}]]*/ '',
+        'submit.addressNotFound': /*[[#{submit.addressNotFound}]]*/ '',
+
+        // 주변 장소 카드 (map/placePanel.js)
+        'panel.share':      /*[[#{panel.share}]]*/ '',
+        'panel.copied':     /*[[#{panel.copied}]]*/ '',
+        'panel.copyFailed': /*[[#{panel.copyFailed}]]*/ '',
+        'panel.distance':   /*[[#{panel.distance}]]*/ '',
+        'panel.photoLabel': /*[[#{panel.photoLabel}]]*/ '',
+
+        // 중간 지점 말풍선 (map/resultMarkers.js), 중간 지점 주소 (main.js)
+        'result.meetingPoint':     /*[[#{result.meetingPoint}]]*/ '',
+        'meeting.addressNotFound': /*[[#{meeting.addressNotFound}]]*/ '',
+
+        // 장소 종류 큰 분류. 키 끝은 카카오 category_group_code (map/placePanel.js)
+        'category.MT1': /*[[#{category.MT1}]]*/ '',
+        'category.CS2': /*[[#{category.CS2}]]*/ '',
+        'category.PS3': /*[[#{category.PS3}]]*/ '',
+        'category.SC4': /*[[#{category.SC4}]]*/ '',
+        'category.AC5': /*[[#{category.AC5}]]*/ '',
+        'category.PK6': /*[[#{category.PK6}]]*/ '',
+        'category.OL7': /*[[#{category.OL7}]]*/ '',
+        'category.SW8': /*[[#{category.SW8}]]*/ '',
+        'category.BK9': /*[[#{category.BK9}]]*/ '',
+        'category.CT1': /*[[#{category.CT1}]]*/ '',
+        'category.AG2': /*[[#{category.AG2}]]*/ '',
+        'category.PO3': /*[[#{category.PO3}]]*/ '',
+        'category.AT4': /*[[#{category.AT4}]]*/ '',
+        'category.AD5': /*[[#{category.AD5}]]*/ '',
+        'category.FD6': /*[[#{category.FD6}]]*/ '',
+        'category.CE7': /*[[#{category.CE7}]]*/ '',
+        'category.HP8': /*[[#{category.HP8}]]*/ '',
+        'category.PM9': /*[[#{category.PM9}]]*/ ''
     };
+
+    // 지금 언어 코드. ${...} 는 서버 값이고, #locale 은 Thymeleaf 가 알려 주는 지금 Locale(언어)이다. → "ko" / "en"
+    window.APP_DATA.lang = /*[[${#locale.language}]]*/ 'ko';
 </script>
 </html>

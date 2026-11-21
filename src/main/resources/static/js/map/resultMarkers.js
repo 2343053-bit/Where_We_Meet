@@ -1,3 +1,5 @@
+import { t } from '../util/i18n.js';   // 다국어 처리. t('키') → 지금 언어의 문장 (messages.properties)
+
 export function drawResult(map, meetingLat, meetingLng, participantList) {
     // 마커 위치들을 모아 둘 범위 상자. 나중에 이 범위가 다 보이게 지도를 맞춘다.
     var bounds = new kakao.maps.LatLngBounds();
@@ -23,7 +25,7 @@ export function drawResult(map, meetingLat, meetingLng, participantList) {
         // 중간 지점 마커 위에 "중간 지점" 말풍선 표시.
         var infowindow = new kakao.maps.InfoWindow({
             position: markerPosition,                             // 말풍선 위치.
-            content: '<div class="info-window">중간 지점</div>' // 말풍선 내용. -----------------------추후 html 태그로 바꿔서 참가자 이름과 평균 위치를 표시하도록 수정 가능.
+            content: '<div class="info-window">' + t('result.meetingPoint') + '</div>' // 말풍선 내용. (중간 지점 / Midpoint) -----------------------추후 html 태그로 바꿔서 참가자 이름과 평균 위치를 표시하도록 수정 가능.
         });
         infowindow.open(map, marker);                             // marker 위에 말풍선 열기.
     }
