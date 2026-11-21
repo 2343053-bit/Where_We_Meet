@@ -1,4 +1,5 @@
 import { fetchCarRoute } from '../api/routeApi.js';
+import { t } from '../util/i18n.js';   // 다국어 처리. t('키') → 지금 언어의 문장 (messages.properties)
 
 // ── 카페 클릭 → 참가자별 승용차 경로 선 + 이동시간 ───────────────────────
 var routeColors = ['#E53935', '#1E88E5', '#43A047', '#FB8C00', '#8E24AA']; // 참가자별 선 색. (빨강, 파랑, 초록, 주황, 보라 / 최대 5명)
@@ -18,7 +19,7 @@ export function showCarRoutes(map, placeInfowindow, place, marker, participantLi
 	// 1) 이전 카페의 경로 선을 지우고, "계산 중" 문구를 먼저 띄운다. (서버 답이 오기까지 1~2초 걸림)
 	clearRouteLines();
 	lastClickedPlaceId = place.id;
-	placeInfowindow.setContent('<div class="info-window info-window--place">' + place.place_name + '<br>승용차 경로 계산 중...</div>');
+	placeInfowindow.setContent('<div class="info-window info-window--place">' + place.place_name + '<br>' + t('route.calculating') + '</div>');
 	placeInfowindow.open(map, marker);
 
 	var names = [];     // 참가자 이름 목록. (답 순서와 같은 순서로 쌓는다)
@@ -45,7 +46,7 @@ export function showCarRoutes(map, placeInfowindow, place, marker, participantLi
 				var color = routeColors[j % routeColors.length]; // j 번째 참가자의 선 색. (% : 5명을 넘으면 색을 처음부터 다시 씀)
 
 				if (results[j].seconds < 0) {                     // 길찾기 실패.
-					html += '<br>' + names[j] + ': 경로 없음';
+					html += '<br>' + names[j] + ': ' + t('route.none');
 					continue;
 				}
 
@@ -67,12 +68,13 @@ export function showCarRoutes(map, placeInfowindow, place, marker, participantLi
 				routeLines.push(polyline); // 다음에 지우려고 모아 둔다.
 
 				// 말풍선에 "■ 이름: 승용차 N분" 을 선과 같은 색 네모와 함께 쓴다.
-				html += '<br><span style="color:' + color + ';">■</span> ' + names[j] + ': 승용차 ' + Math.round(results[j].seconds / 60) + '분';
+				// t('route.minutes', 분) : 사전의 {0} 자리에 분을 채운다. (한국어 "승용차 27분" / 영어 "27 min by car")
+				html += '<br><span style="color:' + color + ';">■</span> ' + names[j] + ': ' + t('route.minutes', Math.round(results[j].seconds / 60));
 			}
 			html += '</div>';
 			placeInfowindow.setContent(html);
 		})
 		.catch(function () { // 서버나 네트워크 오류.
-			placeInfowindow.setContent('<div class="info-window info-window--place">' + place.place_name + '<br>경로를 불러오지 못했습니다.</div>');
+			placeInfowindow.setContent('<div class="info-window info-window--place">' + place.place_name + '<br>' + t('route.loadFailed') + '</div>');
 		});
 }

@@ -3,8 +3,11 @@
 <!-- 모든 페이지 상단 메뉴. 메뉴를 추가/변경할 때는 이 파일만 고친다. -->
 <header th:fragment="siteHeader">
     <nav>
-        <a th:href="@{/login}">로그인</a>
-        <a th:href="@{/signup}">회원가입</a>
+        <!-- th:text="#{키}" : 지금 언어의 사전(messages*.properties)에서 키를 찾아 글자를 바꿔 넣는다. 태그 안 글자는 기본값(미리보기용). -->
+        <a th:href="@{/login}" th:text="#{header.login}">로그인</a>
+        <a th:href="@{/signup}" th:text="#{header.signup}">회원가입</a>
     </nav>
+    <!-- 언어 전환 (한국어 | English). 내용은 fragments/langSwitch.html -->
+    <div th:replace="~{fragments/langSwitch :: langSwitch}"></div>
 </header>
 </html>
