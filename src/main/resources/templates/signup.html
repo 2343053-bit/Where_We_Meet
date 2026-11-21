@@ -74,15 +74,7 @@
     </form>
 
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-    <script>
-        document.getElementById("searchAddress").addEventListener("click", () => {
-            new daum.Postcode({
-                oncomplete: (data) => {
-                    document.getElementById("address").value = data.roadAddress;
-                }
-            }).open();
-        });
-    </script>
+    <script th:src="@{/js/member/addressSearch.js}"></script>
 </body>
 
 </html>
