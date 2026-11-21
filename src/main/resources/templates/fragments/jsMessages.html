@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- JS 에서 쓰는 번역 문장을 서버가 번역해서 window.APP_DATA.messages 에 넘겨 주는 조각.
+     - JS 파일은 Thymeleaf 를 거치지 않아서 #{키} 를 못 쓴다. 그래서 여기서 대신 번역해 배달한다.
+     - #{키} : 지금 언어의 사전(messages*.properties)에서 찾은 문장. ${...}(서버 값)와 다르다.
+     - JS 에서는 util/i18n.js 의 t('키') 로 꺼낸다.
+     - 새 문장이 필요하면: 두 사전 파일에 키 추가 → 여기에 한 줄 추가 → JS 에서 t('키').
+     - 페이지에서는 APP_DATA 를 만드는 스크립트 "뒤", main.js 를 불러오기 "앞" 에 th:replace 한 줄로 넣는다. -->
+<script th:fragment="jsMessages" th:inline="javascript">
+    window.APP_DATA = window.APP_DATA || {};   // APP_DATA 가 아직 없으면 빈 객체로 만든다. (있으면 그대로 두고 messages 만 추가)
+    window.APP_DATA.messages = {
+        // 카페 클릭 → 경로 (map/carRoutes.js)
+        'route.calculating': /*[[#{route.calculating}]]*/ '',
+        'route.minutes':     /*[[#{route.minutes}]]*/ '',
+        'route.none':        /*[[#{route.none}]]*/ '',
+        'route.loadFailed':  /*[[#{route.loadFailed}]]*/ ''
+    };
+</script>
+</html>

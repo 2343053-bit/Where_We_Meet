@@ -70,6 +70,8 @@
             participants: /*[[${participantForm?.participants}]]*/[]
         };
     </script>
+    <!-- JS 에서 쓰는 번역 문장 (APP_DATA.messages). APP_DATA 뒤, main.js 앞에 둔다. -->
+    <script th:replace="~{fragments/jsMessages :: jsMessages}"></script>
     <script type="module" th:src="@{/js/main.js}"></script>
 </body>
 
