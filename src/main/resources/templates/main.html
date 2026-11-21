@@ -11,8 +11,7 @@
     <header th:replace="~{fragments/header :: siteHeader}"></header>
     <div id="map"></div>
     <p id="current-location-status" role="status" hidden></p>
-    <!-- 장소 검색 기능은 기본 지도에 들어 있지 않아서 libraries='services' 를 추가해야 한다. -->
-    <script th:src="@{https://dapi.kakao.com/v2/maps/sdk.js(appkey=${kakaoJsKey},libraries='services')}"></script>
+    <script th:src="@{https://dapi.kakao.com/v2/maps/sdk.js(appkey=${kakaoJsKey})}"></script>
     <!-- 다음(카카오) 우편번호 서비스. "주소 검색" 버튼을 누르면 뜨는 주소 검색 팝업(daum.Postcode)을 쓰려고 추가했다. (키 필요 없음) -->
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 
