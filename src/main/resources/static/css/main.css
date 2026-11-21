@@ -26,10 +26,10 @@
 }
 
 /* 카드를 누르면 지도가 그 장소로 이동하므로, 누를 수 있다는 표시(손가락 모양, 마우스를 올리면 배경색). */
-/* 사진(왼쪽, 72px)과 정보(오른쪽)를 나란히. */
+/* 정보(왼쪽, 남는 폭 전부)와 사진(오른쪽, 72px)을 나란히. */
 .place-card {
     display: grid;
-    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 72px;
     gap: 10px;
     align-items: start;
     padding: 10px 8px;

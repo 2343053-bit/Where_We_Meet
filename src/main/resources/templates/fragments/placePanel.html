@@ -21,11 +21,6 @@
          <template> 안의 내용은 화면에 보이지 않는다. -->
     <template id="place-card-template">
         <li class="place-card">
-            <!-- 장소 사진. 지금은 카테고리별 기본 이미지(/images/places/)를 쓴다.
-                 <a> 로 감싸서 사진을 눌러도 "카카오맵에서 보기"와 똑같이 상세 페이지가 새 탭으로 열린다. -->
-            <a class="place-card__photo-link" target="_blank" rel="noopener">
-                <img class="place-card__photo" width="72" height="72" alt="">
-            </a>
             <div class="place-card__body">
                 <h3 class="place-card__name">장소 이름</h3>
                 <p class="place-card__category">카테고리</p>
@@ -38,6 +33,11 @@
                     <button type="button" class="place-card__share">공유</button>
                 </div>
             </div>
+            <!-- 장소 사진(카드 오른쪽). 지금은 카테고리별 기본 이미지(/images/places/)를 쓴다.
+                 <a> 로 감싸서 사진을 눌러도 "카카오맵에서 보기"와 똑같이 상세 페이지가 새 탭으로 열린다. -->
+            <a class="place-card__photo-link" target="_blank" rel="noopener">
+                <img class="place-card__photo" width="72" height="72" alt="">
+            </a>
         </li>
     </template>
 </aside>
