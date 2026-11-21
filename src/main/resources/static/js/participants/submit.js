@@ -1,4 +1,5 @@
 import { addressToCoords } from '../api/geocoder.js';   // participants/ 에서 한 칸 위로
+import { t } from '../util/i18n.js';                   // 다국어 처리. t('키', 값) → 사전의 {0} 자리에 값을 채운 문장
 
 export function initSubmit(form, participantsEl) {
     form.addEventListener("submit", async (e) => {
@@ -9,7 +10,7 @@ export function initSubmit(form, participantsEl) {
         // 1) 빈 주소 확인 (readonly 칸은 required 검사가 안 되므로 직접)
         const emptyIndex = addresses.findIndex((a) => !a);
         if (emptyIndex !== -1) {
-            alert(`참가자 ${emptyIndex + 1}의 주소를 검색해 주세요.`);
+            alert(t('submit.noAddress', emptyIndex + 1));        // 참가자 {0}의 주소를 검색해 주세요.
             return;
         }
 
@@ -17,7 +18,7 @@ export function initSubmit(form, participantsEl) {
         const results = await Promise.allSettled(addresses.map(addressToCoords));
         const failedIndex = results.findIndex((r) => r.status === "rejected");
         if (failedIndex !== -1) {
-            alert(`참가자 ${failedIndex + 1}의 주소를 찾을 수 없습니다.`);
+            alert(t('submit.addressNotFound', failedIndex + 1)); // 참가자 {0}의 주소를 찾을 수 없습니다.
             return;
         }
 

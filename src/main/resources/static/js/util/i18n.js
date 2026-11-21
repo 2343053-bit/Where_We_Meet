@@ -6,10 +6,17 @@
 //       t('route.minutes', 27)   → "승용차 27분"             /  "27 min by car"
 
 let messages = {};   // 이 파일 안에서만 쓰는 사전.
+let lang = 'ko';     // 지금 언어 코드. ("ko", "en") 문장 말고 "언어에 따라 보여 줄 값이 다를 때" 쓴다.
 
-// 사전을 넣는다. 시작점(main.js)에서 다른 모듈보다 먼저 한 번 부른다.
-export function initMessages(newMessages) {
+// 사전과 지금 언어를 넣는다. 시작점(main.js)에서 다른 모듈보다 먼저 한 번 부른다.
+export function initMessages(newMessages, newLang) {
     messages = newMessages || {};
+    lang = newLang || 'ko';
+}
+
+// 지금 언어 코드를 돌려준다. 예) 장소 종류: 한국어면 카카오의 자세한 분류, 아니면 번역한 큰 분류. (map/placePanel.js)
+export function getLang() {
+    return lang;
 }
 
 // key 에 해당하는 문장을 돌려준다. {0}, {1} ... 빈칸은 뒤에 넘긴 값으로 차례대로 채운다.
