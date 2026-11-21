@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="35" viewBox="0 0 24 35" role="img" aria-label="원래 중간 지점">
+  <!-- 조정 전 평균 좌표를 표시하는 회색 핀. 노란 별 마커(24x35)와 크기를 맞췄다. -->
+  <path d="M12 1C6 1 1 5.9 1 12c0 8.3 11 22 11 22s11-13.7 11-22C23 5.9 18 1 12 1z"
+        fill="#9E9E9E" stroke="#616161" stroke-width="1.5"/>
+  <circle cx="12" cy="12" r="4" fill="#FFFFFF"/>
+</svg>
