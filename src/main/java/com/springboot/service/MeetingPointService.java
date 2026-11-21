@@ -13,13 +13,19 @@ public class MeetingPointService {
     private static final int MIN_PARTICIPANTS = 2;
     private static final int MAX_PARTICIPANTS = 5;
 
+    private final MeetingPointAdjuster meetingPointAdjuster;
+
+    public MeetingPointService(MeetingPointAdjuster meetingPointAdjuster) {
+        this.meetingPointAdjuster = meetingPointAdjuster;
+    }
+
     // 참가자들의 위치를 기반으로 중간 지점을 계산하는 메서드
     public MeetingPoint findMeetingPoint(List<ParticipantLocation> participants) {
 
         // 참가자 수와 각 참가자의 위도 및 경도를 검증
         validateParticipants(participants);
 
-        //참가들 인원 수를 가져옴
+        // 참가들 인원 수를 가져옴
         int participantCount = participants.size();
 
         // 참가자들의 위도와 경도를 합산하여 평균을 계산
@@ -35,13 +41,20 @@ public class MeetingPointService {
         // MeetingPoint 객체 생성
         MeetingPoint meetingPoint = new MeetingPoint();
 
-        // 평균 위도와 경도를 계산하여 MeetingPoint 객체에 설정
-        meetingPoint.setMeetingLatitude(latitudeSum / participantCount);
-        meetingPoint.setMeetingLongitude(longitudeSum / participantCount);
+        // 평균 위도와 경도를 계산
+        double averageLatitude = latitudeSum / participantCount;
+        double averageLongitude = longitudeSum / participantCount;
 
-        return meetingPoint;
+        // 최종 중간 지점은 일단 평균으로 두고, 원래 평균 좌표도 따로 보관한다. (조정되면 회색 마커로 표시)
+        meetingPoint.setMeetingLatitude(averageLatitude);
+        meetingPoint.setMeetingLongitude(averageLongitude);
+        meetingPoint.setAverageLatitude(averageLatitude);
+        meetingPoint.setAverageLongitude(averageLongitude);
+
+        // 바다나 산이면 가까운 역으로 옮긴다. (MeetingPointAdjuster)
+        return meetingPointAdjuster.adjust(meetingPoint);
     }
-    
+
     // 참가자 수와 각 참가자의 위도 및 경도를 검증하는 메서드
     private void validateParticipants(List<ParticipantLocation> participants) {
         // 참가자 수가 최소 및 최대 범위 내에 있는지 확인
