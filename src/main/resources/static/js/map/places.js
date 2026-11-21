@@ -1,22 +1,21 @@
 import { showCarRoutes } from './carRoutes.js';
+import { fetchPlaces } from '../api/geoApi.js';   // map/ 에서 한 칸 위로
 
 export function searchNearbyPlaces(map, meetingLat, meetingLng, participantList, keyword) {
     var placeInfowindow = new kakao.maps.InfoWindow({ zIndex: 1 }); // 장소 마커를 클릭하면 장소 이름을 보여 줄 말풍선. (하나를 돌려 씀) zIndex 는 다른 말풍선보다 위에 보이게.
-    var ps = new kakao.maps.services.Places();                       // 장소 검색 객체 생성.
 
-    // 검색어 주변 장소를 찾고, 검색이 끝나면 placesSearchCB 함수가 실행된다.
-    ps.keywordSearch(keyword, placesSearchCB, {
-        location: new kakao.maps.LatLng(meetingLat, meetingLng),     // 검색 기준 위치. (중간 지점)
-        radius: 1000,                                                // 기준 위치에서 1000m 안에서만 찾는다.
-        sort: kakao.maps.services.SortBy.DISTANCE                    // 가까운 순서로 정렬한다.
-    });
+    // 검색어 주변 장소를 서버(/api/geo/places)에 물어보고, 답이 오면 placesSearchCB 함수가 실행된다.
+    // 검색 기준 위치(중간 지점), 반경 1000m, 가까운 순서 정렬은 서버(KakaoLocalService.searchKeyword)가 정한다.
+    fetchPlaces(keyword, meetingLat, meetingLng)
+        .then(placesSearchCB)
+        .catch(function (error) {                     // 서버나 네트워크 오류. (예전처럼 장소 마커 없이 넘어간다)
+            console.error(error);
+        });
 
-    // 검색이 끝나면 카카오가 호출해 주는 함수. data = 검색된 장소 목록, status = 검색 결과 상태.
-    function placesSearchCB(data, status, pagination) {
-        if (status === kakao.maps.services.Status.OK) {   // 검색 결과가 있을 때만.
-            for (var i = 0; i < data.length; i++) {        // 검색된 장소 수만큼 반복.
-                displayMarker(data[i]);                    // i 번째 장소의 마커를 만든다.
-            }
+    // 서버 답이 오면 실행되는 함수. data = 검색된 장소 목록. (결과가 없으면 빈 배열이라 반복을 한 번도 안 한다)
+    function placesSearchCB(data) {
+        for (var i = 0; i < data.length; i++) {        // 검색된 장소 수만큼 반복.
+            displayMarker(data[i]);                    // i 번째 장소의 마커를 만든다.
         }
     }
 
