@@ -15,4 +15,5 @@ public interface MemberRepository extends JpaRepository<Member, String>{
     // username 또는 nickname이 이미 사용 중인지 확인해 중복 가입을 막는다.
     boolean existsByUsername(String username);
     boolean existsByNickname(String nickname);
+    boolean existsByNicknameAndUsernameNot(String nickname, String username);
 }

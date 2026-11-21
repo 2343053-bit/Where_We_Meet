@@ -8,7 +8,7 @@
 
 
 <body>
-    <header th:replace="~{fragments/header :: siteHeader}"></header>
+    <header th:replace="${isAuthenticated} ? ~{fragments/header_mypage :: siteHeader} : ~{fragments/header :: siteHeader}"></header>
     <!-- 지도(왼쪽)와 주변 장소 패널(오른쪽)을 나란히 놓는 영역. 패널 HTML 은 fragments/placePanel.html 에 있다. -->
     <div id="map-area">
         <div id="map"></div>

@@ -2,37 +2,62 @@ package com.springboot.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.springboot.service.CustomUserDetailsService;
+
 @Configuration
 public class SecurityConfig {
-    
+
     // 회원가입 시 비밀번호를 암호화하고 로그인 시 입력값과 저장된 암호를 비교한다.
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // 기능 시험용 계정은 메모리에서 인증하고, 나머지 계정은 DB에서 조회한다.
+    // 배포 전에는 시험용 계정을 삭제하거나 실제 인증 설정으로 교체한다.
+    @Bean
+    @Primary
+    public UserDetailsService testAndDatabaseUserDetailsService(
+            CustomUserDetailsService databaseUserDetailsService,
+            PasswordEncoder passwordEncoder) {
+        UserDetails testUser = User.builder()
+                .username("student")
+                .password(passwordEncoder.encode("1234"))
+                .roles("USER")
+                .build();
+
+        return username -> {
+            if ("student".equals(username)) {
+                return testUser;
+            }
+            return databaseUserDetailsService.loadUserByUsername(username);
+        };
+    }
+
     // HTTP 요청의 인증 여부와 로그인·로그아웃 처리 규칙을 정의한다.
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http, // 보안 필터 체인의 접근 권한과 인증 방식을 설정한다.
-            UserDetailsService userDetailsService) throws Exception { // 로그인 아이디로 DB 회원을 조회해 인증에 사용할 정보를 제공한다.
+            UserDetailsService userDetailsService) throws Exception { // 시험용 계정 또는 DB 회원을 조회한다.
         http
             .userDetailsService(userDetailsService)
             // 요청별로 로그인 필요 여부를 결정한다.
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/signup", "/main",
-                 "/css/**", "/js/**", "/images/**", "/api/**", "/mypage")
+                 "/css/**", "/js/**", "/images/**", "/api/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
             )
-
             // HTML 로그인 폼을 사용한 인증 흐름을 설정한다.
             .formLogin(form -> form
                 .loginPage("/login") // 인증되지 않은 사용자가 이동할 로그인 화면
@@ -53,4 +78,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-    

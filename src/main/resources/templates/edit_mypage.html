@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <th:block th:replace="~{fragments/head :: common('회원정보 수정')}"></th:block>
+</head>
+
+<body>
+    <header th:replace="${isAuthenticated} ? ~{fragments/header_mypage :: siteHeader} : ~{fragments/header :: siteHeader}"></header>
+
+    <main>
+        <h1>회원정보 수정</h1>
+        <p th:if="${errorMessage != null}" th:text="${errorMessage}"></p>
+
+        <form th:action="@{/mypage/edit}" th:object="${memberForm}" method="post">
+            <label for="nickname">닉네임:</label>
+            <input type="text" th:field="*{nickname}" id="nickname" required>
+
+            <label for="phoneNumber">휴대전화:</label>
+            <input type="text" th:field="*{phoneNumber}" id="phoneNumber" required>
+
+            <label for="email">이메일:</label>
+            <input type="email" th:field="*{email}" id="email" required>
+
+            <label for="address">주소:</label>
+            <input type="text" th:field="*{address}" id="address" readonly required>
+            <button type="button" id="searchAddress">주소 검색</button>
+
+            <button type="submit">저장</button>
+            <a th:href="@{/mypage}">취소</a>
+        </form>
+    </main>
+
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script>
+        document.getElementById("searchAddress").addEventListener("click", () => {
+            new daum.Postcode({
+                oncomplete: (data) => {
+                    document.getElementById("address").value =
+                        data.roadAddress || data.jibunAddress || data.address;
+                }
+            }).open();
+        });
+    </script>
+</body>
+
+</html>

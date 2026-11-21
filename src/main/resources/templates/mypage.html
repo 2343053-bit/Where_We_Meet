@@ -6,7 +6,7 @@
 </head>
 
 <body>
-    <header th:replace="~{fragments/header :: siteHeader}"></header>
+    <header th:replace="${isAuthenticated} ? ~{fragments/header_mypage :: siteHeader} : ~{fragments/header :: siteHeader}"></header>
 
     <main>
         <fieldset>
@@ -25,6 +25,12 @@
                 <dd th:text="${member.address}"></dd>
             </dl>
         </fieldset>
+        <form th:action="@{/main}" method="get">
+            <button type="submit">홈으로</button>
+        </form>
+        <form th:action="@{/mypage/edit}" method="get">
+            <button type="submit">회원정보 수정</button>
+        </form>
     </main>
 </body>
 

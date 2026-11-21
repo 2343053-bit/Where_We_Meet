@@ -1,6 +1,7 @@
 package com.springboot.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,5 +34,27 @@ public class MemberService {
         // 비밀번호를 암호화하여 저장합니다.
         member.setPassword(passwordEncoder.encode(member.getPassword()));
         memberRepository.save(member); // 회원 정보를 데이터베이스에 저장.
+    }
+
+    @Transactional(readOnly = true)
+    public Member findByUsername(String username) {
+        return memberRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "회원 정보를 찾을 수 없습니다: " + username));
+    }
+
+    @Transactional
+    public void updateProfile(String username, Member changes) {
+        Member member = findByUsername(username);
+
+        if (memberRepository.existsByNicknameAndUsernameNot(changes.getNickname(), username)) {
+            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+        }
+
+        member.setNickname(changes.getNickname());
+        member.setPhoneNumber(changes.getPhoneNumber());
+        member.setEmail(changes.getEmail());
+        member.setAddress(changes.getAddress());
+        memberRepository.save(member);
     }
 }

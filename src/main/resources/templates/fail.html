@@ -6,6 +6,8 @@
 <h3>로그인 실패</h3>
 <h5>ID 또는 비밀번호가 올바르지 않습니다.</h5>
 <p><a href="/login">로그인 화면으로 이동</a></p>
-
+<form th:action="@{/main}" method="get">
+    <button type="submit">홈으로</button>
+</form>
 </body>
 </html>
