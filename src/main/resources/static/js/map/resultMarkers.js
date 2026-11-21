@@ -30,7 +30,7 @@ export function drawResult(map, meetingLat, meetingLng, participantList) {
     // ── 참가자 위치 마커 ───────────────────────
     //   참가자 목록을 JS 배열로 받는다.
     //   participantForm 은 컨트롤러의 @ModelAttribute 가 화면에 자동으로 넘겨 주는 폼 객체를 사용했음.
-    //   나중에 컨트롤러 39번 줄 주석을 풀면, 화면의 participantForm?.participants를 participants로 바꾸기만 하면 됨.
+    //   나중에 컨트롤러 40번 줄 주석을 풀면, 화면의 participantForm?.participants를 participants로 바꾸기만 하면 됨.
     //   서버가 처리하면 [{"participantName":"철수","latitude":37.5,"longitude":127.0}, ...] 모양이 된다.
 
 

@@ -9,7 +9,11 @@
 
 <body>
     <header th:replace="~{fragments/header :: siteHeader}"></header>
-    <div id="map"></div>
+    <!-- 지도(왼쪽)와 주변 장소 패널(오른쪽)을 나란히 놓는 영역. 패널 HTML 은 fragments/placePanel.html 에 있다. -->
+    <div id="map-area">
+        <div id="map"></div>
+        <aside th:replace="~{fragments/placePanel :: placePanel(${meetingPoint != null})}"></aside>
+    </div>
     <p id="current-location-status" role="status" hidden></p>
     <!-- 장소 검색 기능은 기본 지도에 들어 있지 않아서 libraries='services' 를 추가해야 한다. -->
     <script th:src="@{https://dapi.kakao.com/v2/maps/sdk.js(appkey=${kakaoJsKey},libraries='services')}"></script>
