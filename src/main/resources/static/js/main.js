@@ -7,8 +7,10 @@ import { initParticipantList } from "./participants/participantList.js";
 import { initAddressSearch } from "./participants/addressSearch.js";
 import { initSubmit } from "./participants/submit.js";
 import { coordsToAddress } from './api/geocoder.js';
+import { initMessages } from './util/i18n.js';
 
 var appData = readAppData();
+initMessages(appData.messages);   // 번역 문장 넣기. 다른 모듈이 t('키') 를 쓰기 전에.
 var meetingPoint = appData.meetingPoint;
 var meetingLat = meetingPoint ? meetingPoint.meetingLatitude : null;
 var meetingLng = meetingPoint ? meetingPoint.meetingLongitude : null;
