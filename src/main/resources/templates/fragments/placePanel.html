@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- 지도 오른쪽의 "주변 장소" 패널.
+     - searched : 중간 지점을 계산했는지 (true 면 장소 검색이 곧 시작되므로 "찾는 중" 문구를 보여 준다)
+     - 장소 목록은 브라우저에서 검색하므로 서버(Thymeleaf)가 채울 수 없다.
+       그래서 이 조각은 "틀"과 "카드 1개 모양(template)"만 만들고, 내용은 placePanel.js 가 채운다.
+       (참가자 입력칸의 participant-template 과 같은 방식) -->
+<aside th:fragment="placePanel(searched)" id="place-panel">
+    <h2>주변 장소</h2>
+
+    <!-- 안내 문구. 제출 전 / 검색 중 / 결과 없음 / 오류일 때 보이고, 결과가 있으면 JS 가 숨긴다. -->
+    <p id="place-status" role="status"
+       th:text="${searched} ? '장소를 찾는 중...' : '참가자 위치를 제출하면 중간 지점 주변 장소가 여기에 표시됩니다.'">
+        참가자 위치를 제출하면 중간 지점 주변 장소가 여기에 표시됩니다.
+    </p>
+
+    <!-- 카드들이 들어갈 빈 목록. -->
+    <ul id="place-list"></ul>
+
+    <!-- 장소 카드 1개 모양. JS 가 장소마다 복제해서 class 이름으로 칸을 찾아 값을 넣는다.
+         <template> 안의 내용은 화면에 보이지 않는다. -->
+    <template id="place-card-template">
+        <li class="place-card">
+            <h3 class="place-card__name">장소 이름</h3>
+            <p class="place-card__category">카테고리</p>
+            <p class="place-card__address">주소</p>
+            <p class="place-card__phone">전화번호</p>
+            <p class="place-card__distance">중간 지점에서 거리</p>
+            <a class="place-card__link" target="_blank" rel="noopener">카카오맵에서 보기</a>
+        </li>
+    </template>
+</aside>
+</html>
