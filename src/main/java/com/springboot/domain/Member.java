@@ -16,8 +16,6 @@ public class Member {
     private String email;
     private String phoneNumber;
     private String address;
-    private String profileImageUrl;
-
 
     // getter와 setter 메서드입니다.
     public String getEmail() {
@@ -37,12 +35,6 @@ public class Member {
     }
     public void setAddress(String address) {
         this.address = address;
-    }
-    public String getProfileImageUrl() {
-        return profileImageUrl;
-    }
-    public void setProfileImageUrl(String profileImageUrl) {
-        this.profileImageUrl = profileImageUrl;
     }
     public String getUsername() {
         return username;

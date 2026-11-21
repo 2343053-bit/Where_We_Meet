@@ -40,11 +40,12 @@ public class SecurityConfig {
                 .usernameParameter("username") // 로그인 폼에서 사용자 식별자를 담는 input의 name
                 .passwordParameter("password") // 로그인 폼에서 비밀번호를 담는 input의 name
                 .defaultSuccessUrl("/main", true) // 인증 성공 후 이동할 주소
-                .failureUrl("/login?error=true") // 인증 실패 후 이동할 주소
+                .failureUrl("/fail") // 인증 실패 후 이동할 주소
                 .permitAll()
             )
             // 로그아웃 후 세션을 정리하고 로그인 화면으로 이동한다.
             .logout(logout -> logout
+                .logoutUrl("/logout") // 로그아웃 처리 주소
                 .logoutSuccessUrl("/login?logout=true")
                 .permitAll()
             );

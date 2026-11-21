@@ -27,10 +27,13 @@ public class MemberController {
     @PostMapping("/signup")
     public String processSignup(@ModelAttribute("memberForm") Member memberForm) {
         memberService.signup(memberForm); // 회원 가입 로직을 호출하여 회원 정보를 저장합니다.
-        
         return "redirect:/login"; // 회원 가입 후 로그인 페이지로 리다이렉트합니다.
     }
 
+    @GetMapping("/fail")
+    public String showFailPage() {
+        return "fail"; // 로그인 실패 시 보여줄 뷰 이름을 반환합니다.
+    }
 
     @GetMapping("/login")
     public String showLoginForm() {
