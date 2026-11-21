@@ -11,7 +11,7 @@ import { initMessages, t } from './util/i18n.js';   // { 이름1, 이름2 } : �
 import { initLangSwitch } from './util/langSwitch.js';
 
 var appData = readAppData();
-initMessages(appData.messages);   // 번역 문장 넣기. 다른 모듈이 t('키') 를 쓰기 전에.
+initMessages(appData.messages, appData.lang);   // 번역 문장과 지금 언어 넣기. 다른 모듈이 t('키') 를 쓰기 전에.
 var meetingPoint = appData.meetingPoint;
 var meetingLat = meetingPoint ? meetingPoint.meetingLatitude : null;
 var meetingLng = meetingPoint ? meetingPoint.meetingLongitude : null;
