@@ -8,6 +8,7 @@ import { initAddressSearch } from "./participants/addressSearch.js";
 import { initSubmit } from "./participants/submit.js";
 import { coordsToAddress } from './api/geocoder.js';
 import { initMessages } from './util/i18n.js';
+import { initLangSwitch } from './util/langSwitch.js';
 
 var appData = readAppData();
 initMessages(appData.messages);   // 번역 문장 넣기. 다른 모듈이 t('키') 를 쓰기 전에.
@@ -39,6 +40,8 @@ initParticipantList(participantsEl,
     document.getElementById("participant-template"));
 initAddressSearch(participantsEl);
 initSubmit(document.getElementById("participantForm"), participantsEl);
+// 결과 화면에서 언어를 바꾸면 폼을 다시 제출해서 결과를 유지한다. (처음 화면에서는 링크 그대로)
+initLangSwitch(document.querySelector('.lang-switch'), document.getElementById("participantForm"), meetingPoint != null);
 
 // 지도 생성 및 반환.
 var map = createMap(document.getElementById('map'));
