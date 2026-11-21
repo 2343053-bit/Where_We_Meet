@@ -25,9 +25,15 @@
     padding: 0;
 }
 
+/* 카드를 누르면 지도가 그 장소로 이동하므로, 누를 수 있다는 표시(손가락 모양, 마우스를 올리면 배경색). */
 .place-card {
-    padding: 10px 0;
+    padding: 10px 8px;
     border-bottom: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.place-card:hover {
+    background: #f3f6fb;
 }
 
 .place-card h3,

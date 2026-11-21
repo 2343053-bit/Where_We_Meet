@@ -10,7 +10,9 @@ export function showPlaceStatus(message) {
 }
 
 // 장소 목록(places)을 카드로 만들어 패널에 넣는다. place 하나 = 카카오 장소 검색 결과 1개.
-export function renderPlaceList(places) {
+// onSelect : 카드를 누르면 불리는 함수. 몇 번째 카드인지(i)만 알려 준다.
+//            (이 파일은 지도·마커를 모르게 두고, 누른 뒤 할 일은 부르는 쪽(places.js)이 정한다)
+export function renderPlaceList(places, onSelect) {
     var listEl = document.getElementById('place-list');
     var template = document.getElementById('place-card-template');
 
@@ -18,8 +20,19 @@ export function renderPlaceList(places) {
     document.getElementById('place-status').hidden = true;     // 결과가 있으니 안내 문구는 숨긴다.
 
     for (var i = 0; i < places.length; i++) {                  // 장소 수만큼 반복.
-        listEl.appendChild(createPlaceCard(template, places[i]));
+        var card = createPlaceCard(template, places[i]);
+        card.dataset.index = i;                                // 몇 번째 장소인지 카드에 적어 둔다. (HTML 의 data-index="i")
+        listEl.appendChild(card);
     }
+
+    // 카드마다 이벤트를 붙이지 않고 목록(#place-list)에 한 번만 붙인다. (이벤트 위임, addressSearch.js 와 같은 방식)
+    // onclick = 으로 넣어서, 검색을 다시 해도 이벤트가 겹겹이 쌓이지 않고 마지막 것으로 바뀐다.
+    listEl.onclick = function (e) {
+        if (e.target.closest('a')) return;                     // "카카오맵에서 보기" 링크는 새 탭만 열고 지도는 움직이지 않는다.
+        var card = e.target.closest('.place-card');            // 누른 곳을 감싸는 카드.
+        if (!card) return;                                     // 카드 사이 빈 곳을 누른 경우.
+        onSelect(Number(card.dataset.index));                  // data-index 는 글자라서 숫자로 바꿔 넘긴다.
+    };
 }
 
 // template 을 복제해서 장소 하나의 카드를 만든다.
