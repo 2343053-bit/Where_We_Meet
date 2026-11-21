@@ -9,25 +9,36 @@
     <header th:replace="${isAuthenticated} ? ~{fragments/header_mypage :: siteHeader} : ~{fragments/header :: siteHeader}"></header>
 
     <main>
-        <h1>회원정보 수정</h1>
         <p th:if="${errorMessage != null}" th:text="${errorMessage}"></p>
 
         <form th:action="@{/mypage/edit}" th:object="${memberForm}" method="post">
-            <label for="nickname">닉네임:</label>
-            <input type="text" th:field="*{nickname}" id="nickname" required>
+            <fieldset>
+                <legend>회원정보 수정</legend>
 
-            <label for="phoneNumber">휴대전화:</label>
-            <input type="text" th:field="*{phoneNumber}" id="phoneNumber" required>
+                <p>
+                    <label for="nickname">닉네임:</label><br>
+                    <input type="text" th:field="*{nickname}" id="nickname" required>
+                </p>
 
-            <label for="email">이메일:</label>
-            <input type="email" th:field="*{email}" id="email" required>
+                <p>
+                    <label for="phoneNumber">휴대전화:</label><br>
+                    <input type="text" th:field="*{phoneNumber}" id="phoneNumber" required>
+                </p>
 
-            <label for="address">주소:</label>
-            <input type="text" th:field="*{address}" id="address" readonly required>
-            <button type="button" id="searchAddress">주소 검색</button>
+                <p>
+                    <label for="email">이메일:</label><br>
+                    <input type="email" th:field="*{email}" id="email" required>
+                </p>
 
-            <button type="submit">저장</button>
-            <a th:href="@{/mypage}">취소</a>
+                <p>
+                    <label for="address">주소:</label><br>
+                    <input type="text" th:field="*{address}" id="address" readonly required>
+                    <button type="button" id="searchAddress">주소 검색</button>
+                </p>
+
+                <button type="submit">저장</button>
+                <a th:href="@{/mypage}">취소</a>
+            </fieldset>
         </form>
     </main>
 
