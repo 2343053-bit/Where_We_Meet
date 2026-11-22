@@ -49,7 +49,9 @@ public class MeetingPointAdjuster {
             if (!needsAdjust(lat, lng)) {                 // 놀 곳이 충분하면 그대로.
                 return point;
             }
-            findAnchor(lat, lng).ifPresent(anchor -> moveTo(point, anchor));   // 거점이 있으면 옮긴다.
+            findAnchor(lat, lng).ifPresentOrElse(
+                    anchor -> moveTo(point, anchor),        // 거점이 있으면 옮긴다.
+                    () -> point.setAnchorMissing(true));    // 없으면 못 찾았다고 표시한다.
         } catch (RestClientException e) {
             // 카카오 호출이 실패해도 제출은 되어야 하므로, 조정하지 않고 평균 좌표를 그대로 쓴다.
             log.warn("중간 지점 조정 실패, 평균 좌표를 그대로 사용합니다. ({}, {})", lat, lng, e);

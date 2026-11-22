@@ -7,6 +7,7 @@ public class MeetingPoint {
     private Double averageLatitude; // 추가: 원래 평균 좌표
     private Double averageLongitude; // 추가
     private String anchorName; // 추가: 옮겨간 거점 이름
+    private boolean anchorMissing; // 추가: 옮겨야 하는데 거점을 못 찾았는지
     
     public Double getMeetingLatitude() {
         return meetingLatitude;
@@ -44,6 +45,10 @@ public class MeetingPoint {
     public void setAnchorName(String anchorName) {
         this.anchorName = anchorName;
     }
-
-    
+    public boolean isAnchorMissing() {
+        return anchorMissing;
+    }
+    public void setAnchorMissing(boolean anchorMissing) {
+        this.anchorMissing = anchorMissing;
+    }
 }

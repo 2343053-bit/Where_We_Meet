@@ -98,6 +98,7 @@ class MeetingPointAdjusterTest {
 
         assertThat(result.isAdjusted()).isFalse();
         assertThat(result.getMeetingLatitude()).isEqualTo(34.0);
+        assertThat(result.isAnchorMissing()).isTrue();
     }
 
     @Test

@@ -113,5 +113,14 @@
     }
 }
 
+/* 중간 지점 안내 (지도 위) */
+.meeting-notice {
+    margin: 8px 0;
+    padding: 10px 12px;
+    border-radius: 6px;
+    background: #E3ECF8;
+}
+.meeting-notice--warning { background: #FFF3CD; }
+
 .info-window { padding: 5px;}
 .info-window--place { font-size: 12px;}
