@@ -16,7 +16,7 @@ export function drawResult(map, meetingLat, meetingLng, participantList, average
         var imageSize = new kakao.maps.Size(24, 35);                    // 마커 이미지 크기. (가로, 세로 px)
         var imageOption = { offset: new kakao.maps.Point(12, 35) };     // 이미지의 어느 점을 좌표에 맞출지. (가로 가운데 12, 맨 아래 35 = 핀의 뾰족한 끝)
         var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);           // 마커 이미지 생성.
-        var marker = new kakao.maps.Marker({ position: markerPosition, image: markerImage });     // 마커 생성.
+        var marker = new kakao.maps.Marker({ position: markerPosition, image: markerImage, zIndex: 10 });     // 마커 생성.
 
         marker.setMap(map);                                                  // 지도 위에 올리기.
         map.setCenter(markerPosition);                                       // 지도 중심도 중간 지점으로 이동.
@@ -44,10 +44,14 @@ export function drawResult(map, meetingLat, meetingLng, participantList, average
         });
         bounds.extend(averagePosition);
 
-        new kakao.maps.InfoWindow({
+        var averageWindow = new kakao.maps.InfoWindow({
             position: averagePosition,
             content: '<div class="info-window">' + t('result.averagePoint') + '</div>'
-        }).open(map, averageMarker);
+        });
+        // 중간 지점 말풍선을 가리지 않게, 마우스를 올리거나 누를 때만 보여 준다.
+        kakao.maps.event.addListener(averageMarker, 'mouseover', function () { averageWindow.open(map, averageMarker); });
+        kakao.maps.event.addListener(averageMarker, 'click', function () { averageWindow.open(map, averageMarker); });
+        kakao.maps.event.addListener(averageMarker, 'mouseout', function () { averageWindow.close(); });    
     }
 
     // ── 참가자 위치 마커 ───────────────────────
