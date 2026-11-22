@@ -6,6 +6,7 @@ public class ParticipantLocation {
     private String participantName;
     private Double latitude;
     private Double longitude;
+    private String address;
 
     protected ParticipantLocation() {
     }
@@ -22,6 +23,14 @@ public class ParticipantLocation {
 
     public void setParticipantName(String participantName) {
         this.participantName = participantName;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public Double getLatitude() {
