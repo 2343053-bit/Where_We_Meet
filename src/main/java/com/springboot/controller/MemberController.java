@@ -2,10 +2,14 @@ package com.springboot.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.springboot.domain.Member;
 import com.springboot.service.MemberService;
 
@@ -44,24 +48,25 @@ public class MemberController {
 
     @GetMapping("/mypage")
     public String showMypage(Authentication authentication, Model model) {
-        Member member = memberService.findByUsername(authentication.getName());
+        Member member = memberService.findById(authentication.getName());
         model.addAttribute("member", member);
         return "mypage"; // 마이페이지 뷰 이름을 반환합니다.
     }
 
     @GetMapping("/mypage/edit")
     public String showEditMypage(Authentication authentication, Model model) {
-        model.addAttribute("memberForm", memberService.findByUsername(authentication.getName()));
+        model.addAttribute("memberForm", memberService.findById(authentication.getName()));
         return "edit_mypage";
     }
 
     @PostMapping("/mypage/edit")
     public String updateMypage(
             @ModelAttribute("memberForm") Member memberForm,
+            @RequestParam(name = "profileImage", required = false) MultipartFile profileImage,
             Authentication authentication,
             Model model) {
         try {
-            memberService.updateProfile(authentication.getName(), memberForm);
+            memberService.updateProfile(authentication.getName(), memberForm, profileImage);
             return "redirect:/mypage";
         } catch (IllegalArgumentException exception) {
             model.addAttribute("errorMessage", exception.getMessage());

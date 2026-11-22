@@ -2,16 +2,12 @@ package com.springboot.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 
-import com.springboot.service.CustomUserDetailsService;
 
 @Configuration
 public class SecurityConfig {
@@ -22,32 +18,11 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // 기능 시험용 계정은 메모리에서 인증하고, 나머지 계정은 DB에서 조회한다.
-    // 배포 전에는 시험용 계정을 삭제하거나 실제 인증 설정으로 교체한다.
-    @Bean
-    @Primary
-    public UserDetailsService testAndDatabaseUserDetailsService(
-            CustomUserDetailsService databaseUserDetailsService,
-            PasswordEncoder passwordEncoder) {
-        UserDetails testUser = User.builder()
-                .username("student")
-                .password(passwordEncoder.encode("1234"))
-                .roles("USER")
-                .build();
-
-        return username -> {
-            if ("student".equals(username)) {
-                return testUser;
-            }
-            return databaseUserDetailsService.loadUserByUsername(username);
-        };
-    }
-
     // HTTP 요청의 인증 여부와 로그인·로그아웃 처리 규칙을 정의한다.
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http, // 보안 필터 체인의 접근 권한과 인증 방식을 설정한다.
-            UserDetailsService userDetailsService) throws Exception { // 시험용 계정 또는 DB 회원을 조회한다.
+            UserDetailsService userDetailsService) throws Exception { // DB 회원 정보를 조회한다.
         http
             .userDetailsService(userDetailsService)
             // 요청별로 로그인 필요 여부를 결정한다.
@@ -62,7 +37,7 @@ public class SecurityConfig {
             .formLogin(form -> form
                 .loginPage("/login") // 인증되지 않은 사용자가 이동할 로그인 화면
                 .loginProcessingUrl("/login") // 로그인 폼의 POST 요청을 Spring Security가 처리하는 주소
-                .usernameParameter("username") // 로그인 폼에서 사용자 식별자를 담는 input의 name
+                .usernameParameter("id") // 로그인 폼에서 로그인 ID를 담는 input의 name
                 .passwordParameter("password") // 로그인 폼에서 비밀번호를 담는 input의 name
                 .defaultSuccessUrl("/main", true) // 인증 성공 후 이동할 주소
                 .failureUrl("/fail") // 인증 실패 후 이동할 주소
@@ -71,7 +46,7 @@ public class SecurityConfig {
             // 로그아웃 후 세션을 정리하고 로그인 화면으로 이동한다.
             .logout(logout -> logout
                 .logoutUrl("/logout") // 로그아웃 처리 주소
-                .logoutSuccessUrl("/login?logout=true")
+                .logoutSuccessUrl("/main?logout=true")
                 .permitAll()
             );
 
