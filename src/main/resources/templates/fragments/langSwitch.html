@@ -8,8 +8,12 @@
        그 JS 가 data-lang 값을 읽으므로, 링크를 추가할 때 data-lang 도 같이 붙인다.
      - 언어를 추가하려면: 아래에 링크 한 줄 + messages_xx.properties 파일 + 두 사전에 lang.xx 키를 추가한다. -->
 <div th:fragment="langSwitch" class="lang-switch">
-    <!-- th:text="#{키}" : 지금 언어의 사전(messages*.properties)에서 키를 찾아 글자를 바꿔 넣는다. -->
-    <a href="?lang=ko" data-lang="ko" th:text="#{lang.ko}">한국어</a> |
-    <a href="?lang=en" data-lang="en" th:text="#{lang.en}">English</a>
+    <!-- th:text="#{키}" : 지금 언어의 사전(messages*.properties)에서 키를 찾아 글자를 바꿔 넣는다.
+         th:classappend="조건 ? '클래스'" : 조건이 참일 때만 class 에 이름을 덧붙인다. (거짓이면 아무것도 안 붙임)
+         #locale.language : 지금 언어 코드("ko" / "en"). 지금 언어 링크에 is-active 를 붙여 css/base.css 에서 굵게 보여 준다. -->
+    <a href="?lang=ko" data-lang="ko" th:text="#{lang.ko}"
+       th:classappend="${#locale.language == 'ko'} ? 'is-active'">한국어</a> |
+    <a href="?lang=en" data-lang="en" th:text="#{lang.en}"
+       th:classappend="${#locale.language == 'en'} ? 'is-active'">English</a>
 </div>
 </html>
