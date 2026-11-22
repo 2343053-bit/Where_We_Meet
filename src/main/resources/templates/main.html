@@ -32,8 +32,8 @@
     <div id="form-results">
         <!-- id="participantForm" : 아래 스크립트에서 제출 이벤트를 가로채려고 폼에 id 를 붙였다. -->
         <form id="participantForm" th:action="@{/main}" th:object="${participantForm}" method="post">
-            <label for="keyword">검색어:</label>
-            <input type="text" th:field="*{keyword}" id="keyword" placeholder="예: 카페">
+            <label for="keyword" th:text="#{search.keyword}">검색어:</label>
+            <input type="text" th:field="*{keyword}" id="keyword"th:placeholder="#{search.keywordPlaceholder}">
 
             <div id="participants">
                 <th:block th:each="p, stat : *{participants}">

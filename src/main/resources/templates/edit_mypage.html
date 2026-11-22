@@ -13,10 +13,27 @@
              #{${키가 든 변수}} : 변수 값을 키로 써서 사전에서 문장을 찾는다. -->
         <p th:if="${errorMessage != null}" th:text="#{${errorMessage}}"></p>
 
-        <form th:action="@{/mypage/edit}" th:object="${memberForm}" method="post">
+        <form th:action="@{/mypage/edit}" th:object="${memberForm}" method="post" enctype="multipart/form-data">
             <fieldset>
                 <legend th:text="#{editMypage.legend}">회원정보 수정</legend>
-
+                <p>
+                    <label for="id" th:text="#{member.id}">아이디:</label><br>
+                    <input type="text" th:field="*{id}" id="id" readonly>
+                </p>
+                <p>
+                    <label for="username" th:text="#{member.username}">이름:</label><br>
+                    <input type="text" th:field="*{username}" id="username" required>
+                </p>
+                <p>
+                    <label for="profileImage" th:text="#{member.profileImage}">프로필 이미지:</label><br>
+                    <input type="file" name="profileImage" id="profileImage" accept="image/*">
+                    <br>
+                    <img id="profileImagePreview"
+                         style="display: none;"
+                         alt=""
+                         width="100"
+                         height="100">
+                </p>
                 <p>
                     <label for="nickname" th:text="#{member.nickname}">닉네임:</label><br>
                     <input type="text" th:field="*{nickname}" id="nickname" required>
@@ -46,6 +63,7 @@
 
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script th:src="@{/js/member/addressSearch.js}"></script>
+    <script th:src="@{/js/member/profileImagePreview.js}"></script>
 </body>
 
 </html>
