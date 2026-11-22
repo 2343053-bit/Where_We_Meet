@@ -3,7 +3,7 @@
 <!-- 참가자 입력칸 1개.
      - index : name 에 들어갈 번호 (0부터)    - num : 화면에 보이는 번호 (1부터)
      - p     : 채워 넣을 참가자 값 (없으면 null → 빈 칸)
-     - 주소 칸(.address) : 주소 검색 팝업으로만 채운다. name 이 없어서 서버로 전송되지 않는다.
+     - 주소 칸(.address) : 주소 검색 팝업으로만 채운다. 제출 뒤에도 남도록 서버로 보냈다가 다시 채운다.
      - 위도·경도 : hidden. 제출할 때 submit.js 가 주소를 좌표로 바꿔 채운다. -->
 <fieldset th:fragment="participant(index, num, p)">
     <!-- #{키(값)} : 사전 문장의 {0} 자리에 값을 채운다. (참가자 {0} → 참가자 1 / Participant 1)
@@ -12,8 +12,9 @@
     <!-- th:placeholder="#{키}" : placeholder 속성도 지금 언어의 문장으로 바꿔 넣는다. -->
     <input type="text" th:name="|participants[${index}].participantName|"
            th:value="${p?.participantName}" placeholder="이름" th:placeholder="#{participant.namePlaceholder}" required>
-    <input type="text" class="address" placeholder="주소" th:placeholder="#{participant.addressPlaceholder}" readonly required>
-    <button type="button" class="searchAddress" th:text="#{participant.searchAddress}">주소 검색</button>
+    <input type="text" class="address" th:name="|participants[${index}].address|" th:value="${p?.address}"
+           placeholder="주소" th:placeholder="#{participant.addressPlaceholder}" readonly required>
+           <button type="button" class="searchAddress" th:text="#{participant.searchAddress}">주소 검색</button>
     <input type="hidden" th:name="|participants[${index}].latitude|"  th:value="${p?.latitude}">
     <input type="hidden" th:name="|participants[${index}].longitude|" th:value="${p?.longitude}">
 </fieldset>
