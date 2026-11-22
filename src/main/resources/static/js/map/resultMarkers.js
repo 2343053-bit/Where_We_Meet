@@ -1,6 +1,6 @@
 import { t } from '../util/i18n.js';   // 다국어 처리. t('키') → 지금 언어의 문장 (messages.properties)
 
-export function drawResult(map, meetingLat, meetingLng, participantList) {
+export function drawResult(map, meetingLat, meetingLng, participantList, averagePoint) {
     // 마커 위치들을 모아 둘 범위 상자. 나중에 이 범위가 다 보이게 지도를 맞춘다.
     var bounds = new kakao.maps.LatLngBounds();
 
@@ -29,6 +29,27 @@ export function drawResult(map, meetingLat, meetingLng, participantList) {
         });
         infowindow.open(map, marker);                             // marker 위에 말풍선 열기.
     }
+
+    // 조정 전 평균 지점(회색). 중간 지점이 옮겨졌을 때만 표시한다.
+    if (averagePoint) {
+        var averagePosition = new kakao.maps.LatLng(averagePoint.lat, averagePoint.lng);
+        var averageMarker = new kakao.maps.Marker({
+            map: map,
+            position: averagePosition,
+            zIndex: -1,   // 다른 마커보다 아래에.
+            image: new kakao.maps.MarkerImage(
+                '/images/markers/average-point.svg',
+                new kakao.maps.Size(24, 35),
+                { offset: new kakao.maps.Point(12, 35) })
+        });
+        bounds.extend(averagePosition);
+
+        new kakao.maps.InfoWindow({
+            position: averagePosition,
+            content: '<div class="info-window">' + t('result.averagePoint') + '</div>'
+        }).open(map, averageMarker);
+    }
+
     // ── 참가자 위치 마커 ───────────────────────
     //   참가자 목록을 JS 배열로 받는다.
     //   participantForm 은 컨트롤러의 @ModelAttribute 가 화면에 자동으로 넘겨 주는 폼 객체를 사용했음.
