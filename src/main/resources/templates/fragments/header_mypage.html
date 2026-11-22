@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<!-- 모든 페이지 상단 메뉴. 메뉴를 추가/변경할 때는 이 파일만 고친다. -->
+<!-- 로그인한 사용자용 상단 메뉴. (로그인 전 메뉴는 fragments/header.html)
+     두 파일 모두 언어 전환 줄이 있어야 한다. 한쪽만 고치면 로그인 전/후 화면이 달라진다. -->
 <header th:fragment="siteHeader">
     <nav>
-        <a th:href="@{/mypage}">마이페이지</a>
+        <a th:href="@{/mypage}" th:text="#{header.mypage}">마이페이지</a>
     </nav>
+    <!-- 언어 전환 (한국어 | English). 내용은 fragments/langSwitch.html -->
+    <div th:replace="~{fragments/langSwitch :: langSwitch}"></div>
 </header>
 </html>

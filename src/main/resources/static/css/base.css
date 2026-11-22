@@ -1,0 +1,14 @@
+/* 모든 페이지 공통 스타일. (fragments/head.html 이 모든 페이지에 불러온다)
+   두 페이지 이상에서 쓰는 스타일만 둔다. 한 페이지 전용은 css/<페이지>.css 에. */
+
+/* ── 언어 전환 (fragments/langSwitch.html) ── 페이지 오른쪽 위에 둔다. */
+.lang-switch {
+    position: absolute;   /* 다른 요소들의 흐름에서 빼서, 아래 top/right 좌표에 놓는다. (기준: 페이지 왼쪽 위) */
+    top: 8px;             /* 페이지 맨 위에서 8px 아래. */
+    right: 16px;          /* 페이지 오른쪽 끝에서 16px 안쪽. */
+}
+
+/* 지금 보고 있는 언어는 굵게. (is-active 는 langSwitch.html 이 지금 언어 링크에만 붙인다) */
+.lang-switch .is-active {
+    font-weight: bold;
+}

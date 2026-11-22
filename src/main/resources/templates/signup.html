@@ -2,7 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <th:block th:replace="~{fragments/head :: common('회원가입')}"></th:block>
+    <th:block th:replace="~{fragments/head :: common(#{title.signup})}"></th:block>
     <style>
         .signup-form {
             width: 360px;
@@ -49,28 +49,28 @@
 <body>
     <header th:replace="${isAuthenticated} ? ~{fragments/header_mypage :: siteHeader} : ~{fragments/header :: siteHeader}"></header>
     <form class="signup-form" th:action="@{/signup}" th:object="${memberForm}" method="post">
-        <label for="username">아이디:</label>
+        <label for="username" th:text="#{member.username}">아이디:</label>
         <input type="text" th:field="*{username}" id="username" required>
 
-        <label for="nickname">닉네임:</label>
+        <label for="nickname" th:text="#{member.nickname}">닉네임:</label>
         <input type="text" th:field="*{nickname}" id="nickname" required>
 
-        <label for="password">비밀번호:</label>
+        <label for="password" th:text="#{member.password}">비밀번호:</label>
         <input type="password" th:field="*{password}" id="password" required>
 
-        <label for="email">이메일:</label>
+        <label for="email" th:text="#{member.email}">이메일:</label>
         <input type="email" th:field="*{email}" id="email" required>
 
-        <label for="phoneNumber">전화번호:</label>
+        <label for="phoneNumber" th:text="#{member.phoneNumber}">전화번호:</label>
         <input type="text" th:field="*{phoneNumber}" id="phoneNumber" required>
 
-        <label for="address">주소:</label>
+        <label for="address" th:text="#{member.address}">주소:</label>
         <div class="address-row">
             <input type="text" th:field="*{address}" id="address" readonly required>
-            <button type="button" id="searchAddress">주소 검색</button>
+            <button type="button" id="searchAddress" th:text="#{member.searchAddress}">주소 검색</button>
         </div>
 
-        <button type="submit">회원가입</button>
+        <button type="submit" th:text="#{signup.submit}">회원가입</button>
     </form>
 
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
