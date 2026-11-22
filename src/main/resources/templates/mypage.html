@@ -2,7 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <th:block th:replace="~{fragments/head :: common('마이페이지')}"></th:block>
+    <th:block th:replace="~{fragments/head :: common(#{title.mypage})}"></th:block>
 </head>
 
 <body>
@@ -10,26 +10,26 @@
 
     <main>
         <fieldset>
-            <legend>회원 정보</legend>
+            <legend th:text="#{mypage.info}">회원 정보</legend>
             <dl>
-                <dt>닉네임: </dt>
+                <dt th:text="#{member.nickname}">닉네임: </dt>
                 <dd th:text="${member.nickname}"></dd>
 
-                <dt>휴대전화: </dt>
+                <dt th:text="#{member.mobilePhone}">휴대전화: </dt>
                 <dd th:text="${member.phoneNumber}"></dd>
 
-                <dt>이메일: </dt>
+                <dt th:text="#{member.email}">이메일: </dt>
                 <dd th:text="${member.email}"></dd>
 
-                <dt>주소: </dt>
+                <dt th:text="#{member.address}">주소: </dt>
                 <dd th:text="${member.address}"></dd>
             </dl>
         </fieldset>
         <form th:action="@{/main}" method="get">
-            <button type="submit">홈으로</button>
+            <button type="submit" th:text="#{common.home}">홈으로</button>
         </form>
         <form th:action="@{/mypage/edit}" method="get">
-            <button type="submit">회원정보 수정</button>
+            <button type="submit" th:text="#{mypage.edit}">회원정보 수정</button>
         </form>
     </main>
 </body>

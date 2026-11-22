@@ -24,11 +24,11 @@ public class MemberService {
     @Transactional
     public void signup(Member member) {
         if (memberRepository.existsByUsername(member.getUsername())) {
-            throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
+            throw new IllegalArgumentException("member.usernameTaken"); // 문장 대신 사전 키. 화면에서 #{키} 로 번역한다. (이미 사용 중인 아이디)
         }
 
         if (memberRepository.existsByNickname(member.getNickname())) {
-            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+            throw new IllegalArgumentException("member.nicknameTaken"); // 사전 키. (이미 사용 중인 닉네임)
         }
 
         // 비밀번호를 암호화하여 저장합니다.
@@ -48,7 +48,7 @@ public class MemberService {
         Member member = findByUsername(username);
 
         if (memberRepository.existsByNicknameAndUsernameNot(changes.getNickname(), username)) {
-            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+            throw new IllegalArgumentException("member.nicknameTaken"); // 사전 키. (이미 사용 중인 닉네임)
         }
 
         member.setNickname(changes.getNickname());
