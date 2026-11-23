@@ -1,6 +1,7 @@
 package com.springboot.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import com.springboot.domain.Member;
 
 // Member 엔티티를 데이터베이스에서 조회·저장·수정·삭제하는 Repository.
