@@ -1,6 +1,7 @@
 package com.springboot.controller;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,8 +10,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.springboot.domain.MeetingPoint;
+import com.springboot.domain.ParticipantLocation;
 import com.springboot.repository.ParticipantForm;
 import com.springboot.service.MeetingPointService;
+import org.springframework.security.core.Authentication;
+import com.springboot.domain.Member;
+import com.springboot.service.MemberService;
 
 
 @Controller 
@@ -21,16 +26,31 @@ public class LocationController {
     private String kakaoJsKey;
 
     @GetMapping
-    public String getLocations(Model model) {
-        model.addAttribute("participantForm", new ParticipantForm());
+    public String getLocations(Model model, Authentication authentication) {
+        ParticipantForm participantForm = new ParticipantForm();
+
+        if (authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            Member member = memberService.findById(authentication.getName());
+            ParticipantLocation first = participantForm.getParticipants().get(0);
+            first.setParticipantName(member.getUsername());
+            first.setAddress(member.getAddress());
+        }
+
+        model.addAttribute("participantForm", participantForm);
         model.addAttribute("kakaoJsKey", kakaoJsKey);
         return "main";
     }
 
     private final MeetingPointService meetingPointService;
+    private final MemberService memberService;
 
-    public LocationController(MeetingPointService meetingPointService) {
+    public LocationController(
+            MeetingPointService meetingPointService,
+            MemberService memberService) {
         this.meetingPointService = meetingPointService;
+        this.memberService = memberService;
     }
 
     @PostMapping

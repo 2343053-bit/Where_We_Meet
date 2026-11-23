@@ -124,3 +124,17 @@
 
 .info-window { padding: 5px;}
 .info-window--place { font-size: 12px;}
+
+.bAddr {
+    width: 260px;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    line-height: 1.5;
+    font-size: 13px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}
+
+.bAddr > div + div {
+    margin-top: 4px;
+}
