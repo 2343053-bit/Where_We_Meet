@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <th:block th:replace="~{fragments/head :: common('참가자 위치 입력')}"></th:block>
+    <th:block th:replace="~{fragments/head :: common(#{title.main})}"></th:block>
     <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 
@@ -33,7 +33,7 @@
         <!-- id="participantForm" : 아래 스크립트에서 제출 이벤트를 가로채려고 폼에 id 를 붙였다. -->
         <form id="participantForm" th:action="@{/main}" th:object="${participantForm}" method="post">
             <label for="keyword" th:text="#{search.keyword}">검색어:</label>
-            <input type="text" th:field="*{keyword}" id="keyword"th:placeholder="#{search.keywordPlaceholder}">
+            <input type="text" th:field="*{keyword}" id="keyword" th:placeholder="#{search.keywordPlaceholder}">
 
             <div id="participants">
                 <th:block th:each="p, stat : *{participants}">
@@ -49,7 +49,7 @@
 
             <button type="button" id="removeParticipant">-</button>
             <button type="button" id="addParticipant">+</button>
-            <button type="submit">제출</button>
+            <button type="submit" th:text="#{search.submit}">제출</button>
         </form>
 
         <section id="results" th:if="${meetingPoint != null}">
