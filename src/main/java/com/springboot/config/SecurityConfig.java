@@ -25,7 +25,7 @@ public class SecurityConfig {
             UserDetailsService userDetailsService) throws Exception { // DB 회원 정보를 조회한다.
         http
             .userDetailsService(userDetailsService)
-            // 요청별로 로그인 필요 여부를 결정한다.
+            // 아래 정의된 경로 외의 요청은 로그인 필요.
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/signup", "/main",
                  "/css/**", "/js/**", "/images/**", "/api/**")

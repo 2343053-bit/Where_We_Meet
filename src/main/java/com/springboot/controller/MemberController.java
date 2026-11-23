@@ -28,14 +28,14 @@ public class MemberController {
         this.memberRepository = memberRepository;
     }
 
-    // 회원 가입 폼을 보여주는 메서드입니다. GET 요청이 들어오면 회원 가입 폼을 반환합니다.
+    // 회원가입 폼
     @GetMapping("/signup")
     public String showSignupForm(Model model) {
         model.addAttribute("memberForm", new Member());
         return "signup";
     }
 
-    // 회원 가입을 처리하는 메서드입니다. POST 요청이 들어오면 회원 정보를 저장합니다.
+    // 회원가입 처리
     @PostMapping("/signup")
     public String processSignup(@ModelAttribute("memberForm") Member memberForm, Model model) {
         try {
@@ -49,29 +49,37 @@ public class MemberController {
         }
     }
 
-    @GetMapping("/fail")
-    public String showFailPage() {
-        return "fail"; // 로그인 실패 시 보여줄 뷰 이름을 반환합니다.
-    }
-
+    //로그인 폼
     @GetMapping("/login")
     public String showLoginForm() {
-        return "login"; // 로그인 폼을 보여주는 뷰 이름을 반환합니다.
+        return "login";
     }
 
+    //로그인 실패 처리
+    @GetMapping("/fail")
+    public String showFailPage() {
+        return "fail";
+    }
+
+    //Q. 왜 회원가입 기능은 성공했을 때, 실패했을 때 코드가 나뉘어져 있고 로그인은 실패처리만 하나요?
+    //A. SecurityConfig(SecurityFilterChain)에서 로그인 성공처리는 설정할 수 있으나, 회원가입 성공 처리는 할 수 없어서.
+
+    //마이페이지 폼
     @GetMapping("/mypage")
     public String showMypage(Authentication authentication, Model model) {
         Member member = memberService.findById(authentication.getName());
         model.addAttribute("member", member);
-        return "mypage"; // 마이페이지 뷰 이름을 반환합니다.
+        return "mypage";
     }
 
+    //회원정보 수정 폼
     @GetMapping("/mypage/edit")
     public String showEditMypage(Authentication authentication, Model model) {
         model.addAttribute("memberForm", memberService.findById(authentication.getName()));
         return "edit_mypage";
     }
 
+    //회원정보 수정 처리
     @PostMapping("/mypage/edit")
     public String updateMypage(
             @ModelAttribute("memberForm") Member memberForm,
@@ -87,6 +95,7 @@ public class MemberController {
         }
     }
 
+    //회원탈퇴 처리
     @PostMapping("/mypage/delete")
     public String DeleteAccount(Authentication authentication, HttpServletRequest request,
         HttpServletResponse response) {
