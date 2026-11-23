@@ -22,9 +22,11 @@ import com.springboot.service.MemberService;
 @RequestMapping("/main")
 public class LocationController {
     
+    //카카오 API키
     @Value("${kakao.js-key}")
     private String kakaoJsKey;
 
+    
     @GetMapping
     public String getLocations(Model model, Authentication authentication) {
         ParticipantForm participantForm = new ParticipantForm();

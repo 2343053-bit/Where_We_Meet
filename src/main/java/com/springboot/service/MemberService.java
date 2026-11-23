@@ -47,6 +47,7 @@ public class MemberService {
                         "회원 정보를 찾을 수 없습니다: " + id));
     }
 
+    //회원정보 수정
     @Transactional
     public void updateProfile(String id, Member changes, MultipartFile profileImage) {
         Member member = findById(id);// 현재 로그인한 사용자의 정보를 조회합니다.
