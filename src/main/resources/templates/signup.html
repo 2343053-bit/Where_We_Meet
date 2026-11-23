@@ -48,6 +48,17 @@
 
 <body>
     <header th:replace="${isAuthenticated} ? ~{fragments/header_mypage :: siteHeader} : ~{fragments/header :: siteHeader}"></header>
+    <p id="signup-error"
+   th:if="${errorMessage != null}"
+   th:text="#{${errorMessage}}"
+   hidden></p>
+
+<script>
+    const errorElement = document.getElementById('signup-error');
+    if (errorElement) {
+        alert(errorElement.textContent);
+    }
+</script>
     <form class="signup-form" th:action="@{/signup}" th:object="${memberForm}" method="post">
         <label for="id" th:text="#{member.id}">아이디:</label>
         <input type="text" th:field="*{id}" id="id" required>

@@ -28,10 +28,10 @@ public class SecurityConfig {
             // 요청별로 로그인 필요 여부를 결정한다.
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/signup", "/main",
-                 "/css/**", "/js/**", "/images/**", "/api/**")
+                 "/css/**", "/js/**", "/images/**", "/api/**", "/test/**") // "/test/**"는 나중에 지울 부분
                 .permitAll()
                 .anyRequest()
-                .authenticated()
+                .permitAll() //테스트를 위해 바꿈 .authenticated() -> .permitAll()
             )
             // HTML 로그인 폼을 사용한 인증 흐름을 설정한다.
             .formLogin(form -> form

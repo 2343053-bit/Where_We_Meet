@@ -31,9 +31,16 @@ public class MemberController {
 
     // 회원 가입을 처리하는 메서드입니다. POST 요청이 들어오면 회원 정보를 저장합니다.
     @PostMapping("/signup")
-    public String processSignup(@ModelAttribute("memberForm") Member memberForm) {
-        memberService.signup(memberForm); // 회원 가입 로직을 호출하여 회원 정보를 저장합니다.
-        return "redirect:/login"; // 회원 가입 후 로그인 페이지로 리다이렉트합니다.
+    public String processSignup(@ModelAttribute("memberForm") Member memberForm, Model model) {
+        try {
+            memberService.signup(memberForm);
+            return "redirect:/login";
+        } catch (IllegalArgumentException exception) {
+            //회원가입에 실패했을 때 처리하는 코드
+            memberForm.setPassword(null);
+            model.addAttribute("errorMessage", exception.getMessage());
+            return "signup";
+        }
     }
 
     @GetMapping("/fail")
