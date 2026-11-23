@@ -53,12 +53,6 @@
    th:text="#{${errorMessage}}"
    hidden></p>
 
-<script>
-    const errorElement = document.getElementById('signup-error');
-    if (errorElement) {
-        alert(errorElement.textContent);
-    }
-</script>
     <form class="signup-form" th:action="@{/signup}" th:object="${memberForm}" method="post">
         <label for="id" th:text="#{member.id}">아이디:</label>
         <input type="text" th:field="*{id}" id="id" required>
@@ -86,7 +80,7 @@
 
         <button type="submit" th:text="#{signup.submit}">회원가입</button>
     </form>
-
+    <script th:src="@{/js/member/signupError.js}"></script>
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script th:src="@{/js/member/addressSearch.js}"></script>
 </body>

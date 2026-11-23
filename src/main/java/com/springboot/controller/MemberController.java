@@ -1,14 +1,18 @@
 package com.springboot.controller;
 
+import com.springboot.repository.MemberRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.springboot.domain.Member;
 import com.springboot.service.MemberService;
@@ -16,10 +20,12 @@ import com.springboot.service.MemberService;
 
 @Controller
 public class MemberController {
+    private final MemberRepository memberRepository;
     private final MemberService memberService;
     
-    public MemberController(MemberService memberService) {
+    public MemberController(MemberService memberService, MemberRepository memberRepository) {
         this.memberService = memberService;
+        this.memberRepository = memberRepository;
     }
 
     // 회원 가입 폼을 보여주는 메서드입니다. GET 요청이 들어오면 회원 가입 폼을 반환합니다.
@@ -79,6 +85,15 @@ public class MemberController {
             model.addAttribute("errorMessage", exception.getMessage());
             return "edit_mypage";
         }
+    }
+
+    @PostMapping("/mypage/delete")
+    public String DeleteAccount(Authentication authentication, HttpServletRequest request,
+        HttpServletResponse response) {
+        memberRepository.deleteById(authentication.getName());
+        new SecurityContextLogoutHandler()
+        .logout(request, response, authentication);
+        return "account_deleted";
     }
     
 }

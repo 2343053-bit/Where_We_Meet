@@ -45,6 +45,9 @@
             <form th:action="@{/mypage/edit}" method="get">
                 <button type="submit" th:text="#{mypage.edit}">회원정보 수정</button>
             </form>
+            <form th:action="@{/mypage/delete}" method="post">
+                <button type="submit" th:text="#{mypage.delete_account}">회원탈퇴</button>
+            </form>
         </div>
     </main>
 </body>
