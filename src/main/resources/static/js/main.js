@@ -15,22 +15,7 @@ initMessages(appData.messages, appData.lang); // 번역 문장과 지금 언어 
 var meetingPoint = appData.meetingPoint;
 var meetingLat = meetingPoint ? meetingPoint.meetingLatitude : null;
 var meetingLng = meetingPoint ? meetingPoint.meetingLongitude : null;
-// 중간 지점 좌표가 있을 때만 해당 좌표를 주소로 변환한다.
-if (meetingLat != null && meetingLng != null) {
-  // 주소 조회는 비동기이므로 Promise가 완료된 뒤 화면을 갱신한다.
-  coordsToAddress(meetingLat, meetingLng)
-    .then((address) => {
-      // 변환된 주소를 평균 위치 주소 영역에 표시한다.
-      document.getElementById("meeting-address").textContent = address;
-    })
-    .catch((error) => {
-      // 변환에 실패하면 사용자에게 안내하고 오류 원인은 콘솔에 기록한다.
-      document.getElementById("meeting-address").textContent = t(
-        "meeting.addressNotFound",
-      );
-      console.error(error);
-    });
-}
+
 var participantList = appData.participants;
 
 var keyword = document.getElementById("keyword").value.trim() || "카페";
@@ -63,7 +48,36 @@ if (meetingPoint == null) {
 // 중간 지점이 옮겨졌을 때만 원래 평균 좌표를 넘긴다.
 var averagePoint = meetingPoint && meetingPoint.adjusted ? { lat: meetingPoint.averageLatitude, lng: meetingPoint.averageLongitude } : null;
 // ── 지도에 참가자 마커와 중간 지점 마커를 표시하고, 지도 범위를 참가자와 중간 지점이 다 보이게 맞춘다. ───────────────────────
-drawResult(map, meetingLat, meetingLng, participantList, averagePoint);
+var meetingWindow = drawResult(map, meetingLat, meetingLng, participantList, averagePoint);
+
+// ── 중간 지점 말풍선에 주소 표시 ───────────────────────
+// 말풍선 내용을 "중간 지점" + 둘째 줄(주소 또는 안내 문구)로 바꾼다.
+// textContent 로 넣어서 주소에 특수문자가 있어도 안전하다. (.bAddr 은 현위치 말풍선과 같은 스타일)
+function setMeetingWindowText(text) {
+  var content = document.createElement("div");
+  content.className = "bAddr";
+
+  var title = document.createElement("div");
+  title.textContent = t("result.meetingPoint");
+  content.appendChild(title);
+
+  var line = document.createElement("div");
+  line.textContent = text;
+  content.appendChild(line);
+
+  meetingWindow.setContent(content);
+}
+
+// 중간 지점 말풍선이 있을 때만 (= 제출한 결과 화면) 주소를 찾는다.
+if (meetingWindow) {
+  setMeetingWindowText(t("location.addressLoading"));   // 주소 확인 중...
+  coordsToAddress(meetingLat, meetingLng)
+    .then((address) => setMeetingWindowText(address))
+    .catch((error) => {
+      setMeetingWindowText(t("location.addressNotFound"));
+      console.error(error);
+    });
+}
 
 // ── 중간 지점 주변 장소 검색 ───────────────────────
 if (meetingLat != null) {

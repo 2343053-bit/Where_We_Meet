@@ -25,13 +25,12 @@ public class SecurityConfig {
             UserDetailsService userDetailsService) throws Exception { // DB 회원 정보를 조회한다.
         http
             .userDetailsService(userDetailsService)
-            // 아래 정의된 경로 외의 요청은 로그인 필요.
+            // 로그인이 필요한 곳만 막고, 나머지는 누구나 볼 수 있다.
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/signup", "/main",
-                 "/css/**", "/js/**", "/images/**", "/api/**")
-                .permitAll()
-                .anyRequest()
+                .requestMatchers("/mypage/**")
                 .authenticated()
+                .anyRequest()
+                .permitAll()
             )
             // HTML 로그인 폼을 사용한 인증 흐름을 설정한다.
             .formLogin(form -> form
