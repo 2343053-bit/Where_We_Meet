@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<!-- 모든 오류(404 없는 페이지, 403 권한 없음, 500 서버 오류 등)를 보여 주는 공통 오류 화면.
+     - 파일 이름이 templates/error.html 이면 Spring Boot 가 오류가 났을 때 "자동으로" 이 화면을 쓴다. (컨트롤러 필요 없음)
+     - ${status} : Spring 이 넘겨 주는 오류 번호 (404, 500 ...)
+     - 로그인하지 않은 사용자도 볼 수 있게 config/SecurityConfig.java 의 허용 목록에 "/error" 가 있어야 한다.
+     - 오류마다 다른 화면이 필요해지면 templates/error/404.html 처럼 번호 이름의 파일을 추가하면 그 오류만 그 파일을 쓴다. -->
+
+<head>
+    <th:block th:replace="~{fragments/head :: common(#{title.error})}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/error.css}">
+</head>
+
+<body>
+    <!-- 오류 화면에서는 상단 메뉴(로그인·회원가입 / 마이페이지·로그아웃)를 보여 주지 않는다.
+         언어 전환만 남긴다. (fragments/langSwitch.html) -->
+    <div th:replace="~{fragments/langSwitch :: langSwitch}"></div>
+
+    <main class="error-page">
+        <!-- 오류 번호. 숫자라서 번역하지 않는다. -->
+        <p class="error-page__status" th:text="${status}">404</p>
+        <h1 th:text="#{error.message}">문제가 발생했습니다.</h1>
+        <p th:text="#{error.detail}">주소가 잘못되었거나, 잠시 문제가 생겼습니다.</p>
+        <!-- 홈(/main)으로 가는 버튼. 다른 화면의 "홈으로" 버튼과 같은 방식(GET 폼)이다. -->
+        <form th:action="@{/main}" method="get">
+            <button type="submit" th:text="#{common.home}">홈으로</button>
+        </form>
+    </main>
+</body>
+
+</html>
