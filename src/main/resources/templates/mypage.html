@@ -45,11 +45,14 @@
             <form th:action="@{/mypage/edit}" method="get">
                 <button type="submit" th:text="#{mypage.edit}">회원정보 수정</button>
             </form>
-            <form th:action="@{/mypage/delete}" method="post">
+            <form id="delete-account-form" th:action="@{/mypage/delete}" method="post"
+                  th:data-confirm="#{mypage.deleteConfirm}">
                 <button type="submit" th:text="#{mypage.delete_account}">회원탈퇴</button>
             </form>
         </div>
     </main>
+
+    <script th:src="@{/js/member/deleteAccountConfirm.js}"></script>
 </body>
 
 </html>
