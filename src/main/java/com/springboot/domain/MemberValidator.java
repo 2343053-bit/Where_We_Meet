@@ -24,45 +24,45 @@ public class MemberValidator implements Validator{
 
 
         //ID
-	    if(product.getId() == null || product.getId().trim().isEmpty())// null 자리에 들어가는 것이 에러코드	            
-	        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "id", null, "id을 입력하세요");
+	    if(product.getId() == null || product.getId().trim().isEmpty())// 셋째 값이 오류 코드 = 사전 키. 화면(#fields.errors)이 지금 언어의 사전에서 찾아 보여 준다.	            
+	        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "id", "validation.idRequired");
 
         //이름
         if(product.getUsername() == null || product.getUsername().trim().isEmpty())
-            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "username", null, "이름을 입력하세요");
+            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "username", "validation.usernameRequired");
 
         //닉네임
         if(product.getNickname() == null || product.getNickname().trim().isEmpty())
-            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "nickname", null, "닉네임을 입력하세요");
+            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "nickname", "validation.nicknameRequired");
 
         //패스워드
         if (password == null || password.isEmpty()) {
-        errors.rejectValue("password", null, "암호를 입력하세요.");
+        errors.rejectValue("password", "validation.passwordRequired");
         } else {
             if (password.length() < 8 || password.length() > 16) {
-                errors.rejectValue("password", null, "암호는 8자 이상 16자 이하로 입력하세요.");
+                errors.rejectValue("password", "validation.passwordLength");
             }
             if (password.chars().anyMatch(Character::isWhitespace)) {
-                errors.rejectValue("password", null, "암호에는 공백을 사용할 수 없습니다.");
+                errors.rejectValue("password", "validation.passwordWhitespace");
             }
             if (password.chars().noneMatch(
                     ch -> !Character.isLetterOrDigit(ch) && !Character.isWhitespace(ch))) {
-                errors.rejectValue("password", null, "암호에 특수문자를 하나 이상 포함하세요.");
+                errors.rejectValue("password", "validation.passwordSpecialChar");
             }
         }
 
         //이메일
         if (email == null || email.trim().isEmpty()) {
-            errors.rejectValue("email", null, "이메일을 입력하세요.");
+            errors.rejectValue("email", "validation.emailRequired");
         } else if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
-            errors.rejectValue("email", null, "이메일 형식이 올바르지 않습니다.");
+            errors.rejectValue("email", "validation.emailFormat");
         }
 
         //전화번호
         if (phone == null || phone.trim().isEmpty()) {
-            errors.rejectValue("phoneNumber", null, "전화번호를 입력하세요.");
+            errors.rejectValue("phoneNumber", "validation.phoneRequired");
         } else if (!phone.trim().matches("\\d{2,3}[- ]?\\d{3,4}[- ]?\\d{4}")) {
-            errors.rejectValue("phoneNumber", null, "전화번호 형식이 올바르지 않습니다.");
+            errors.rejectValue("phoneNumber", "validation.phoneFormat");
         }
 	}
 }
