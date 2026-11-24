@@ -28,11 +28,11 @@ public class MemberValidator implements Validator{
 	        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "id", null, "id을 입력하세요");
 
         //이름
-        if(product.getId() == null || product.getId().trim().isEmpty())
+        if(product.getUsername() == null || product.getUsername().trim().isEmpty())
             ValidationUtils.rejectIfEmptyOrWhitespace(errors, "username", null, "이름을 입력하세요");
 
         //닉네임
-        if(product.getId() == null || product.getId().trim().isEmpty())
+        if(product.getNickname() == null || product.getNickname().trim().isEmpty())
             ValidationUtils.rejectIfEmptyOrWhitespace(errors, "nickname", null, "닉네임을 입력하세요");
 
         //패스워드
