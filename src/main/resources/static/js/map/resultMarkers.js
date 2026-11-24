@@ -4,7 +4,7 @@ export function drawResult(map, meetingLat, meetingLng, participantList, average
     // 마커 위치들을 모아 둘 범위 상자. 나중에 이 범위가 다 보이게 지도를 맞춘다.
     var bounds = new kakao.maps.LatLngBounds();
 
-
+    var meetingWindow = null; // 중간 지점 말풍선. 나중에 반환해서 다른 모듈에서 닫을 수 있게 한다.
 
     // 제출해서 중간 지점이 계산된 경우에만 마커를 찍는다.
     if (meetingLat != null) {
@@ -23,11 +23,11 @@ export function drawResult(map, meetingLat, meetingLng, participantList, average
         bounds.extend(markerPosition);                                       // 범위 상자에 중간 지점 추가.
 
         // 중간 지점 마커 위에 "중간 지점" 말풍선 표시.
-        var infowindow = new kakao.maps.InfoWindow({
-            position: markerPosition,                             // 말풍선 위치.
-            content: '<div class="info-window">' + t('result.meetingPoint') + '</div>' // 말풍선 내용. (중간 지점 / Midpoint) -----------------------추후 html 태그로 바꿔서 참가자 이름과 평균 위치를 표시하도록 수정 가능.
+        meetingWindow = new kakao.maps.InfoWindow({
+            position: markerPosition,
+            content: '<div class="info-window">' + t('result.meetingPoint') + '</div>'
         });
-        infowindow.open(map, marker);                             // marker 위에 말풍선 열기.
+        meetingWindow.open(map, marker);                             // marker 위에 말풍선 열기.
     }
 
     // 조정 전 평균 지점(회색). 중간 지점이 옮겨졌을 때만 표시한다.
@@ -51,7 +51,7 @@ export function drawResult(map, meetingLat, meetingLng, participantList, average
         // 중간 지점 말풍선을 가리지 않게, 마우스를 올리거나 누를 때만 보여 준다.
         kakao.maps.event.addListener(averageMarker, 'mouseover', function () { averageWindow.open(map, averageMarker); });
         kakao.maps.event.addListener(averageMarker, 'click', function () { averageWindow.open(map, averageMarker); });
-        kakao.maps.event.addListener(averageMarker, 'mouseout', function () { averageWindow.close(); });    
+        kakao.maps.event.addListener(averageMarker, 'mouseout', function () { averageWindow.close(); });
     }
 
     // ── 참가자 위치 마커 ───────────────────────
@@ -79,9 +79,12 @@ export function drawResult(map, meetingLat, meetingLng, participantList, average
         bounds.extend(marker.getPosition()); // 범위 상자에 방금 만든 마커의 위치 추가.
 
         // 참가자 마커 위에 이름 말풍선 표시.
+        var nameBox = document.createElement('div');
+        nameBox.className = 'info-window';
+        nameBox.textContent = participantList[i].participantName;
         var infowindow = new kakao.maps.InfoWindow({
-            position: marker.getPosition(),                                                         // 말풍선 위치.
-            content: '<div class="info-window">' + participantList[i].participantName + '</div>'  // 말풍선 내용. 이름을 글자 사이에 끼워 넣음.
+            position: marker.getPosition(),                                                         
+            content: nameBox
         });
         infowindow.open(map, marker);                                                               // marker 위에 말풍선 열기.
     }
@@ -90,5 +93,5 @@ export function drawResult(map, meetingLat, meetingLng, participantList, average
     if (!bounds.isEmpty()) {
         map.setBounds(bounds); // 지도의 중심과 확대 레벨이 자동으로 바뀐다.
     }
-
+    return meetingWindow;
 }
