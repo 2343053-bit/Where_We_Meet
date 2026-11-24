@@ -5,7 +5,9 @@ import org.springframework.ui.Model;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,12 +16,21 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import com.springboot.domain.Member;
+import com.springboot.domain.MemberValidator;
 import com.springboot.service.MemberService;
 
+import jakarta.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class MemberController {
     private final MemberService memberService;
+    
+    @Autowired
+	private MemberValidator memberValidator;
 
     // 컨트롤러는 Service 만 부른다. (Controller → Service → Repository 계층 구조)
     public MemberController(MemberService memberService) {
@@ -35,12 +46,20 @@ public class MemberController {
 
     // 회원가입 처리
     @PostMapping("/signup")
-    public String processSignup(@ModelAttribute("memberForm") Member memberForm, Model model) {
+    public String processSignup(
+            @Valid @ModelAttribute("memberForm") Member memberForm,
+            BindingResult bindingResult,
+            Model model) {
+
+        if (bindingResult.hasErrors()) {
+            memberForm.setPassword(null);
+            return "signup";
+        }
+
         try {
             memberService.signup(memberForm);
             return "redirect:/login";
         } catch (IllegalArgumentException exception) {
-            //회원가입에 실패했을 때 처리하는 코드
             memberForm.setPassword(null);
             model.addAttribute("errorMessage", exception.getMessage());
             return "signup";
@@ -103,4 +122,8 @@ public class MemberController {
         return "account_deleted";
     }
     
+    @InitBinder
+	    protected void initBinder(WebDataBinder binder) {
+	        binder.setValidator(memberValidator);
+	    }
 }
