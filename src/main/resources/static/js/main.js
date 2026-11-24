@@ -15,22 +15,8 @@ initMessages(appData.messages, appData.lang); // 번역 문장과 지금 언어 
 var meetingPoint = appData.meetingPoint;
 var meetingLat = meetingPoint ? meetingPoint.meetingLatitude : null;
 var meetingLng = meetingPoint ? meetingPoint.meetingLongitude : null;
-// 중간 지점 좌표가 있을 때만 해당 좌표를 주소로 변환한다.
-if (meetingLat != null && meetingLng != null) {
-  // 주소 조회는 비동기이므로 Promise가 완료된 뒤 화면을 갱신한다.
-  coordsToAddress(meetingLat, meetingLng)
-    .then((address) => {
-      // 변환된 주소를 평균 위치 주소 영역에 표시한다.
-      document.getElementById("meeting-address").textContent = address;
-    })
-    .catch((error) => {
-      // 변환에 실패하면 사용자에게 안내하고 오류 원인은 콘솔에 기록한다.
-      document.getElementById("meeting-address").textContent = t(
-        "meeting.addressNotFound",
-      );
-      console.error(error);
-    });
-}
+
+
 var participantList = appData.participants;
 
 var keyword = document.getElementById("keyword").value.trim() || "카페";
