@@ -1,6 +1,5 @@
 package com.springboot.controller;
 
-import com.springboot.repository.MemberRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
@@ -20,12 +19,11 @@ import com.springboot.service.MemberService;
 
 @Controller
 public class MemberController {
-    private final MemberRepository memberRepository;
     private final MemberService memberService;
-    
-    public MemberController(MemberService memberService, MemberRepository memberRepository) {
+
+    // 컨트롤러는 Service 만 부른다. (Controller → Service → Repository 계층 구조)
+    public MemberController(MemberService memberService) {
         this.memberService = memberService;
-        this.memberRepository = memberRepository;
     }
 
     // 회원가입 폼
@@ -99,7 +97,7 @@ public class MemberController {
     @PostMapping("/mypage/delete")
     public String DeleteAccount(Authentication authentication, HttpServletRequest request,
         HttpServletResponse response) {
-        memberRepository.deleteById(authentication.getName());
+        memberService.deleteAccount(authentication.getName()); // 회원 정보 + 프로필 사진 파일 삭제
         new SecurityContextLogoutHandler()
         .logout(request, response, authentication);
         return "account_deleted";
