@@ -8,28 +8,19 @@
 
 
 <body>
-    <header th:replace="${isAuthenticated} ? ~{fragments/header_mypage :: siteHeader} : ~{fragments/header :: siteHeader}"></header>
-        <!-- 중간 지점을 옮겼거나, 옮길 곳을 못 찾았을 때 안내. -->
+    <header
+        th:replace="${isAuthenticated} ? ~{fragments/header_mypage :: siteHeader} : ~{fragments/header :: siteHeader}">
+    </header>
+    <!-- 중간 지점을 옮겼거나, 옮길 곳을 못 찾았을 때 안내. -->
     <th:block th:if="${meetingPoint != null}">
         <p class="meeting-notice" role="status" th:if="${meetingPoint.adjusted}"
-           th:text="#{meeting.adjusted(${meetingPoint.anchorName})}">○○역 기준으로 찾았어요.</p>
+            th:text="#{meeting.adjusted(${meetingPoint.anchorName})}">○○역 기준으로 찾았어요.</p>
         <p class="meeting-notice meeting-notice--warning" role="status" th:if="${meetingPoint.anchorMissing}"
-           th:text="#{meeting.anchorMissing}">만날 곳을 찾지 못했어요.</p>
+            th:text="#{meeting.anchorMissing}">만날 곳을 찾지 못했어요.</p>
     </th:block>
 
-    <!-- 지도(왼쪽)와 주변 장소 패널(오른쪽)을 나란히 놓는 영역. 패널 HTML 은 fragments/placePanel.html 에 있다. -->
-    <div id="map-area">
-        <div id="map"></div>
-        <aside th:replace="~{fragments/placePanel :: placePanel(${meetingPoint != null})}"></aside>
-    </div>
-    <p id="current-location-status" role="status" hidden></p>
-    <!-- 장소 검색 기능은 기본 지도에 들어 있지 않아서 libraries='services' 를 추가해야 한다. -->
-    <script th:src="@{https://dapi.kakao.com/v2/maps/sdk.js(appkey=${kakaoJsKey},libraries='services')}"></script>
-    <!-- 다음(카카오) 우편번호 서비스. "주소 검색" 버튼을 누르면 뜨는 주소 검색 팝업(daum.Postcode)을 쓰려고 추가했다. (키 필요 없음) -->
-    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-
-    <hr>
-    <div id="form-results">
+    <!-- 폼(왼쪽) | 지도(가운데) | 주변 장소 패널(오른쪽). 패널 HTML 은 fragments/placePanel.html 에 있다. -->
+    <main id="layout">
         <!-- id="participantForm" : 아래 스크립트에서 제출 이벤트를 가로채려고 폼에 id 를 붙였다. -->
         <form id="participantForm" th:action="@{/main}" th:object="${participantForm}" method="post">
             <label for="keyword" th:text="#{search.keyword}">검색어:</label>
@@ -46,31 +37,30 @@
                 <fieldset th:replace="~{fragments/participant :: participant('@INDEX@', '@NUM@', null)}"></fieldset>
             </template>
 
-
             <button type="button" id="removeParticipant">-</button>
             <button type="button" id="addParticipant">+</button>
             <button type="submit" th:text="#{search.submit}">제출</button>
         </form>
 
-        <section id="results" th:if="${meetingPoint != null}">
+        <!-- 가운데: 지도 + 현재 위치 오류 안내 -->
+        <section id="map-column">
+            <div id="map"></div>
+            <p id="current-location-status" role="status" hidden></p>
+        </section>
 
-            <!-- 참가자의 이름과 위치를 표시하는 부분
-    <div th:each="participant, stat : ${participants}">
-        <h3 th:text="|참가자 ${stat.count}|"></h3>
-        <p>이름: <span th:text="${participant.participantName}"></span></p>
-        <p>위도: <span th:text="${participant.latitude}"></span></p>
-        <p>경도: <span th:text="${participant.longitude}"></span></p>
-    </div>
-    -->
-            <h3 th:text="#{result.meetingPoint}">중간 지점</h3>
-            <p><span th:text="#{meeting.latitude}">위도:</span> <span th:text="${meetingPoint.meetingLatitude}"></span></p>
-            <p><span th:text="#{meeting.longitude}">경도:</span> <span th:text="${meetingPoint.meetingLongitude}"></span></p>
-            <p><span th:text="#{meeting.address}">주소:</span> <span id="meeting-address" th:text="#{meeting.addressLoading}">주소 확인 중...</span></p>        </section>
-    </div>
+        <!-- 오른쪽: 주변 장소 패널 -->
+        <aside th:replace="~{fragments/placePanel :: placePanel(${meetingPoint != null})}"></aside>
+    </main>
+
     <!-- 지도 스크립트는 반드시 폼 "뒤"에 둔다. 폼 앞에 긴 스크립트가 있으면 Thymeleaf 가 화면을 먼저 보내 버려서
      폼의 보안 토큰(CSRF)을 못 만들고 화면이 잘린다. ("Cannot create a session after the response has been committed") -->
-    <!-- th:inline="javascript" : 이 <script> 안에서도 Thymeleaf 가 서버 값을 넣어 주도록 켜는 설정
+    <!-- 장소 검색 기능은 기본 지도에 들어 있지 않아서 libraries='services' 를 추가해야 한다. -->
+    <script th:src="@{https://dapi.kakao.com/v2/maps/sdk.js(appkey=${kakaoJsKey},libraries='services')}"></script>
+    <!-- 다음(카카오) 우편번호 서비스. "주소 검색" 버튼을 누르면 뜨는 주소 검색 팝업(daum.Postcode)을 쓰려고 추가했다. (키 필요 없음) -->
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+        <!-- th:inline="javascript" : 이 <script> 안에서도 Thymeleaf 가 서버 값을 넣어 주도록 켜는 설정
     (없으면 아래 /*[[...]]*/ 부분이 그대로 브라우저로 가서 주석 취급 → 값이 항상 null.) -->
+
     <script th:inline="javascript">
         window.APP_DATA = { // window.APP_DATA : 전역 변수로 만들어서 다른 스크립트에서도 접근 가능.
             meetingPoint: /*[[${meetingPoint}]]*/ null,
