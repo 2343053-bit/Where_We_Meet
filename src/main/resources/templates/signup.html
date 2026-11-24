@@ -48,6 +48,29 @@
             font-weight: bold;
             margin-left: 0.2em;
         }
+        .signup-form {
+            position: relative;
+        }
+
+        .signup-errors {
+            position: absolute;
+            top: 24px;
+            left: calc(100% + 16px);
+            width: 240px;
+            color: red;
+        }
+
+        .signup-errors p {
+            margin: 0 0 8px;
+        }
+
+        @media (max-width: 700px) {
+            .signup-errors {
+                position: static;
+                width: auto;
+                margin-bottom: 12px;
+            }
+        }
     </style>
 </head>
 
@@ -59,8 +82,12 @@
    hidden></p>
 
     <form class="signup-form" th:action="@{/signup}" th:object="${memberForm}" method="post">
-        <div th:if="${#fields.hasErrors('*')}">
-            <p th:each="error : ${#fields.errors('*')}" th:text="${error}"></p>
+        <div class="signup-errors"
+            th:if="${errorMessage != null or #fields.hasErrors('*')}">
+            <p th:if="${errorMessage != null}"
+            th:text="#{${errorMessage}}"></p>
+            <p th:each="error : ${#fields.errors('*')}"
+            th:text="${error}"></p>
         </div>
         
         <label for="id"><span th:text="#{member.id}">아이디:</span><span class="required-mark" aria-hidden="true">*</span></label>
