@@ -5,6 +5,7 @@
 <header th:fragment="siteHeader">
     <nav>
         <a th:href="@{/mypage}" th:text="#{header.mypage}">마이페이지</a> |
+        <a th:href="@{/friends}" th:text="#{header.friends}">친구 관리</a> |
         <a href="#" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();" th:text="#{header.logout}">
             로그아웃
         </a>

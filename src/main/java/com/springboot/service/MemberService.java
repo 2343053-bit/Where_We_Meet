@@ -24,7 +24,7 @@ public class MemberService {
 
     // 프로필 사진을 저장하는 폴더. 저장(updateProfile)과 삭제(deleteAccount)가 같은 폴더를 써야 해서 한 곳에 모았다.
     // static final : 바뀌지 않는 값(상수). 클래스 전체에서 하나만 있다.
-    private static final String UPLOAD_DIR = "C:\\Users\\user\\OneDrive\\Desktop\\project\\img\\";
+    private static final String UPLOAD_DIR = "C:\\Users\\user\\OneDrive\\Desktop\\project\\img";
 
     private final MemberRepository memberRepository; // 회원 정보를 관리하는 Repository
     private final PasswordEncoder passwordEncoder; // 비밀번호 암호화를 위한 PasswordEncoder

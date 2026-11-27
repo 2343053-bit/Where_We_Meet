@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import com.springboot.domain.MeetingPoint;
 import com.springboot.domain.ParticipantLocation;
-import com.springboot.repository.ParticipantForm;
+import com.springboot.dto.ParticipantForm;
 import com.springboot.service.MeetingPointService;
 import org.springframework.security.core.Authentication;
 import com.springboot.domain.Member;

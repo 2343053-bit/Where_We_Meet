@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{friend.request.send.title}">친구 요청 보내기</title>
+</head>
+<body>
+    <h1 th:text="#{friend.request.send.heading}">친구 요청 보내기</h1>
+
+    <div>
+        <a th:href="@{/friends}" th:text="#{friend.list.back}">친구 목록으로</a> |
+        <a th:href="@{/friends/requests/received}" th:text="#{friend.request.received}">받은 친구 요청</a>
+    </div>
+
+    <form th:action="@{/friends/requests/new}" method="post">
+        <label for="friendId" th:text="#{friend.request.send.label}">친구 ID</label>
+        <input type="text"
+               id="friendId"
+               name="friendId"
+               required
+               th:placeholder="#{friend.request.send.placeholder}"
+               placeholder="요청할 친구 ID 입력" />
+        <button type="submit" th:text="#{friend.request.send.button}">요청 보내기</button>
+    </form>
+</body>
+</html>

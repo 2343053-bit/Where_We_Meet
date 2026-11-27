@@ -23,7 +23,6 @@ import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class MemberController {
@@ -98,7 +97,7 @@ public class MemberController {
 
     //회원정보 수정 처리
     @PostMapping("/mypage/edit")
-    public String updateMypage(
+    public String updateMypage(   
             @ModelAttribute("memberForm") Member memberForm,
             @RequestParam(name = "profileImage", required = false) MultipartFile profileImage,
             Authentication authentication,
