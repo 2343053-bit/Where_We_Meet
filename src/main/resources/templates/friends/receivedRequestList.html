@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <th:block th:replace="~{fragments/head :: common(#{friend.request.received.title})}"></th:block>
+</head>
+
+<body>
+    <header th:replace="${isAuthenticated} ? ~{fragments/header_mypage :: siteHeader} : ~{fragments/header :: siteHeader}"></header>
+
+    <main>
+        <h1 th:text="#{friend.request.received.heading}">받은 친구 요청</h1>
+
+        <div>
+            <a th:href="@{/friends}" th:text="#{friend.list.back}">친구 목록으로</a> |
+            <a th:href="@{/friends/requests/new}" th:text="#{friend.request.send}">친구 요청 보내기</a>
+        </div>
+
+        <div th:if="${#lists.isEmpty(received)}">
+            <p th:text="#{friend.request.received.empty}">받은 친구 요청이 없습니다.</p>
+        </div>
+
+        <ul th:if="${!#lists.isEmpty(received)}">
+            <li th:each="req : ${received}">
+                <span th:text="${req.requester.nickname != null ? req.requester.nickname : req.requester.username}">보낸 사람</span>
+                (<span th:text="${req.requester.username}">아이디</span>)
+
+                <form th:action="@{/friends/accept}" method="post" style="display:inline;">
+                    <input type="hidden" name="requestId" th:value="${req.id}" />
+                    <button type="submit" th:text="#{friend.request.accept.button}">수락</button>
+                </form>
+
+                <form th:action="@{/friends/reject}" method="post" style="display:inline;">
+                    <input type="hidden" name="requestId" th:value="${req.id}" />
+                    <button type="submit" th:text="#{friend.request.reject.button}">거절</button>
+                </form>
+            </li>
+        </ul>
+    </main>
+</body>
+
+</html>

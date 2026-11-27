@@ -1,14 +1,30 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <!-- 참가자 입력칸 1개.
-     - index : name 에 들어갈 번호 (0부터)    - num : 화면에 보이는 번호 (1부터)
-     - p     : 채워 넣을 참가자 값 (없으면 null → 빈 칸)
-     - 주소 칸(.address) : 주소 검색 팝업으로만 채운다. 제출 뒤에도 남도록 서버로 보냈다가 다시 채운다.
-     - 위도·경도 : hidden. 제출할 때 submit.js 가 주소를 좌표로 바꿔 채운다. -->
+- index : name 에 들어갈 번호 (0부터)    - num : 화면에 보이는 번호 (1부터)
+- p     : 채워 넣을 참가자 값 (없으면 null → 빈 칸)
+- 주소 칸(.address) : 주소 검색 팝업으로만 채운다. 제출 뒤에도 남도록 서버로 보냈다가 다시 채운다.
+- 위도·경도 : hidden. 제출할 때 submit.js 가 주소를 좌표로 바꿔 채운다. -->
 <fieldset th:fragment="participant(index, num, p)">
     <!-- #{키(값)} : 사전 문장의 {0} 자리에 값을 채운다. (참가자 {0} → 참가자 1 / Participant 1)
          + 버튼용 template 에서는 num 이 '@NUM@' 글자로 들어와 "참가자 @NUM@" 이 되고, participantList.js 가 숫자로 바꾼다. -->
     <legend th:text="#{participant.legend(${num})}">참가자</legend>
+
+    <!-- 참가자 2(index != 0)부터 친구 선택 드롭다운 -->
+    <select th:if="${index != 0 and friends != null and !#lists.isEmpty(friends)}"
+            class="friend-select"
+            aria-label="친구 선택">
+        <option value="">친구 선택 ▼</option>
+        <option th:each="friend : ${friends}"
+                th:value="${friend.id}"
+                th:data-name="${friend.username}"
+                th:data-nickname="${friend.nickname}"
+                th:data-address="${friend.address}"
+                th:text="${friend.nickname != null and !#strings.isEmpty(friend.nickname) ? friend.nickname : friend.username}">
+            친구 닉네임
+        </option>
+    </select>
+
     <!-- th:placeholder="#{키}" : placeholder 속성도 지금 언어의 문장으로 바꿔 넣는다. -->
     <input type="text" th:name="|participants[${index}].participantName|"
            th:value="${p?.participantName}" placeholder="이름" th:placeholder="#{participant.namePlaceholder}" required>

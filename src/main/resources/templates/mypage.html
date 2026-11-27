@@ -42,10 +42,10 @@
             <form th:action="@{/main}" method="get">
                 <button type="submit" th:text="#{common.home}">홈으로</button>
             </form>
-            <form th:action="@{/mypage/edit}" method="get">
+            <form th:action="@{/mypage/{id}/edit}" method="get">
                 <button type="submit" th:text="#{mypage.edit}">회원정보 수정</button>
             </form>
-            <form id="delete-account-form" th:action="@{/mypage/delete}" method="post"
+            <form id="delete-account-form" th:action="@{/mypage/{id}/delete}" method="post"
                   th:data-confirm="#{mypage.deleteConfirm}">
                 <button type="submit" th:text="#{mypage.delete_account}">회원탈퇴</button>
             </form>
