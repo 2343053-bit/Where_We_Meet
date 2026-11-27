@@ -4,6 +4,9 @@
 <head>
     <th:block th:replace="~{fragments/head :: common(#{title.main})}"></th:block>
     <link rel="stylesheet" th:href="@{/css/main.css}">
+    <!-- fetch 로 POST 할 때 보낼 보안 토큰. (api/meetingPointApi.js 가 읽는다)-->
+    <meta name="_csrf" th:content="${_csrf?.token}">
+    <meta name="_csrf_header" th:content="${_csrf?.headerName}">
 </head>
 
 
