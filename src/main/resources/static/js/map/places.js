@@ -22,7 +22,10 @@ export function searchNearbyPlaces(map, meetingLat, meetingLng, participantList,
     clearPlaces(); // 이전 검색 결과를 지운다.
     var mySearchId = ++searchId; // 이번 검색의 id. (늦게 온 이전 검색 결과를 버리는 데 쓴다)
     // zIndex 20 : 금별 마커(zIndex 10)보다 위에 보이게.
-    if (!placeInfowindow) placeInfowindow = new kakao.maps.InfoWindow({ zIndex: 20 });
+    // disableAutoPan : 말풍선이 열릴 때 지도를 스스로 움직이지 않게. (기본값은 움직인다)
+    //   켜 두면 처음 열릴 때의 자동 이동이 바로 앞의 panTo(selectPlace)를 취소해서, 검색 뒤 첫 선택 때 지도가 안 움직였다.
+    //   panTo 가 이미 그 마커를 지도 가운데로 옮기므로, 자동 이동이 없어도 말풍선은 화면 안에 보인다.
+    if (!placeInfowindow) placeInfowindow = new kakao.maps.InfoWindow({ zIndex: 20, disableAutoPan: true });
     var ps = new kakao.maps.services.Places();                       // 장소 검색 객체 생성.
     var markers = [];                                                // 검색된 장소의 마커들. 검색 결과와 같은 순서라 data[i] 의 마커 = markers[i].
 
