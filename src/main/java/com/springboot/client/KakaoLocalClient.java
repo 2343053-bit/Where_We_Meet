@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestClient;
 
 import tools.jackson.databind.JsonNode;
@@ -16,13 +15,10 @@ public class KakaoLocalClient {
 
     private final RestClient kakaoLocalClient;
 
-    public KakaoLocalClient(@Value("${kakao.rest-api-key}") String restApiKey) {
-        this.kakaoLocalClient = RestClient.builder()
-                .baseUrl("https://dapi.kakao.com")
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "KakaoAK " + restApiKey)
-                .build();
+    // 장소 검색용 RestClient 는 config/KakaoClientConfig 가 만들어서 넣어 준다. (키·헤더·타임아웃 설정 포함)
+    public KakaoLocalClient(@Qualifier("kakaoLocalRestClient") RestClient kakaoLocalClient) {
+        this.kakaoLocalClient = kakaoLocalClient;
     }
-
     // 카카오 장소 검색 결과 하나를 담는 그릇.
     // name : 장소 이름, latitude/longitude : 위도/경도, distance : 기준점에서 거리(m),
     // categoryName : 분류 ("교통,수송 > 기차,철도 > 기차역")
