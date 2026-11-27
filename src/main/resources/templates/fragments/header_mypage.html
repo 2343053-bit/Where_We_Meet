@@ -4,6 +4,7 @@
      두 파일 모두 언어 전환 줄이 있어야 한다. 한쪽만 고치면 로그인 전/후 화면이 달라진다. -->
 <header th:fragment="siteHeader">
     <nav>
+        <a th:href="@{/main}" th:text="#{header.main}">홈으로</a> |
         <a th:href="@{/mypage}" th:text="#{header.mypage}">마이페이지</a> |
         <a th:href="@{/friends}" th:text="#{header.friends}">친구 관리</a> |
         <a href="#" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();" th:text="#{header.logout}">

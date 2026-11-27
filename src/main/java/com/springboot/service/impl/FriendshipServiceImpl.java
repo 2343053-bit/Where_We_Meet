@@ -1,4 +1,4 @@
-package com.springboot.service;
+package com.springboot.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +10,7 @@ import com.springboot.domain.Friendship;
 import com.springboot.domain.Member;
 import com.springboot.repository.FriendshipRepository;
 import com.springboot.repository.MemberRepository;
+import com.springboot.service.FriendshipService;
 
 @Service
 @Transactional(readOnly = true)
