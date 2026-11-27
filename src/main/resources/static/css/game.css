@@ -459,3 +459,146 @@
         transition: none;
     }
 }
+
+/* ══ 게임: 룰렛 (game/games/roulette.js) ══════════════════════
+   원판(conic-gradient 로 칸 색칠) + 칸마다 이름 + 위쪽 바늘 + 가운데 돌리기 버튼.
+   원판만 돌고, 바늘과 버튼은 그 자리에 있다. 각도 기준: 0도 = 맨 위, 시계 방향. */
+.game-roulette {
+    --size: 300px;                             /* 원판 지름. */
+    position: relative;
+    width: var(--size);
+    height: var(--size);
+    margin: 18px 0 8px;                        /* 위: 바늘이 원판 밖으로 나온 만큼. */
+}
+
+/* 원판을 담는 돌지 않는 동그란 틀. 테두리·그림자는 여기에.
+   overflow: hidden 이 꼭 필요하다. 원판은 동그랗게 보여도 실제로는 정사각형이라, 돌리면 모서리가 대각선만큼(최대 1.4배)
+   튀어나온다. 그걸 안 자르면 창이 내용 크기가 계속 바뀌는 줄 알고 스크롤바가 깜빡인다. */
+.game-roulette__dial {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 6px solid #fff;
+    box-sizing: border-box;
+    box-shadow: 0 0 0 3px #e8590c, 0 6px 16px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.game-roulette__wheel {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    /* 처음엔 빠르게, 끝에서 아주 천천히 멈춘다. 시간은 roulette.js 의 SPIN_MS 와 같아야 한다. */
+    transition: transform 4.5s cubic-bezier(0.15, 0.85, 0.2, 1);
+}
+
+/* 이름 한 칸. 원판 가운데에서 바깥쪽으로 칸 가운데 방향(--angle)을 향해 눕힌다.
+   왼쪽 끝(transform-origin)을 원판 중심에 두고 돌리므로, 글자는 중심 → 테두리 방향으로 놓인다.
+   rotate 에서 90도를 빼는 이유: 눕힌 글자는 처음에 오른쪽(90도)을 보고 있어서, 0도(위)를 기준으로 맞춘다. */
+.game-roulette__label {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(var(--size) / 2 - 14px);       /* 중심 ~ 테두리 조금 안쪽. */
+    height: 20px;
+    margin-top: -10px;                         /* 세로 가운데를 원판 중심에. */
+    padding: 0 8px 0 40px;                     /* 왼쪽 40px: 가운데 버튼에 가리지 않게. */
+    box-sizing: border-box;
+    transform-origin: 0 50%;
+    transform: rotate(calc(var(--angle) - 90deg));
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 20px;
+    color: #333;
+    text-align: right;                         /* 테두리 쪽에 붙여 읽기 쉽게. */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;                   /* 긴 이름은 … 로. (전체 이름은 마우스를 올리면 title 로) */
+}
+
+/* 왼쪽 절반(180도 넘는 칸): 위처럼 눕히면 글자가 거꾸로 보인다.
+   그래서 오른쪽 끝을 중심에 두고 반대쪽(+90도)으로 눕힌다. 이러면 글자는 테두리 → 중심 방향으로 바로 읽힌다. */
+.game-roulette__label.is-left {
+    left: auto;
+    right: 50%;
+    padding: 0 40px 0 8px;
+    transform-origin: 100% 50%;
+    transform: rotate(calc(var(--angle) + 90deg));
+    text-align: left;
+}
+
+.game-roulette__label.is-winner {
+    color: #c2410c;
+    text-decoration: underline;
+}
+
+/* 위쪽 바늘 (아래를 가리키는 삼각형). 테두리 두께로 삼각형을 만든다. */
+.game-roulette__pointer {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    z-index: 2;
+    width: 0;
+    height: 0;
+    margin-left: -14px;
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-top: 28px solid #e8590c;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+    transform-origin: 50% 0;
+}
+
+/* 도는 동안 바늘이 칸에 걸리듯 까딱까딱. */
+.game-roulette.is-spinning .game-roulette__pointer {
+    animation: game-roulette-tick 0.12s ease-in-out infinite alternate;
+}
+
+@keyframes game-roulette-tick {
+    from { transform: rotate(-8deg); }
+    to   { transform: rotate(8deg); }
+}
+
+/* 가운데 돌리기 버튼. */
+.game-roulette__spin {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+    width: 68px;
+    height: 68px;
+    margin: -34px 0 0 -34px;
+    border: 4px solid #e8590c;
+    border-radius: 50%;
+    background: #fff;
+    color: #e8590c;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.game-roulette__spin:not(:disabled):hover {
+    background: #fff4e6;
+}
+
+.game-roulette__spin:disabled {
+    cursor: default;
+    color: #aaa;
+    border-color: #ccc;
+}
+
+@media (max-width: 700px) {
+    .game-roulette {
+        --size: 260px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .game-roulette__wheel {
+        transition: none;                      /* 바로 결과 칸으로. (roulette.js 도 기다리지 않는다) */
+    }
+
+    .game-roulette.is-spinning .game-roulette__pointer {
+        animation: none;
+    }
+}
