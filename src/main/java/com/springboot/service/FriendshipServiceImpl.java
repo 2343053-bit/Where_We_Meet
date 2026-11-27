@@ -26,30 +26,42 @@ public class FriendshipServiceImpl implements FriendshipService {
     // 친구 요청 보내기
     @Transactional
     public Friendship sendRequest(String requesterId, String receiverId) {
-        if (requesterId == null || receiverId == null || requesterId.equals(receiverId)) {
-            throw new IllegalArgumentException("자신에게 친구 요청을 보낼 수 없습니다.");
+        // 입력란이 null인지 확인
+        if (receiverId == null) {
+            throw new IllegalArgumentException("friend.error.emptyId");
         }
 
-        // 1. 이미 친구(accepted = true)인 관계인지 먼저 확인
-        if (friendshipRepository.findFriendship(requesterId, receiverId) != null) {
-            throw new IllegalArgumentException("이미 친구입니다.");
+        // 공백 제거
+        String targetId = receiverId.trim();
+
+        // 공백인 경우 검사
+        if (targetId.isEmpty()) {
+            throw new IllegalArgumentException("friend.error.emptyId");
         }
 
-        // 2. 이미 대기 중(accepted = false)인 요청이 있는지 양방향 확인
-        if (friendshipRepository.existsByRequester_IdAndReceiver_Id(requesterId, receiverId)
-                || friendshipRepository.existsByRequester_IdAndReceiver_Id(receiverId, requesterId)) {
-            throw new IllegalArgumentException("이미 친구 요청이 존재합니다.");
+        // 자기 자신에게 보내는 요청인지 확인
+        if (requesterId.equals(targetId)) {
+            throw new IllegalArgumentException("friend.error.selfRequest");
         }
 
-        Member requester = memberRepository.findById(requesterId).orElse(null);
-        if (requester == null) {
-            throw new IllegalArgumentException("잘못된 요청입니다.");
+        // 이미 친구인지 확인
+        if (friendshipRepository.findFriendship(requesterId, targetId) != null) {
+            throw new IllegalArgumentException("friend.error.alreadyFriends");
         }
 
-        Member receiver = memberRepository.findById(receiverId).orElse(null);
-        if (receiver == null) {
-            throw new IllegalArgumentException("수신자 회원을 찾을 수 없습니다.");
+        // 이미 대기 중인 요청이 있는지 확인
+        if (friendshipRepository.existsByRequester_IdAndReceiver_Id(requesterId, targetId)
+                || friendshipRepository.existsByRequester_IdAndReceiver_Id(targetId, requesterId)) {
+            throw new IllegalArgumentException("friend.error.alreadyExists");
         }
+
+        // 본인 ID가 없는 경우
+        Member requester = memberRepository.findById(requesterId)
+                .orElseThrow(() -> new IllegalArgumentException("friend.error.memberNotFound"));
+
+        // 친구 ID가 없는 경우
+        Member receiver = memberRepository.findById(targetId)
+                .orElseThrow(() -> new IllegalArgumentException("friend.error.targetNotFound"));
 
         Friendship friendship = new Friendship();
         friendship.setRequester(requester);
