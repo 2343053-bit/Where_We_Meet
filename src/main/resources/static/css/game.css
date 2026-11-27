@@ -604,3 +604,151 @@
         animation: none;
     }
 }
+
+/* ══ 게임: 마블 룰렛 (game/games/marble.js) ══════════════════════
+   코스는 캔버스에 직접 그린다. 캔버스 실제 크기는 360 × 460 (× 화면 배율)이고, 창이 좁으면 비율을 지키며 줄어든다. */
+.game-marble__canvas {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    height: auto;                              /* width·height 속성의 비율(360:460)대로. */
+    border-radius: 10px;
+    background: #1e1f24;                       /* marble.js 의 BG_COLOR 와 같은 색. (캔버스가 그려지기 전 한순간에도 어둡게) */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* [캔버스 + 가운데 경주 시작 버튼] | 순위표. 창이 넓으면 나란히, 좁으면 순위표가 아래로 내려간다. */
+.game-marble {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+}
+
+.game-marble__stage {
+    position: relative;
+    flex: 0 1 360px;
+}
+
+.game-marble__start {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding: 12px 28px;
+    border: none;
+    border-radius: 24px;
+    background: #e8590c;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.game-marble__start:hover {
+    background: #d9480f;
+}
+
+.game-marble__start[hidden] {
+    display: none;
+}
+
+/* 실시간 순위표: [순위] ● 번호 이름. 넓으면 캔버스 오른쪽, 좁으면 아래로 내려간다. (.game-marble 의 flex-wrap)
+   순위가 바뀌면 marble.js 가 항목을 옮기고, 아래 transition 으로 새 자리까지 미끄러져 간다. */
+.game-marble__legend {
+    flex: 1 1 140px;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+}
+
+.game-marble__legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: #f8f9fa;
+    transition: transform 0.35s ease, background 0.2s;
+}
+
+/* 순위 숫자. 출발 전엔 비어 있어서 자리만 차지한다. */
+.game-marble__rank {
+    flex: none;
+    width: 16px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #868e96;
+    text-align: right;
+}
+
+.game-marble__dot {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    color: #212529;                            /* 구슬 색이 밝아서 진한 번호. (캔버스의 구슬과 같게) */
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 20px;
+    text-align: center;
+}
+
+.game-marble__name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* 1등 */
+.game-marble__legend-item.is-leader {
+    background: #fff4e6;
+    font-weight: bold;
+}
+
+.game-marble__legend-item.is-leader .game-marble__rank {
+    color: #e8590c;
+}
+
+.game-marble__legend-item.is-leader .game-marble__name::after {
+    content: " 🏃";
+}
+
+/* 추월해서 올라간 항목: 잠깐 초록빛으로 반짝. */
+.game-marble__legend-item.is-rising {
+    animation: game-marble-rise 0.6s ease-out;
+}
+
+@keyframes game-marble-rise {
+    from { box-shadow: 0 0 0 2px #40c057; }
+    to   { box-shadow: 0 0 0 2px transparent; }
+}
+
+/* 당첨 (1등으로 도착) */
+.game-marble__legend-item.is-winner {
+    background: #fff3bf;
+    font-weight: bold;
+}
+
+.game-marble__legend-item.is-winner .game-marble__name::after {
+    content: " 🏆";
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .game-marble__legend-item {
+        transition: none;
+    }
+
+    .game-marble__legend-item.is-rising {
+        animation: none;
+    }
+}

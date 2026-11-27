@@ -64,6 +64,8 @@
     <!-- JS 에서 쓰는 번역 문장 (APP_DATA.messages). main.js 앞에 둔다. -->
     <!-- 게임 당첨 때 색종이 효과 (window.confetti). 못 불러와도 게임은 그대로 되고 효과만 빠진다. (game/gameHub.js) -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <!-- 마블 룰렛의 물리 엔진 (window.Matter). 못 불러오면 마블 탭만 "게임을 시작하지 못했어요" 가 뜬다. (game/games/marble.js) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.20.0/matter.min.js"></script>
     <script th:replace="~{fragments/jsMessages :: jsMessages}"></script>
     <script type="module" th:src="@{/js/main.js}"></script>
 </body>
