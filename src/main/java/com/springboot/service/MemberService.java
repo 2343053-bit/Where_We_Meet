@@ -2,11 +2,13 @@ package com.springboot.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -23,16 +25,28 @@ public class MemberService {
     private static final Logger log = LoggerFactory.getLogger(MemberService.class);
 
     // 프로필 사진을 저장하는 폴더. 저장(updateProfile)과 삭제(deleteAccount)가 같은 폴더를 써야 해서 한 곳에 모았다.
-    // static final : 바뀌지 않는 값(상수). 클래스 전체에서 하나만 있다.
-    private static final String UPLOAD_DIR = "C:\\Users\\user\\OneDrive\\Desktop\\project\\img";
+    // 값은 application-secret.properties 의 resource_path (예: file:///C:/upload) 에서 가져온다.
+    // @Value 는 static 필드에는 넣을 수 없어서, 생성자에서 받아 일반 final 필드에 저장한다.
+    private final Path uploadDir;
 
     private final MemberRepository memberRepository; // 회원 정보를 관리하는 Repository
     private final PasswordEncoder passwordEncoder; // 비밀번호 암호화를 위한 PasswordEncoder
-    
+
     public MemberService(MemberRepository memberRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            @Value("${resource_path}") String resourcePath) {
         this.memberRepository = memberRepository;
         this.passwordEncoder = passwordEncoder;
+        // "file:///C:/upload" 같은 URL 문자열을 실제 폴더 경로(C:/upload)로 바꾼다.
+        this.uploadDir = Path.of(URI.create(resourcePath));
+
+        // 팀원 PC 에 업로드 폴더가 없으면 사진 저장(transferTo)이 실패하므로, 서버가 켜질 때 미리 만든다.
+        // Files.createDirectories : 없으면 중간 폴더까지 만들고, 이미 있으면 아무 일도 하지 않는다.
+        try {
+            Files.createDirectories(uploadDir);
+        } catch (IOException e) {
+            throw new IllegalStateException("업로드 폴더를 만들 수 없습니다: " + uploadDir, e);
+        }
     }
 
     // 회원 가입을 처리하는 메서드입니다. 회원 정보를 저장합니다.
@@ -75,7 +89,7 @@ public class MemberService {
 
         if (profileImage != null && !profileImage.isEmpty()) {
             String fileName = member.getId() + "_profile"; // 업로드할 파일 이름을 회원 ID 기반으로 설정합니다.
-            File saveFile = new File(UPLOAD_DIR + fileName);
+            File saveFile = uploadDir.resolve(fileName).toFile();
             // 업로드된 파일을 저장할 경로를 지정합니다.
 
             // 파일 업로드 처리
@@ -114,7 +128,7 @@ public class MemberService {
 
         try {
             // Files.deleteIfExists : 파일이 있으면 지우고 true, 없으면 아무 일 없이 false.
-            Files.deleteIfExists(Path.of(UPLOAD_DIR, fileName));
+            Files.deleteIfExists(uploadDir.resolve(fileName));
         } catch (IOException e) {
             // 사진을 못 지워도 탈퇴는 이미 끝났으니, 서버 로그에만 남긴다.
             log.warn("프로필 사진을 삭제하지 못했습니다. id={}, file={}", id, fileName, e);
