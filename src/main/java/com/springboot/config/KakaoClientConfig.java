@@ -30,7 +30,7 @@ public class KakaoClientConfig {
         return createKakaoClient("https://dapi.kakao.com");
     }
 
-    // 자동차 길찾기용. (service/RouteService 가 사용)
+    // 자동차 길찾기용. (service/impl/RouteServiceImpl 이 사용)
     @Bean
     RestClient kakaoMobilityRestClient() {
         return createKakaoClient("https://apis-navi.kakaomobility.com");
