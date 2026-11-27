@@ -41,7 +41,6 @@ public class LocationController {
         }
 
         model.addAttribute("participantForm", participantForm);
-        model.addAttribute("kakaoJsKey", kakaoJsKey);
         return "main";
     }
 
