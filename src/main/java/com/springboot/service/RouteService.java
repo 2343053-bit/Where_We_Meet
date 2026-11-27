@@ -3,8 +3,7 @@ package com.springboot.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -17,12 +16,9 @@ public class RouteService {
 
     private final RestClient kakaoMobilityClient;
 
-    // @Value 는 application-secret.properties 의 kakao.rest-api-key 값.
-    public RouteService(@Value("${kakao.rest-api-key}") String restApiKey) {
-        this.kakaoMobilityClient = RestClient.builder()
-                .baseUrl("https://apis-navi.kakaomobility.com")             // 요청 보낼 기본 주소.
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "KakaoAK " + restApiKey)  // 인증 헤더. (curl 의 -H "Authorization: KakaoAK 키")
-                .build();
+    // 카카오모빌리티용 RestClient 는 config/KakaoClientConfig 가 만들어서 넣어 준다. (키·헤더·타임아웃 설정 포함)
+    public RouteService(@Qualifier ("kakaoMobilityRestClient") RestClient kakaoMobilityClient) {
+        this.kakaoMobilityClient = kakaoMobilityClient;
     }
 
     // 승용차 이동시간(초)을 돌려준다. 길찾기에 실패하면 -1.
