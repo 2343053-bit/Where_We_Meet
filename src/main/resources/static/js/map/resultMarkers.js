@@ -37,7 +37,8 @@ export function drawResult(map, meetingLat, meetingLng, participantList, average
         meetingWindow = new kakao.maps.InfoWindow({
             position: markerPosition,
             content: '<div class="info-window">' + t('result.meetingPoint') + '</div>',
-            disableAutoPan: true   // 말풍선이 화면 밖으로 나가도 지도 이동하지 않음.
+            disableAutoPan: true,  // 말풍선이 화면 밖으로 나가도 지도 이동하지 않음.
+            zIndex: 20             // 금별 마커(zIndex 10)보다 위에 보이게.
         });
         // 처음에는 닫아 두고, 마우스를 올리거나 누를 때만 보여 준다. (회색 원래 중간 지점 마커와 같은 방식)
         kakao.maps.event.addListener(meetingMarker, 'mouseover', function () { meetingWindow.open(map, meetingMarker); });
@@ -64,7 +65,8 @@ export function drawResult(map, meetingLat, meetingLng, participantList, average
         var averageWindow = new kakao.maps.InfoWindow({
             position: averagePosition,
             content: '<div class="info-window">' + t('result.averagePoint') + '</div>',
-            disableAutoPan: true   // 말풍선이 화면 밖으로 나가도 지도 이동하지 않음.
+            disableAutoPan: true,  // 말풍선이 화면 밖으로 나가도 지도 이동하지 않음.
+            zIndex: 20             // 금별 마커(zIndex 10)보다 위에 보이게.
         });
         // 중간 지점 말풍선을 가리지 않게, 마우스를 올리거나 누를 때만 보여 준다.
         kakao.maps.event.addListener(averageMarker, 'mouseover', function () { averageWindow.open(map, averageMarker); });
@@ -104,7 +106,8 @@ export function drawResult(map, meetingLat, meetingLng, participantList, average
         nameBox.textContent = participantList[i].participantName;
         var infowindow = new kakao.maps.InfoWindow({
             position: marker.getPosition(),
-            content: nameBox
+            content: nameBox,
+            zIndex: 20   // 금별 마커(zIndex 10)보다 위에 보이게.
         });
         infowindow.open(map, marker); // marker 위에 말풍선 열기.
         resultMarkers.push(marker); // 나중에 지우려고 모아 둔다.
