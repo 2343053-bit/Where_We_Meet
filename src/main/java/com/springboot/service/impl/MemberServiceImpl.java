@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.springboot.domain.Member;
+import com.springboot.repository.FriendshipRepository;
 import com.springboot.repository.MemberRepository;
 import com.springboot.service.MemberService;
 
@@ -32,13 +33,16 @@ public class MemberServiceImpl implements MemberService {
     private final Path uploadDir;
 
     private final MemberRepository memberRepository; // 회원 정보를 관리하는 Repository
+    private final FriendshipRepository friendshipRepository;
     private final PasswordEncoder passwordEncoder; // 비밀번호 암호화를 위한 PasswordEncoder
 
     public MemberServiceImpl(MemberRepository memberRepository,
             PasswordEncoder passwordEncoder,
+            FriendshipRepository friendshipRepository,
             @Value("${resource_path}") String resourcePath) {
         this.memberRepository = memberRepository;
         this.passwordEncoder = passwordEncoder;
+        this.friendshipRepository = friendshipRepository;
         // "file:///C:/upload" 같은 URL 문자열을 실제 폴더 경로(C:/upload)로 바꾼다.
         this.uploadDir = Path.of(URI.create(resourcePath));
 
@@ -116,8 +120,9 @@ public class MemberServiceImpl implements MemberService {
         Member member = findById(id);
         String imagePath = member.getProfileImagePath(); // 예) "/images/abc_profile". 기본 사진이면 비어 있다.
 
-        memberRepository.delete(member); // 1) DB 에서 회원 삭제 (Service → Repository)
-        deleteProfileImage(imagePath, id); // 2) 사진 파일 삭제
+        friendshipRepository.deleteAllByMemberId(id); // 외래키 참조하는 친구 관계 삭제
+        memberRepository.delete(member); // DB 에서 회원 삭제
+        deleteProfileImage(imagePath, id); // 사진 파일 삭제
     }
 
     // 업로드 폴더에서 그 회원의 사진 파일을 지운다. 사진이 없거나 지우지 못해도 탈퇴는 막지 않는다.
