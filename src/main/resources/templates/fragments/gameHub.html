@@ -5,6 +5,9 @@
      - 후보 목록·게임 탭·게임 화면은 브라우저에서 바뀌므로 "틀"만 만들고 내용은 gameHub.js 가 채운다.
      - 게임 화면(#game-stage) 안은 각 게임(game/games/*.js)이 그린다. 게이트는 그 안을 건드리지 않는다. -->
 <dialog th:fragment="gameHub" id="game-hub" aria-labelledby="game-hub-title">
+    <!-- 당첨 때 색종이를 그리는 캔버스. 화면 전체를 덮지만 클릭은 통과시킨다. (game.css)
+         dialog 는 페이지 맨 위 층에 떠서, 페이지에 깐 캔버스는 창 뒤에 가려진다. 그래서 창 "안"에 둔다. -->
+    <canvas id="game-confetti" aria-hidden="true"></canvas>
     <div class="game-hub__header">
         <h2 id="game-hub-title" th:text="#{game.title}">게임으로 정하기</h2>
         <!-- method="dialog" 폼의 버튼은 누르면 dialog 를 닫는다. (JS 없이) -->

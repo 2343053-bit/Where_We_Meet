@@ -31,6 +31,7 @@ var winner = null;          // 당첨된 후보.
 var onResult = function () {};   // [여기로 가기]를 누르면 부를 함수. (setGameResultHandler 로 바꾼다)
 
 var els = {};               // 자주 쓰는 태그들. initGameHub 에서 한 번 찾아 둔다.
+var shootConfetti = null;   // 색종이 터뜨리는 함수. (canvas-confetti 라이브러리, main.html 에서 불러온다. 못 불러오면 null → 효과만 생략)
 
 // 창과 버튼에 이벤트를 붙인다. 페이지에서 한 번만 부른다. (main.js)
 export function initGameHub() {
@@ -49,12 +50,22 @@ export function initGameHub() {
         retryButton: document.getElementById('game-result-retry')
     };
 
+    // 색종이를 창 안의 캔버스에 그리도록 만든다.
+    //   resize: 창 크기가 바뀌면 캔버스도 맞춘다. / disableForReducedMotion: "동작 줄이기"를 켠 사용자에겐 터뜨리지 않는다.
+    if (typeof window.confetti === 'function') {
+        shootConfetti = window.confetti.create(document.getElementById('game-confetti'), {
+            resize: true,
+            disableForReducedMotion: true
+        });
+    }
+
     els.openButton.addEventListener('click', openGameHub);
 
     // ×, ESC, clearCandidates 등 어떤 방법으로 닫혀도 이 이벤트 하나에서 게임을 정리한다.
     els.dialog.addEventListener('close', function () {
         stopGame();
         hideResult();
+        if (shootConfetti) shootConfetti.reset();   // 날아가던 색종이도 지운다.
     });
 
     // 후보의 × 버튼. 버튼마다 붙이지 않고 목록에 한 번만 붙인다. (이벤트 위임, placePanel.js 와 같은 방식)
@@ -244,8 +255,19 @@ function showStageStatus(message) {
 // 결과창에 당첨 장소를 보여 준다. 패널과 같은 모양의 카드를 재사용한다. (map/placePanel.js)
 function showResult(place) {
     els.resultPlace.replaceChildren(createStandalonePlaceCard(place));
-    els.result.hidden = false;
-    els.goButton.focus();      // 키보드로도 바로 [여기로 가기]를 누를 수 있게.
+    els.result.hidden = false;           // 보이는 순간 game.css 의 튀어나오는 애니메이션이 돈다.
+    els.goButton.focus();                // 키보드로도 바로 [여기로 가기]를 누를 수 있게.
+    els.result.scrollIntoView({ block: 'nearest', behavior: 'smooth' });   // 창이 길어 결과창이 아래에 가려져 있으면 보이게.
+    celebrate();
+}
+
+// 와아! 양쪽 아래에서 색종이를 쏘아 올린다. 모든 게임 공통. (게임은 효과를 따로 만들지 않는다)
+function celebrate() {
+    if (!shootConfetti) return;
+    var common = { particleCount: 80, spread: 70, startVelocity: 55 };
+    // origin : 쏘는 위치 (0~1, 화면 비율). angle : 쏘는 방향 (90 = 위, 60 = 오른쪽 위, 120 = 왼쪽 위)
+    shootConfetti(Object.assign({ origin: { x: 0.15, y: 0.9 }, angle: 60 }, common));
+    shootConfetti(Object.assign({ origin: { x: 0.85, y: 0.9 }, angle: 120 }, common));
 }
 
 function hideResult() {

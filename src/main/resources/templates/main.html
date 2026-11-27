@@ -62,6 +62,8 @@
     <!-- 다음(카카오) 우편번호 서비스. "주소 검색" 버튼을 누르면 뜨는 주소 검색 팝업(daum.Postcode)을 쓰려고 추가했다. (키 필요 없음) -->
     <script src="https://t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <!-- JS 에서 쓰는 번역 문장 (APP_DATA.messages). main.js 앞에 둔다. -->
+    <!-- 게임 당첨 때 색종이 효과 (window.confetti). 못 불러와도 게임은 그대로 되고 효과만 빠진다. (game/gameHub.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script th:replace="~{fragments/jsMessages :: jsMessages}"></script>
     <script type="module" th:src="@{/js/main.js}"></script>
 </body>
