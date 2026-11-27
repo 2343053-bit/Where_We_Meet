@@ -12,6 +12,7 @@ import { coordsToAddress } from "./api/geocoder.js";
 import { fetchMeetingPoint } from "./api/meetingPointApi.js";
 import { initMessages, t } from "./util/i18n.js";
 import { initLangSwitch, rememberResult, takeSavedResult } from "./util/langSwitch.js";
+import { initGameHub } from "./game/gameHub.js";
 
 var appData = readAppData();
 initMessages(appData.messages, appData.lang); // 다른 모듈이 t('키') 를 쓰기 전에.
@@ -29,6 +30,9 @@ initFriendSelect(participantsEl);   // 친구를 고르면 이름·주소 칸을
 
 // 언어를 바꿀 때 마지막 결과를 저장해서 새 언어 화면에서 다시 그린다. (util/langSwitch.js)
 initLangSwitch(document.querySelector(".lang-switch"));
+
+// ── 게임으로 정하기 창 (game/gameHub.js) ───────────────────────
+initGameHub();
 
 // ── 지도 ───────────────────────
 var map = createMap(document.getElementById("map"));

@@ -4,6 +4,7 @@
 <head>
     <th:block th:replace="~{fragments/head :: common(#{title.main})}"></th:block>
     <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/game.css}">
     <!-- fetch 로 POST 할 때 보낼 보안 토큰. (api/meetingPointApi.js 가 읽는다)-->
     <meta name="_csrf" th:content="${_csrf?.token}">
     <meta name="_csrf_header" th:content="${_csrf?.headerName}">
@@ -50,6 +51,9 @@
         <!-- 오른쪽: 주변 장소 패널 -->
         <aside th:replace="~{fragments/placePanel :: placePanel(false)}"></aside>
     </main>
+
+    <!-- "게임으로 정하기" 창. 평소엔 숨어 있고, 패널의 열기 버튼을 누르면 화면 위에 뜬다. (fragments/gameHub.html) -->
+    <dialog th:replace="~{fragments/gameHub :: gameHub}"></dialog>
 
     <!-- 지도 스크립트는 반드시 폼 "뒤"에 둔다. 폼 앞에 긴 스크립트가 있으면 Thymeleaf 가 화면을 먼저 보내 버려서
      폼의 보안 토큰(CSRF)을 못 만들고 화면이 잘린다. ("Cannot create a session after the response has been committed") -->

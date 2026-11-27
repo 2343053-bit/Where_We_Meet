@@ -6,7 +6,14 @@
        그래서 이 조각은 "틀"과 "카드 1개 모양(template)"만 만들고, 내용은 placePanel.js 가 채운다.
        (참가자 입력칸의 participant-template 과 같은 방식) -->
 <aside th:fragment="placePanel(searched)" id="place-panel">
-    <h2 th:text="#{panel.title}">주변 장소</h2>
+    <div class="place-panel__header">
+        <h2 th:text="#{panel.title}">주변 장소</h2>
+        <!-- "게임으로 정하기" 창을 연다. (game/gameHub.js) 숫자 배지 = 지금 후보 수, 0개면 숨긴다. -->
+        <button type="button" id="game-hub-open">
+            <span>🎲 <span th:text="#{game.open}">게임으로 정하기</span></span>
+            <span id="game-hub-count" hidden>0</span>
+        </button>
+    </div>
 
     <!-- 안내 문구. 제출 전 / 검색 중 / 결과 없음 / 오류일 때 보이고, 결과가 있으면 JS 가 숨긴다.
          조건 ? A : B  → searched 가 true 면 A(찾는 중), 아니면 B(제출 안내). A, B 자리에 #{키} 를 바로 쓸 수 있다. -->

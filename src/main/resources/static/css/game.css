@@ -1,0 +1,211 @@
+/* "게임으로 정하기" 창과 열기 버튼. (fragments/gameHub.html, fragments/placePanel.html)
+   각 게임 안쪽 스타일은 게임 파일이 game-<게임id>__ 이름으로 따로 가진다. */
+
+/* ── 열기 버튼 (주변 장소 패널 제목 옆) ── */
+.place-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+#game-hub-open {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    padding: 4px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* 후보 개수 배지 */
+#game-hub-count {
+    min-width: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: #e8590c;
+    color: #fff;
+    font-size: 11px;
+    line-height: 18px;
+    text-align: center;
+}
+
+#game-hub-count[hidden] {
+    display: none;   /* display 를 위에서 정해서, hidden 만으로는 안 숨겨진다. */
+}
+
+/* ── 창 ── */
+#game-hub {
+    width: min(640px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    box-sizing: border-box;
+    padding: 16px 20px 20px;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+    overflow-y: auto;
+}
+
+#game-hub::backdrop {
+    background: rgba(0, 0, 0, 0.5);   /* 창 뒤 화면을 어둡게. */
+}
+
+.game-hub__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.game-hub__header h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.game-hub__header form {
+    margin: 0;
+}
+
+.game-hub__close {
+    border: none;
+    background: none;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+/* ── ① 후보 목록 (이름표 모양으로 한 줄씩 채움) ── */
+.game-hub__candidates h3 {
+    margin: 16px 0 8px;
+    font-size: 14px;
+}
+
+#game-candidates-empty {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+}
+
+#game-candidates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.game-candidate {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 4px 3px 10px;
+    border-radius: 14px;
+    background: #eef2f7;
+    font-size: 13px;
+}
+
+.game-candidate__remove {
+    border: none;
+    background: none;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    color: #666;
+}
+
+/* ── ② 게임 탭 ── */
+#game-tabs {
+    display: flex;
+    gap: 6px;
+    margin: 16px 0 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.game-tab {
+    padding: 6px 12px;
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: none;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.game-tab[aria-selected="true"] {
+    border-bottom-color: #e8590c;
+    font-weight: bold;
+}
+
+/* ── ③ 게임 화면 ── */
+#game-stage {
+    display: grid;
+    place-items: center;   /* 게임을 가운데에. */
+}
+
+#game-stage:empty {
+    display: none;         /* 게임이 없을 때(후보 부족 등)는 빈 칸을 차지하지 않게. */
+}
+
+#game-stage-status {
+    margin: 24px 0;
+    text-align: center;
+    color: #666;
+}
+
+/* ── ④ 결과창 ── */
+#game-result {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 10px;
+    background: #fff4e6;
+    text-align: center;
+}
+
+.game-result__title {
+    margin: 0 0 8px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.game-result__name {
+    margin: 0 0 4px;
+    font-size: 18px;
+}
+
+.game-result__address {
+    margin: 0;
+    font-size: 13px;
+    color: #555;
+}
+
+.game-result__actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.game-result__actions button {
+    padding: 6px 16px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#game-result-go {
+    border: none;
+    border-radius: 6px;
+    background: #e8590c;
+    color: #fff;
+}
+
+/* 좁은 화면(휴대폰)에서는 창을 화면 가득. */
+@media (max-width: 700px) {
+    #game-hub {
+        width: 100%;
+        max-width: none;
+        height: 100%;
+        max-height: none;
+        margin: 0;
+        border-radius: 0;
+    }
+}
