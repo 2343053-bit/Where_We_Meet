@@ -35,6 +35,11 @@ var COUNTDOWN_MS = 600;        // 3·2·1 한 칸의 시간.
 var FINISH_DELAY = 900;        // 첫 구슬이 도착한 뒤 결과창을 띄우기까지. 도착 장면을 볼 틈을 준다.
 var RANK_UPDATE_MS = 250;      // 순위표를 고치는 간격. 매 프레임 고치면 비슷한 높이의 구슬끼리 덜덜 떨린다.
 
+// ── 막힘 대비 (안전장치) ── 시뮬레이션상 지금 코스에서 막힌 판은 없지만, 혹시 끼어도 경주가 끝나게.
+var TIME_LIMIT_MS = 60000;     // 출발 뒤 1분 안에 아무도 도착 못 하면, 그때 결승선에 가장 가까운 구슬이 당첨.
+var STUCK_MS = 2000;           // 이만큼 거의 안 움직인 구슬은 살짝 튕겨 준다.
+var STUCK_SPEED = 0.3;         // "거의 안 움직임" 기준 속도. (px / 계산 1번)
+
 // 구슬 색. 어두운 배경에서 잘 보이는 밝은 색. 번호는 진한 글자. 후보는 최대 8개라 겹치지 않는다. (순위표 점도 같은 색)
 var COLORS = ['#ff6b6b', '#ffd43b', '#69db7c', '#4dabf7', '#b197fc', '#f783ac', '#3bc9db', '#ffa94d'];
 
@@ -55,7 +60,8 @@ var TRACK = [
     [300, 180, 45], [420, 260, 45], [540, 260, 45],    // ① S자 수로: 오른쪽으로 꺾고
     [660, 100, 45], [780, 100, 45], [900, 200, 45],    //            왼쪽으로 꺾었다가 다시 오른쪽
     [960, 180, 40], [1020, 180, 140],                  // ② 세모 방: 좁은 목 → 넓은 방
-    [1300, 180, 140], [1360, 180, 40],                 //            → 다시 좁은 목
+    [1290, 180, 140], [1380, 180, 50],                 //            → 다시 좁은 목. 출구는 45도로 가파르고 폭 100px.
+                                                       //              (31도·80px 일 땐 구슬 8개가 아치처럼 서로 버티며 막혔다)
     [1440, 180, 90], [1840, 180, 90],                  // ③ 비스듬 막대 줄
     [1900, 180, 150], [2200, 180, 150],                // ④ 회전 X자 방
     [2260, 180, 70], [2600, 180, 70],                  // ⑤ 핀 기둥
@@ -124,33 +130,82 @@ export default {
         var raceStarted = false;  // 출발 문이 열렸는지.
         var finished = [];        // 도착한 순서대로 구슬 번호. finished[0] = 당첨.
         var lastRankAt = 0;       // 마지막으로 순위표를 고친 시각. (너무 자주 고치면 항목이 덜덜 떨려서 RANK_UPDATE_MS 마다)
+        var raceTime = 0;         // 출발 뒤 흐른 물리 시간. (ms) 1분 제한을 잰다. 화면 주사율·탭 전환과 상관없다.
+        var stillFor = marbles.map(function () { return 0; });   // 구슬마다 "거의 안 움직인" 시간. (ms)
+        var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         // [경주 시작] → 3·2·1 → 문 열기.
+        // "동작 줄이기" 설정이면: 카운트다운 없이, 화면을 그리지 않고 물리 계산만 끝까지 한 번에 돌려 결과 장면만 보여 준다.
         startButton.addEventListener('click', function () {
             startButton.hidden = true;
+            if (reduceMotion) {
+                openGate();
+                while (winnerIndex === -1) step();   // 길어야 1분(3600번) 계산. 순식간에 끝난다.
+                return;
+            }
             ['3', '2', '1'].forEach(function (text, k) {
                 later(function () { countdownText = text; }, k * COUNTDOWN_MS);
             });
             later(function () {
                 countdownText = t('game.marbleGo');
-                Matter.Composite.remove(engine.world, gate);   // 문이 사라지면 구슬이 떨어진다.
-                raceStarted = true;
-                course.shapes = course.shapes.filter(function (s) { return s.body !== gate; });
+                openGate();
             }, 3 * COUNTDOWN_MS);
             later(function () { countdownText = ''; }, 4 * COUNTDOWN_MS);
         });
 
-        // 한 프레임: 밀린 시간만큼 물리 계산 → 도착 확인 → 카메라 이동 → 그리기.
+        function openGate() {
+            Matter.Composite.remove(engine.world, gate);   // 문이 사라지면 구슬이 떨어진다.
+            course.shapes = course.shapes.filter(function (s) { return s.body !== gate; });
+            raceStarted = true;
+        }
+
+        // 물리 계산 한 번: 회전 장애물 → 엔진 → 도착 확인 → 막힘 대비.
+        function step() {
+            course.spinners.forEach(function (s) { Matter.Body.rotate(s.body, s.speed); });
+            Matter.Engine.update(engine, STEP_MS);
+            checkFinish();
+            if (!raceStarted || winnerIndex !== -1) return;
+            raceTime += STEP_MS;
+            nudgeStuckMarbles();
+            if (raceTime >= TIME_LIMIT_MS) timeUp();
+        }
+
+        // 2초 넘게 거의 안 움직인 구슬(어딘가에 낀 구슬)을 위쪽 좌우 아무 방향으로 살짝 튕겨 준다.
+        function nudgeStuckMarbles() {
+            marbles.forEach(function (m, i) {
+                if (finished.indexOf(i) !== -1) return;
+                stillFor[i] = m.speed < STUCK_SPEED ? stillFor[i] + STEP_MS : 0;
+                if (stillFor[i] < STUCK_MS) return;
+                stillFor[i] = 0;
+                Matter.Body.setVelocity(m, { x: (Math.random() - 0.5) * 6, y: -3 });
+            });
+        }
+
+        // 1분이 지나도록 아무도 도착 못 했으면, 결승선에 가장 가까운(가장 아래) 구슬을 당첨으로.
+        function timeUp() {
+            var leader = findLeader(marbles);
+            finished.push(leader);
+            declareWinner(leader);
+            countdownText = t('game.marbleTimeUp');
+            later(function () { countdownText = ''; }, 1500);
+        }
+
+        function declareWinner(i) {
+            winnerIndex = i;
+            legend.setWinner(i);
+            legend.setRanking(ranking(marbles, finished));   // 결과창이 뜨기 전에 순위표를 마지막 순서로.
+            later(function () { onFinish(winnerIndex); }, FINISH_DELAY);
+        }
+
+        // 한 프레임: 밀린 시간만큼 물리 계산 → 순위표 → 카메라 이동 → 그리기.
         var lastTime = performance.now();
         var pending = 0;          // 아직 계산 안 한 시간. (ms)
         function frame(now) {
             pending += Math.min(now - lastTime, 100);   // 탭을 오래 비웠다 돌아와도 한꺼번에 너무 많이 계산하지 않게 100ms 까지만.
             lastTime = now;
             while (pending >= STEP_MS) {
-                course.spinners.forEach(function (s) { Matter.Body.rotate(s.body, s.speed); });   // 회전 장애물 돌리기.
-                Matter.Engine.update(engine, STEP_MS);
+                step();
                 pending -= STEP_MS;
-                checkFinish();
             }
             // 순위표: 출발한 뒤부터. (문 위에서 기다릴 땐 높이가 비슷해 순서가 계속 바뀌니까)
             if (raceStarted && now - lastRankAt >= RANK_UPDATE_MS) {
@@ -159,7 +214,8 @@ export default {
             }
             // 카메라: 출발 전엔 맨 위, 달리는 중엔 선두, 도착 뒤엔 당첨 구슬.
             var leader = !raceStarted ? -1 : (winnerIndex !== -1 ? winnerIndex : findLeader(marbles));
-            cameraY = follow(cameraY, leader === -1 ? 0 : marbles[leader].position.y, course.height);
+            // "동작 줄이기"면 미끄러지듯 따라가지 않고 바로 그 자리로.
+            cameraY = follow(cameraY, leader === -1 ? 0 : marbles[leader].position.y, course.height, reduceMotion);
             draw(ctx, dpr, cameraY, course, marbles, winnerIndex, countdownText);
             rafId = requestAnimationFrame(frame);
         }
@@ -170,11 +226,7 @@ export default {
             for (var i = 0; i < marbles.length; i++) {
                 if (finished.indexOf(i) !== -1 || marbles[i].position.y < FINISH_Y) continue;
                 finished.push(i);
-                if (winnerIndex === -1) {
-                    winnerIndex = i;
-                    legend.setWinner(i);
-                    later(function () { onFinish(winnerIndex); }, FINISH_DELAY);
-                }
+                if (winnerIndex === -1) declareWinner(i);
             }
         }
 
@@ -354,22 +406,30 @@ function buildCourse(Matter, mirror) {
 // 벽 한쪽(점들을 이은 꺾은선)을 물리 몸체로 만든다.
 //   side: -1 = 왼쪽 벽, 1 = 오른쪽 벽. 몸체는 선의 "바깥쪽"으로 두께만큼 밀어서, 안쪽 면이 그려진 선과 딱 맞게 한다.
 //   꺾이는 점마다 둥근 기둥을 하나씩 넣어, 바깥쪽 모서리에 틈이 생기지 않게 한다.
+//   기둥은 앞뒤 벽의 바깥쪽 방향을 평균 낸 방향으로, 반지름보다 1.5px 더 바깥에 둔다.
+//   (처음엔 무조건 수평으로 밀었더니, 비스듬한 바닥과 만나는 점에서 기둥이 바닥 위로 3px 쯤 튀어나와
+//    느린 구슬이 그 턱에 걸려 멈췄다. 시뮬레이션 400판에 74번, 거의 다 세모 방 바닥의 양쪽 끝.)
 function addWall(Matter, points, side, add) {
     var options = { isStatic: true, friction: 0.01, restitution: 0.3 };
+    var normals = [];   // 선분마다 바깥쪽 수직 방향(길이 1).
     for (var i = 0; i < points.length - 1; i++) {
         var p = points[i], q = points[i + 1];
         var dx = q.x - p.x, dy = q.y - p.y;
         var length = Math.hypot(dx, dy);
-        if (length === 0) continue;
         // 선에 수직인 방향 중 바깥쪽(왼쪽 벽이면 x 가 작아지는 쪽).
         var nx = dy / length, ny = -dx / length;
         if (nx * side < 0) { nx = -nx; ny = -ny; }
+        normals.push({ x: nx, y: ny });
         var cx = (p.x + q.x) / 2 + nx * WALL_T / 2;
         var cy = (p.y + q.y) / 2 + ny * WALL_T / 2;
         add(Matter.Bodies.rectangle(cx, cy, length, WALL_T, Object.assign({ angle: Math.atan2(dy, dx) }, options)), 'wall');
-        if (i > 0) {
-            add(Matter.Bodies.circle(p.x + side * WALL_T / 2, p.y, WALL_T / 2, options), 'wall');
-        }
+    }
+    for (var k = 1; k < points.length - 1; k++) {
+        var ax = normals[k - 1].x + normals[k].x, ay = normals[k - 1].y + normals[k].y;
+        var len = Math.hypot(ax, ay);
+        if (len < 0.01) continue;   // 앞뒤가 정반대로 꺾이는 경우는 없지만, 혹시 몰라 건너뛴다.
+        var offset = WALL_T / 2 + 1.5;
+        add(Matter.Bodies.circle(points[k].x + ax / len * offset, points[k].y + ay / len * offset, WALL_T / 2, options), 'wall');
     }
 }
 
@@ -404,9 +464,10 @@ function findLeader(marbles) {
     return best;
 }
 
-// 선두 구슬이 화면 위에서 40% 쯤에 오도록 카메라를 부드럽게 옮긴다.
-function follow(cameraY, leaderY, worldH) {
+// 선두 구슬이 화면 위에서 40% 쯤에 오도록 카메라를 부드럽게 옮긴다. jump 면 한 번에.
+function follow(cameraY, leaderY, worldH, jump) {
     var target = clamp(leaderY - VIEW_H * 0.4, 0, worldH - VIEW_H);
+    if (jump) return target;
     return cameraY + (target - cameraY) * 0.1;   // 한 번에 다 가지 않고 10% 씩 → 덜컹거리지 않는다.
 }
 
