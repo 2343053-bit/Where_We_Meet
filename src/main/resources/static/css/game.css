@@ -613,8 +613,8 @@
     max-width: 360px;
     height: auto;                              /* width·height 속성의 비율(360:460)대로. */
     border-radius: 10px;
-    background: #f8f9fa;
-    box-shadow: inset 0 0 0 1px #dee2e6;
+    background: #1e1f24;                       /* marble.js 의 BG_COLOR 와 같은 색. (캔버스가 그려지기 전 한순간에도 어둡게) */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 /* [캔버스 + 가운데 경주 시작 버튼] | 순위표. 창이 넓으면 나란히, 좁으면 순위표가 아래로 내려간다. */
@@ -696,7 +696,7 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    color: #fff;
+    color: #212529;                            /* 구슬 색이 밝아서 진한 번호. (캔버스의 구슬과 같게) */
     font-size: 11px;
     font-weight: bold;
     line-height: 20px;
