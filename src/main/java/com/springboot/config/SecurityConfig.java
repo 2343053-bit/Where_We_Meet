@@ -27,7 +27,7 @@ public class SecurityConfig {
             .userDetailsService(userDetailsService)
             // 로그인이 필요한 곳만 막고, 나머지는 누구나 볼 수 있다.
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/mypage/**")
+                .requestMatchers("/mypage/**", "/friends/**")
                 .authenticated()
                 .anyRequest()
                 .permitAll()
