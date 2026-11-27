@@ -1,9 +1,25 @@
-import { showCarRoutes } from './carRoutes.js';
+import { showCarRoutes, clearRouteLines } from './carRoutes.js';
 import { renderPlaceList, showPlaceStatus } from './placePanel.js';
 import { t } from '../util/i18n.js';
 
+var placeMarkers = []; // 지금 지도에 있는 장소 마커들. (다시 제출하면 지운다)
+var placeInfowindow = null; // 장소 말풍선. (하나를 돌려 씀)
+var searchId = 0; // 몇 번째 검색인지. 늦게 도착한 이전 검색 결과를 버리는 데 쓴다.
+
+// 이전 검색의 장소 마커, 말풍선, 경로 선을 모두 지운다.
+export function clearPlaces() {
+    for (var k = 0; k < placeMarkers.length; k++) {
+        placeMarkers[k].setMap(null); // 지도에서 지우기. (마커를 지울 때와 같은 방식)
+    }
+    placeMarkers = []; // 마커 배열을 비운다.
+    if (placeInfowindow) placeInfowindow.close(); // 말풍선 닫기. (open 안 했으면 close 해도 아무 일 없음)
+    clearRouteLines(); // carRoutes.js 의 함수. 지도에 그려진 경로 선을 모두 지운다.
+}
+
 export function searchNearbyPlaces(map, meetingLat, meetingLng, participantList, keyword) {
-    var placeInfowindow = new kakao.maps.InfoWindow({ zIndex: 1 }); // 장소 마커를 클릭하면 장소 이름을 보여 줄 말풍선. (하나를 돌려 씀) zIndex 는 다른 말풍선보다 위에 보이게.
+    clearPlaces(); // 이전 검색 결과를 지운다.
+    var mySearchId = ++searchId; // 이번 검색의 id. (늦게 온 이전 검색 결과를 버리는 데 쓴다)
+    if (!placeInfowindow) placeInfowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
     var ps = new kakao.maps.services.Places();                       // 장소 검색 객체 생성.
     var markers = [];                                                // 검색된 장소의 마커들. 검색 결과와 같은 순서라 data[i] 의 마커 = markers[i].
 
@@ -16,6 +32,8 @@ export function searchNearbyPlaces(map, meetingLat, meetingLng, participantList,
 
     // 검색이 끝나면 카카오가 호출해 주는 함수. data = 검색된 장소 목록, status = 검색 결과 상태.
     function placesSearchCB(data, status, pagination) {
+        if (mySearchId !== searchId) return; // 그사이 다시 제출했으면 늦게 온 이전 검색 결과는 버린다.  
+
         if (status === kakao.maps.services.Status.OK) {   // 검색 결과가 있을 때만.
             for (var i = 0; i < data.length; i++) {        // 검색된 장소 수만큼 반복.
                 markers.push(displayMarker(data[i]));      // i 번째 장소의 마커를 만들고, 카드와 짝을 지으려고 저장해 둔다.
@@ -51,6 +69,7 @@ export function searchNearbyPlaces(map, meetingLat, meetingLng, participantList,
             selectPlace(place, marker);
         });
 
+        placeMarkers.push(marker); // 다음 검색 때 지우려고 모아 둔다.
         return marker;   // 카드와 짝을 지으려고 만든 마커를 돌려준다.
     }
 

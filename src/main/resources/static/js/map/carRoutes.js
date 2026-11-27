@@ -7,7 +7,7 @@ var routeLines = [];            // 지금 지도에 그려져 있는 경로 선�
 var lastClickedPlaceId = null;  // 마지막으로 누른 카페의 id. (늦게 온 답이 다른 카페 결과를 덮어쓰지 않게)
 
 // 지도에 그려져 있는 경로 선을 모두 지운다.
-function clearRouteLines() {
+export function clearRouteLines() {
 	for (var k = 0; k < routeLines.length; k++) {
 		routeLines[k].setMap(null);   // setMap(null) : 지도에서 지우기. (마커를 지울 때와 같은 방식)
 	}

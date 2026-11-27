@@ -7,15 +7,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.springboot.domain.MeetingPoint;
 import com.springboot.domain.Member;
 import com.springboot.domain.ParticipantLocation;
 import com.springboot.dto.ParticipantForm;
 import com.springboot.service.FriendshipService;
-import com.springboot.service.MeetingPointService;
 import com.springboot.service.MemberService;
 
 @Controller
@@ -26,15 +23,12 @@ public class LocationController {
     @Value("${kakao.js-key}")
     private String kakaoJsKey;
 
-    private final MeetingPointService meetingPointService;
     private final MemberService memberService;
     private final FriendshipService friendshipService;
 
     public LocationController(
-            MeetingPointService meetingPointService,
             MemberService memberService,
             FriendshipService friendshipService) {
-        this.meetingPointService = meetingPointService;
         this.memberService = memberService;
         this.friendshipService = friendshipService;
     }
@@ -57,20 +51,6 @@ public class LocationController {
         }
 
         model.addAttribute("participantForm", participantForm);
-        return "main";
-    }
-
-    @PostMapping
-    public String postLocations(@ModelAttribute ParticipantForm participantForm,
-                                Authentication authentication,
-                                Model model) {
-        MeetingPoint result = meetingPointService.findMeetingPoint(participantForm.getParticipants());
-        model.addAttribute("meetingPoint", result);
-
-        if (isAuthenticatedUser(authentication)) {
-            model.addAttribute("friends", friendshipService.getFriends(authentication.getName()));
-        }
-
         return "main";
     }
 

@@ -1,61 +1,114 @@
 import { readAppData } from "./appData.js";
 import { createMap } from "./map/createMap.js";
 import { showCurrentLocation } from "./map/currentLocation.js";
-import { drawResult } from "./map/resultMarkers.js";
+import { drawResult, clearResult } from "./map/resultMarkers.js";
 import { searchNearbyPlaces } from "./map/places.js";
+import { showPlaceStatus } from "./map/placePanel.js";
 import { initParticipantList } from "./participants/participantList.js";
 import { initAddressSearch } from "./participants/addressSearch.js";
 import { initFriendSelect } from "./participants/friendSelect.js";
 import { initSubmit } from "./participants/submit.js";
 import { coordsToAddress } from "./api/geocoder.js";
-import { initMessages, t } from "./util/i18n.js"; // { 이름1, 이름2 } : 한 파일에서 여러 개를 한 번에 가져온다.
-import { initLangSwitch } from "./util/langSwitch.js";
+import { fetchMeetingPoint } from "./api/meetingPointApi.js";
+import { initMessages, t } from "./util/i18n.js";
+import { initLangSwitch, rememberResult, takeSavedResult } from "./util/langSwitch.js";
 
 var appData = readAppData();
-initMessages(appData.messages, appData.lang); // 번역 문장과 지금 언어 넣기. 다른 모듈이 t('키') 를 쓰기 전에.
-var meetingPoint = appData.meetingPoint;
-var meetingLat = meetingPoint ? meetingPoint.meetingLatitude : null;
-var meetingLng = meetingPoint ? meetingPoint.meetingLongitude : null;
+initMessages(appData.messages, appData.lang); // 다른 모듈이 t('키') 를 쓰기 전에.
 
-var participantList = appData.participants;
-
-var keyword = document.getElementById("keyword").value.trim() || "카페";
-
+// ── 참가자 입력칸 ───────────────────────
 const participantsEl = document.getElementById("participants");
-initParticipantList(
+const participantInputs = initParticipantList(
   participantsEl,
   document.getElementById("addParticipant"),
   document.getElementById("removeParticipant"),
   document.getElementById("participant-template"),
 );
 initAddressSearch(participantsEl);
-initFriendSelect(participantsEl, appData.friends);
-initSubmit(document.getElementById("participantForm"), participantsEl);
-// 결과 화면에서 언어를 바꾸면 폼을 다시 제출해서 결과를 유지한다. (처음 화면에서는 링크 그대로)
-initLangSwitch(
-  document.querySelector(".lang-switch"),
-  document.getElementById("participantForm"),
-  meetingPoint != null,
-);
+initFriendSelect(participantsEl);   // 친구를 고르면 이름·주소 칸을 채운다. (친구 목록은 HTML 의 <option> 에서 읽는다)
 
-// 지도 생성 및 반환.
+// 언어를 바꿀 때 마지막 결과를 저장해서 새 언어 화면에서 다시 그린다. (util/langSwitch.js)
+initLangSwitch(document.querySelector(".lang-switch"));
+
+// ── 지도 ───────────────────────
 var map = createMap(document.getElementById("map"));
 
-// 입력 화면을 열거나 새로고침할 때 현재 위치를 찾는다.
-// 결과 화면에서는 중간 지점 지도를 유지하기 위해 현재 위치를 다시 요청하지 않는다.
-if (meetingPoint == null) {
+// ── 제출: 서버에 중간 지점을 묻고, 받은 결과로 지도만 다시 그린다 ───────────────────────
+initSubmit(document.getElementById("participantForm"), participantsEl, function (participants) {
+  var keyword = document.getElementById("keyword").value.trim() || "카페";
+  showPlaceStatus(t("panel.searching"));
+
+  return fetchMeetingPoint(participants)   // return : submit.js 가 끝날 때까지 버튼을 잠가 둔다.
+    .then(function (meetingPoint) {
+      showResult(meetingPoint, participants, keyword);
+    })
+    .catch(function (error) {
+      console.error(error);
+      alert(t("submit.failed"));
+    });
+});
+
+// ── 처음 열 때: 언어를 바꿔서 다시 열린 거면 이전 결과를 복원, 아니면 현재 위치 표시 ───────────────────────
+var saved = takeSavedResult();
+if (saved) {
+  fillForm(saved.participants, saved.keyword);
+  showResult(saved.meetingPoint, saved.participants, saved.keyword);
+} else {
   showCurrentLocation(map, document.getElementById("current-location-status"));
 }
 
-// 중간 지점이 옮겨졌을 때만 원래 평균 좌표를 넘긴다.
-var averagePoint = meetingPoint && meetingPoint.adjusted ? { lat: meetingPoint.averageLatitude, lng: meetingPoint.averageLongitude } : null;
-// ── 지도에 참가자 마커와 중간 지점 마커를 표시하고, 지도 범위를 참가자와 중간 지점이 다 보이게 맞춘다. ───────────────────────
-var meetingWindow = drawResult(map, meetingLat, meetingLng, participantList, averagePoint);
+// 중간 지점 결과 하나를 화면에 그린다. (이전 결과는 먼저 지운다)
+function showResult(meetingPoint, participants, keyword) {
+  var lat = meetingPoint.meetingLatitude;
+  var lng = meetingPoint.meetingLongitude;
 
-// ── 중간 지점 말풍선에 주소 표시 ───────────────────────
-// 말풍선 내용을 "중간 지점" + 둘째 줄(주소 또는 안내 문구)로 바꾼다.
-// textContent 로 넣어서 주소에 특수문자가 있어도 안전하다. (.bAddr 은 현위치 말풍선과 같은 스타일)
-function setMeetingWindowText(text) {
+  rememberResult({ meetingPoint: meetingPoint, participants: participants, keyword: keyword });
+  clearResult();
+  showMeetingNotice(meetingPoint);
+  showPlaceStatus(t("panel.searching"));
+
+  // 중간 지점이 옮겨졌을 때만 원래 평균 좌표를 넘긴다. (회색 마커)
+  var averagePoint = meetingPoint.adjusted
+    ? { lat: meetingPoint.averageLatitude, lng: meetingPoint.averageLongitude }
+    : null;
+  var meetingWindow = drawResult(map, lat, lng, participants, averagePoint);
+
+  // 중간 지점 말풍선에 주소 표시
+  setMeetingWindowText(meetingWindow, t("location.addressLoading"));
+  coordsToAddress(lat, lng)
+    .then(function (address) { setMeetingWindowText(meetingWindow, address); })
+    .catch(function (error) {
+      setMeetingWindowText(meetingWindow, t("location.addressNotFound"));
+      console.error(error);
+    });
+
+  searchNearbyPlaces(map, lat, lng, participants, keyword);
+}
+
+// 저장해 둔 결과로 입력칸(이름, 주소, 검색어)을 다시 채운다.
+function fillForm(participants, keyword) {
+  document.getElementById("keyword").value = keyword;
+  participantInputs.setCount(participants.length);
+
+  var fieldsets = participantsEl.querySelectorAll("fieldset");
+  participants.forEach(function (p, i) {
+    fieldsets[i].querySelector('input[name$=".participantName"]').value = p.participantName;
+    fieldsets[i].querySelector(".address").value = p.address;
+  });
+}
+
+// 상단 안내 문구. (옮겨졌을 때 / 옮길 곳을 못 찾았을 때)
+function showMeetingNotice(meetingPoint) {
+  var adjustedEl = document.getElementById("meeting-notice-adjusted");
+  adjustedEl.hidden = !meetingPoint.adjusted;
+  if (meetingPoint.adjusted) {
+    adjustedEl.textContent = t("meeting.adjusted", meetingPoint.anchorName);
+  }
+  document.getElementById("meeting-notice-missing").hidden = !meetingPoint.anchorMissing;
+}
+
+// 말풍선 내용을 "중간 지점" + 둘째 줄(주소 또는 안내 문구)로 바꾼다. textContent 라 특수문자도 안전하다.
+function setMeetingWindowText(meetingWindow, text) {
   var content = document.createElement("div");
   content.className = "bAddr";
 
@@ -68,20 +121,4 @@ function setMeetingWindowText(text) {
   content.appendChild(line);
 
   meetingWindow.setContent(content);
-}
-
-// 중간 지점 말풍선이 있을 때만 (= 제출한 결과 화면) 주소를 찾는다.
-if (meetingWindow) {
-  setMeetingWindowText(t("location.addressLoading"));   // 주소 확인 중...
-  coordsToAddress(meetingLat, meetingLng)
-    .then((address) => setMeetingWindowText(address))
-    .catch((error) => {
-      setMeetingWindowText(t("location.addressNotFound"));
-      console.error(error);
-    });
-}
-
-// ── 중간 지점 주변 장소 검색 ───────────────────────
-if (meetingLat != null) {
-  searchNearbyPlaces(map, meetingLat, meetingLng, participantList, keyword);
 }
