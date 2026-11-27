@@ -35,6 +35,13 @@
     display: none;   /* display 를 위에서 정해서, hidden 만으로는 안 숨겨진다. */
 }
 
+/* 장소 카드의 🎯 버튼 (공유 버튼과 같은 크기) */
+.place-card__game {
+    font-size: 12px;
+    padding: 2px 8px;
+    cursor: pointer;
+}
+
 /* ── 창 ── */
 #game-hub {
     width: min(640px, calc(100vw - 32px));
@@ -167,15 +174,19 @@
     font-weight: bold;
 }
 
-.game-result__name {
-    margin: 0 0 4px;
-    font-size: 18px;
+/* 당첨 장소 카드. 패널 카드(main.css 의 .place-card)를 그대로 쓰되, 눌러도 아무 일 없으니 손가락·배경 효과를 끈다. */
+#game-result-place {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: left;
 }
 
-.game-result__address {
-    margin: 0;
-    font-size: 13px;
-    color: #555;
+#game-result-place .place-card {
+    border: none;
+    border-radius: 8px;
+    background: #fff;
+    cursor: default;
 }
 
 .game-result__actions {

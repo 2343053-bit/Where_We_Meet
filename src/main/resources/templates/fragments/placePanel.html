@@ -41,6 +41,9 @@
                     <a class="place-card__link" target="_blank" rel="noopener" th:text="#{panel.viewOnKakaoMap}">카카오맵에서 보기</a>
                     <!-- 누르면 카카오맵 장소 상세 주소를 클립보드에 복사한다. type="button" : 폼 안에 들어가도 제출 버튼이 되지 않게. -->
                     <button type="button" class="place-card__share" th:text="#{panel.share}">공유</button>
+                    <!-- 누르면 이 장소를 "게임으로 정하기" 후보에 넣는다. (game/gameHub.js) 글자가 🎯 뿐이라 설명은 title·aria-label 로. -->
+                    <button type="button" class="place-card__game"
+                            th:title="#{game.addCandidate}" th:aria-label="#{game.addCandidate}">🎯</button>
                 </div>
             </div>
             <!-- 장소 사진(카드 오른쪽). 지금은 카테고리별 기본 이미지(/images/places/)를 쓴다.

@@ -17,6 +17,7 @@
 //     unmount: function () {}                            // 타이머·애니메이션·이벤트를 전부 정리하고 container 를 비운다.
 //   };
 import { t } from '../util/i18n.js';
+import { createStandalonePlaceCard } from '../map/placePanel.js';
 import dummy from './games/dummy.js';
 
 var GAMES = [dummy];        // 탭 순서. 새 게임은 import 하고 여기에 추가한다.
@@ -240,19 +241,9 @@ function showStageStatus(message) {
     els.stageStatus.hidden = false;
 }
 
-// 결과창에 당첨 장소를 보여 준다.
+// 결과창에 당첨 장소를 보여 준다. 패널과 같은 모양의 카드를 재사용한다. (map/placePanel.js)
 function showResult(place) {
-    els.resultPlace.replaceChildren();
-
-    var name = document.createElement('h3');
-    name.className = 'game-result__name';
-    name.textContent = place.place_name;
-
-    var address = document.createElement('p');
-    address.className = 'game-result__address';
-    address.textContent = place.road_address_name || place.address_name;   // 도로명 주소가 없으면 지번 주소.
-
-    els.resultPlace.append(name, address);
+    els.resultPlace.replaceChildren(createStandalonePlaceCard(place));
     els.result.hidden = false;
     els.goButton.focus();      // 키보드로도 바로 [여기로 가기]를 누를 수 있게.
 }

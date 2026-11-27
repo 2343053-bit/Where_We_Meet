@@ -33,7 +33,8 @@
     <!-- ④ 결과창. 게임이 당첨을 알려 주면 보인다. -->
     <section id="game-result" hidden>
         <p class="game-result__title" th:text="#{game.resultTitle}">🎉 여기 어때?</p>
-        <div id="game-result-place"></div>
+        <!-- 당첨 장소 카드. 패널의 카드(<li>)를 그대로 복제해 넣으므로 <ul> 로 감싼다. -->
+        <ul id="game-result-place"></ul>
         <div class="game-result__actions">
             <button type="button" id="game-result-go" th:text="#{game.go}">여기로 가기</button>
             <button type="button" id="game-result-retry" th:text="#{game.retry}">다시 하기</button>

@@ -12,9 +12,10 @@ export function showPlaceStatus(message) {
 }
 
 // 장소 목록(places)을 카드로 만들어 패널에 넣는다. place 하나 = 카카오 장소 검색 결과 1개.
-// onSelect : 카드를 누르면 불리는 함수. 몇 번째 카드인지(i)만 알려 준다.
-//            (이 파일은 지도·마커를 모르게 두고, 누른 뒤 할 일은 부르는 쪽(places.js)이 정한다)
-export function renderPlaceList(places, onSelect) {
+// onSelect       : 카드를 누르면 불리는 함수. 몇 번째 카드인지(i)만 알려 준다.
+//                  (이 파일은 지도·마커를 모르게 두고, 누른 뒤 할 일은 부르는 쪽(places.js)이 정한다)
+// onAddCandidate : 🎯 버튼을 누르면 불리는 함수. i 를 받고 'added' / 'duplicate' / 'full' 중 하나를 돌려준다.
+export function renderPlaceList(places, onSelect, onAddCandidate) {
     var listEl = document.getElementById('place-list');
     var template = document.getElementById('place-card-template');
 
@@ -35,31 +36,60 @@ export function renderPlaceList(places, onSelect) {
             shareLink(shareButton);
             return;
         }
-        if (e.target.closest('a')) return;                     // "카카오맵에서 보기" 링크는 새 탭만 열고 지도는 움직이지 않는다.
+        var gameButton = e.target.closest('.place-card__game');
+        if (gameButton) {                                      // 🎯 버튼: 게임 후보에만 넣고 지도는 움직이지 않는다.
+            var index = Number(gameButton.closest('.place-card').dataset.index);
+            showCandidateResult(gameButton, onAddCandidate(index));
+            return;
+        }
+        if (e.target.closest('a')) return;                    // "카카오맵에서 보기" 링크는 새 탭만 열고 지도는 움직이지 않는다.
         var card = e.target.closest('.place-card');            // 누른 곳을 감싸는 카드.
         if (!card) return;                                     // 카드 사이 빈 곳을 누른 경우.
         onSelect(Number(card.dataset.index));                  // data-index 는 글자라서 숫자로 바꿔 넘긴다.
     };
 }
 
+// 카드 하나를 목록 밖(게임 결과창)에 보여 줄 때 쓴다. (game/gameHub.js)
+// 목록의 이벤트 위임(#place-list 의 onclick)이 닿지 않으므로, 🎯 버튼은 빼고 공유 버튼에는 이벤트를 직접 붙인다.
+export function createStandalonePlaceCard(place) {
+    var card = createPlaceCard(document.getElementById('place-card-template'), place);
+    card.querySelector('.place-card__game').remove();
+    var shareButton = card.querySelector('.place-card__share');
+    shareButton.addEventListener('click', function () {
+        shareLink(shareButton);
+    });
+    return card;
+}
+
+// 🎯 버튼의 결과(gameHub.js 의 addCandidate 가 돌려준 글자)를 버튼에 잠깐 보여 준다.
+function showCandidateResult(button, result) {
+    var messageKey = {
+        added: 'game.added',
+        duplicate: 'game.duplicate',
+        full: 'game.full'
+    }[result];
+    if (messageKey) flashButtonText(button, t(messageKey), '🎯');
+}
+
 // 공유 버튼의 data-url 을 클립보드에 복사하고, 결과를 버튼 글자로 잠깐 알려 준다.
 function shareLink(button) {
     copyText(button.dataset.url)
         .then(function () {
-            flashButtonText(button, t('panel.copied'));
+            flashButtonText(button, t('panel.copied'), t('panel.share'));
         })
         .catch(function (error) {
-            flashButtonText(button, t('panel.copyFailed'));
+            flashButtonText(button, t('panel.copyFailed'), t('panel.share'));
             console.error(error);
         });
 }
 
-// 버튼 글자를 1.5초 동안 message 로 바꿨다가 "공유"로 되돌린다.
-function flashButtonText(button, message) {
+// 버튼 글자를 1.5초 동안 message 로 바꿨다가 originalText 로 되돌린다.
+//   공유 버튼은 t('panel.share') (HTML 과 같은 키라서 언어가 바뀌어도 같은 글자), 🎯 버튼은 '🎯'.
+function flashButtonText(button, message, originalText) {
     button.textContent = message;
     clearTimeout(button.resetTimer);                           // 연달아 누르면 이전 타이머를 취소해서 글자가 꼬이지 않게.
     button.resetTimer = setTimeout(function () {
-        button.textContent = t('panel.share');   // HTML(placePanel.html)의 공유 버튼과 같은 키. 언어가 바뀌어도 같은 글자로 돌아온다.
+        button.textContent = originalText;
     }, 1500);
 }
 

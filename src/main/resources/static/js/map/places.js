@@ -1,6 +1,7 @@
 import { showCarRoutes, clearRouteLines } from './carRoutes.js';
 import { renderPlaceList, showPlaceStatus } from './placePanel.js';
 import { t } from '../util/i18n.js';
+import { addCandidate, clearCandidates, setGameResultHandler } from '../game/gameHub.js';
 
 var placeMarkers = []; // 지금 지도에 있는 장소 마커들. (다시 제출하면 지운다)
 var placeInfowindow = null; // 장소 말풍선. (하나를 돌려 씀)
@@ -14,6 +15,7 @@ export function clearPlaces() {
     placeMarkers = []; // 마커 배열을 비운다.
     if (placeInfowindow) placeInfowindow.close(); // 말풍선 닫기. (open 안 했으면 close 해도 아무 일 없음)
     clearRouteLines(); // carRoutes.js 의 함수. 지도에 그려진 경로 선을 모두 지운다.
+    clearCandidates(); // 게임 후보도 비운다. 새 검색에서는 i 번째가 다른 장소라서 옛 후보가 엉뚱한 장소를 가리키게 된다.
 }
 
 export function searchNearbyPlaces(map, meetingLat, meetingLng, participantList, keyword) {
@@ -41,7 +43,14 @@ export function searchNearbyPlaces(map, meetingLat, meetingLng, participantList,
             }
             // 오른쪽 패널에 장소 카드 목록을 그린다. (placePanel.js)
             // 카드 i 번을 누르면 i 번째 장소와 i 번째 마커로 selectPlace 를 실행한다.
+            // 카드의 🎯 버튼을 누르면 i 번째 장소를 게임 후보에 넣는다. (결과 'added' 등을 돌려줘서 버튼에 안내 글자를 띄운다)
             renderPlaceList(data, function (i) {
+                selectPlace(data[i], markers[i]);
+            }, function (i) {
+                return addCandidate(i, data[i]);
+            });
+            // 게임에서 당첨된 장소로 [여기로 가기]를 누르면, 카드를 누른 것과 똑같이 지도 이동 + 경로 표시.
+            setGameResultHandler(function (i) {
                 selectPlace(data[i], markers[i]);
             });
         } else if (status === kakao.maps.services.Status.ZERO_RESULT) {   // 검색은 됐는데 결과가 0개.
