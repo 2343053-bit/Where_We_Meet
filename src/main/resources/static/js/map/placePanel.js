@@ -49,6 +49,25 @@ export function renderPlaceList(places, onSelect, onAddCandidate) {
     };
 }
 
+// i 번째 카드를 "고른 장소"로 강조하고, 패널 안에서 그 카드가 가운데에 오게 스크롤한다.
+// scrollIntoView 를 쓰지 않는 이유: 좁은 화면에서는 페이지 전체가 패널 쪽으로 튀어 버린다. 패널 안에서만 움직이게 직접 계산한다.
+export function highlightPlaceCard(i) {
+    var listEl = document.getElementById('place-list');
+    var previous = listEl.querySelector('.place-card.is-selected');
+    if (previous) previous.classList.remove('is-selected');
+
+    var card = listEl.querySelector('.place-card[data-index="' + i + '"]');
+    if (!card) return;
+    card.classList.add('is-selected');
+
+    var panel = document.getElementById('place-panel');
+    var panelRect = panel.getBoundingClientRect();
+    var cardRect = card.getBoundingClientRect();
+    // 카드 가운데와 패널 가운데의 차이만큼 패널을 스크롤한다.
+    var offset = (cardRect.top + cardRect.height / 2) - (panelRect.top + panelRect.height / 2);
+    panel.scrollBy({ top: offset, behavior: 'smooth' });
+}
+
 // 카드 하나를 목록 밖(게임 결과창)에 보여 줄 때 쓴다. (game/gameHub.js)
 // 목록의 이벤트 위임(#place-list 의 onclick)이 닿지 않으므로, 🎯 버튼은 빼고 공유 버튼에는 이벤트를 직접 붙인다.
 export function createStandalonePlaceCard(place) {

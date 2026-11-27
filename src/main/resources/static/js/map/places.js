@@ -1,5 +1,5 @@
 import { showCarRoutes, clearRouteLines } from './carRoutes.js';
-import { renderPlaceList, showPlaceStatus } from './placePanel.js';
+import { renderPlaceList, showPlaceStatus, highlightPlaceCard } from './placePanel.js';
 import { t } from '../util/i18n.js';
 import { addCandidate, clearCandidates, setGameResultHandler } from '../game/gameHub.js';
 
@@ -39,19 +39,19 @@ export function searchNearbyPlaces(map, meetingLat, meetingLng, participantList,
 
         if (status === kakao.maps.services.Status.OK) {   // 검색 결과가 있을 때만.
             for (var i = 0; i < data.length; i++) {        // 검색된 장소 수만큼 반복.
-                markers.push(displayMarker(data[i]));      // i 번째 장소의 마커를 만들고, 카드와 짝을 지으려고 저장해 둔다.
+                markers.push(displayMarker(data[i], i));   // i 번째 장소의 마커를 만들고, 카드와 짝을 지으려고 저장해 둔다.
             }
             // 오른쪽 패널에 장소 카드 목록을 그린다. (placePanel.js)
             // 카드 i 번을 누르면 i 번째 장소와 i 번째 마커로 selectPlace 를 실행한다.
             // 카드의 🎯 버튼을 누르면 i 번째 장소를 게임 후보에 넣는다. (결과 'added' 등을 돌려줘서 버튼에 안내 글자를 띄운다)
             renderPlaceList(data, function (i) {
-                selectPlace(data[i], markers[i]);
+                selectPlace(data[i], markers[i], i);
             }, function (i) {
                 return addCandidate(i, data[i]);
             });
             // 게임에서 당첨된 장소로 [여기로 가기]를 누르면, 카드를 누른 것과 똑같이 지도 이동 + 경로 표시.
             setGameResultHandler(function (i) {
-                selectPlace(data[i], markers[i]);
+                selectPlace(data[i], markers[i], i);
             });
         } else if (status === kakao.maps.services.Status.ZERO_RESULT) {   // 검색은 됐는데 결과가 0개.
              showPlaceStatus(t('panel.noResult', keyword));
@@ -60,15 +60,17 @@ export function searchNearbyPlaces(map, meetingLat, meetingLng, participantList,
         }
     }
 
-    // 장소 하나를 골랐을 때 하는 일. 마커 클릭과 카드 클릭이 둘 다 이 함수를 불러서 항상 같은 동작을 한다.
-    function selectPlace(place, marker) {
+    // 장소 하나를 골랐을 때 하는 일. 마커 클릭·카드 클릭·게임 당첨이 모두 이 함수를 불러서 항상 같은 동작을 한다.
+    // index : 검색 결과에서 몇 번째 장소인지. 패널에서 같은 번호의 카드를 강조하는 데 쓴다.
+    function selectPlace(place, marker, index) {
         map.panTo(marker.getPosition());   // 지도 중심을 그 마커로 부드럽게 옮긴다. (바로 옮기려면 setCenter)
+        highlightPlaceCard(index);         // 패널에서도 그 카드를 강조하고 보이는 곳까지 스크롤한다. (placePanel.js)
         // 참가자별 승용차 경로를 지도에 선으로 그리고, 이동시간을 말풍선에 보여 준다. (carRoutes.js의 showCarRoutes)
         showCarRoutes(map, placeInfowindow, place, marker, participantList);
     }
 
-    // 장소 하나(place)를 받아 지도에 마커를 표시하고, 만든 마커를 돌려주는 함수.
-    function displayMarker(place) {
+    // 장소 하나(place)를 받아 지도에 마커를 표시하고, 만든 마커를 돌려주는 함수. index = 검색 결과에서 몇 번째인지.
+    function displayMarker(place, index) {
         var marker = new kakao.maps.Marker({
             map: map,                                                // 마커를 표시할 지도.
             position: new kakao.maps.LatLng(place.y, place.x)        // 장소 위치. y 가 위도, x 가 경도라서 y 를 먼저 넣는다. LatLng 얘 위도부터받음.
@@ -76,7 +78,7 @@ export function searchNearbyPlaces(map, meetingLat, meetingLng, participantList,
 
         // 마커를 클릭하면 그 장소를 고른 것으로 처리한다. (지도 이동 + 경로 표시, 위의 selectPlace)
         kakao.maps.event.addListener(marker, 'click', function () {
-            selectPlace(place, marker);
+            selectPlace(place, marker, index);
         });
 
         placeMarkers.push(marker); // 다음 검색 때 지우려고 모아 둔다.
