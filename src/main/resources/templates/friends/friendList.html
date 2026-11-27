@@ -1,37 +1,42 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
-    <title th:text="#{friend.list.title}">친구 목록</title>
+    <th:block th:replace="~{fragments/head :: common(#{friend.list.title})}"></th:block>
 </head>
+
 <body>
-    <h1 th:text="#{friend.list.heading}">친구 목록</h1>
+    <header th:replace="${isAuthenticated} ? ~{fragments/header_mypage :: siteHeader} : ~{fragments/header :: siteHeader}"></header>
 
-    <div>
-        <a th:href="@{/friends/requests/new}" th:text="#{friend.request.send}">친구 요청 보내기</a> |
-        <a th:href="@{/friends/requests/received}" th:text="#{friend.request.received}">받은 친구 요청</a>
-    </div>
+    <main>
+        <h1 th:text="#{friend.list.heading}">친구 목록</h1>
 
-    <div th:if="${#lists.isEmpty(friends)}">
-        <p th:text="#{friend.list.empty}">등록된 친구가 없습니다.</p>
-    </div>
+        <div>
+            <a th:href="@{/friends/requests/new}" th:text="#{friend.request.send}">친구 요청 보내기</a> |
+            <a th:href="@{/friends/requests/received}" th:text="#{friend.request.received}">받은 친구 요청</a>
+        </div>
 
-    <ul th:if="${!#lists.isEmpty(friends)}">
-        <li th:each="friend : ${friends}">
-            <img th:if="${friend.profileImagePath != null and !#strings.isEmpty(friend.profileImagePath)}"
-                 th:src="@{${friend.profileImagePath}}"
-                 th:alt="#{friend.profile.image.alt}"
-                 alt="프로필 이미지"
-                 width="40" height="40" />
+        <div th:if="${#lists.isEmpty(friends)}">
+            <p th:text="#{friend.list.empty}">등록된 친구가 없습니다.</p>
+        </div>
 
-            <span th:text="${friend.nickname != null ? friend.nickname : friend.username}">닉네임</span>
-            (<span th:text="${friend.username}">아이디</span>)
+        <ul th:if="${!#lists.isEmpty(friends)}">
+            <li th:each="friend : ${friends}">
+                <img th:src="${#strings.isEmpty(friend.profileImagePath) ? '/images/profile/profile_default.png' : friend.profileImagePath}"
+                    th:alt="#{friend.profile.image.alt}"
+                    alt="프로필 이미지"
+                    width="40" height="40" />
 
-            <form th:action="@{/friends/delete}" method="post" style="display:inline;">
-                <input type="hidden" name="friendId" th:value="${friend.id}" />
-                <button type="submit" th:text="#{friend.delete.button}">삭제</button>
-            </form>
-        </li>
-    </ul>
+                <span th:text="${friend.nickname != null ? friend.nickname : friend.username}">닉네임</span>
+                (<span th:text="${friend.username}">아이디</span>)
+
+                <form th:action="@{/friends/delete}" method="post" style="display:inline;">
+                    <input type="hidden" name="friendId" th:value="${friend.id}" />
+                    <button type="submit" th:text="#{friend.delete.button}">삭제</button>
+                </form>
+            </li>
+        </ul>
+    </main>
 </body>
+
 </html>

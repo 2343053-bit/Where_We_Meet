@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.springboot.domain.Friendship;
 import com.springboot.domain.Member;
@@ -74,9 +75,19 @@ public class FriendshipController {
 
     //친구 요청 보내기 버튼
     @PostMapping("/requests/new")
-    public String sendRequest(Authentication authentication, @RequestParam String friendId) {
+    public String sendRequest(Authentication authentication, @RequestParam String friendId, RedirectAttributes redirectAttributes) {
         String myId = authentication.getName();
-        friendshipService.sendRequest(myId, friendId);
+        
+    try {
+            friendshipService.sendRequest(myId, friendId);
+            redirectAttributes.addFlashAttribute("successMessageKey", "friend.request.send.success");
+        } catch (IllegalArgumentException e) {
+            String messageKey = (e.getMessage() != null && e.getMessage().startsWith("friend."))
+                    ? e.getMessage()
+                    : "friend.error.invalidRequest";
+            redirectAttributes.addFlashAttribute("errorMessageKey", messageKey);
+        }
+
         return "redirect:/friends/requests/new";
     }
 }
