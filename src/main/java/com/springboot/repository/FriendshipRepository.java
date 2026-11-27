@@ -3,6 +3,7 @@ package com.springboot.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -47,4 +48,9 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long>{
         )
     """)
     Friendship findFriendship(@Param ("myId") String myId, @Param("friendId") String friendId);
+
+    // 모든 친구 관계 삭제
+    @Modifying //데이터를 변경하는 쿼리
+    @Query("delete from Friendship f where f.requester.id = :memberId or f.receiver.id = :memberId")
+    void deleteAllByMemberId(@Param("memberId") String memberId);
 }
