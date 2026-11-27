@@ -13,8 +13,9 @@
     <!-- 참가자 2(index != 0)부터 친구 선택 드롭다운 -->
     <select th:if="${index != 0 and friends != null and !#lists.isEmpty(friends)}"
             class="friend-select"
-            aria-label="친구 선택">
-        <option value="">친구 선택 ▼</option>
+            aria-label="친구 선택" th:aria-label="#{friend.select.label}">
+        <!-- 첫 줄 안내. th:text 로 지금 언어의 문장으로 바꿔 넣는다. -->
+        <option value="" th:text="#{friend.select.placeholder}">친구 선택 ▼</option>
         <option th:each="friend : ${friends}"
                 th:value="${friend.id}"
                 th:data-name="${friend.username}"

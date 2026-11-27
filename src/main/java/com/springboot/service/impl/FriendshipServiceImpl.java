@@ -81,7 +81,7 @@ public class FriendshipServiceImpl implements FriendshipService {
     @Transactional
     public void acceptRequest(Long friendshipId) {
         Friendship friendship = friendshipRepository.findById(friendshipId)
-            .orElseThrow(() -> new IllegalArgumentException("친구 요청을 찾을 수 없습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("friend.error.requestNotFound"));
             
         friendship.setAccepted(true);
     }
@@ -90,7 +90,7 @@ public class FriendshipServiceImpl implements FriendshipService {
     @Transactional
     public void rejectRequest(Long friendshipId) {
         Friendship friendship = friendshipRepository.findById(friendshipId)
-            .orElseThrow(() -> new IllegalArgumentException("친구 요청을 찾을 수 없습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("friend.error.requestNotFound"));
 
         friendshipRepository.delete(friendship);
     }
@@ -101,7 +101,7 @@ public class FriendshipServiceImpl implements FriendshipService {
         Friendship friendship = friendshipRepository.findFriendship(memberId, friendId);
         
         if(friendship == null){
-            throw new IllegalArgumentException("해당하는 친구가 없습니다.");
+            throw new IllegalArgumentException("friend.error.notFriend"); // 문장 대신 사전 키 (다른 friend.error.* 와 같은 방식)
         }
 
         friendshipRepository.delete(friendship);
