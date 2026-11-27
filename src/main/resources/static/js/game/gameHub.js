@@ -89,7 +89,9 @@ export function initGameHub() {
     els.tabs.addEventListener('click', function (e) {
         var tab = e.target.closest('[data-game]');
         if (!tab) return;
-        currentGame = GAMES.find(function (game) { return game.id === tab.dataset.game; });
+        var game = GAMES.find(function (g) { return g.id === tab.dataset.game; });
+        if (!game || game === currentGame) return;   // 지금 게임을 또 누르면 아무 일 없게. (룰렛이 도는 중에 실수로 눌러도 판이 안 날아가게)
+        currentGame = game;
         startGame();
     });
 
@@ -252,15 +254,15 @@ function removeCandidate(i) {
     startGame();
 }
 
-// 게임 탭 버튼들. 지금 게임에 aria-selected="true".
+// 게임 고르기 버튼들. 지금 게임에 aria-pressed="true". (눌린 버튼이라고 화면 낭독기가 읽어 준다)
+// role="tab" 을 쓰지 않는 이유: tab 은 방향키 이동과 tabpanel 연결까지 갖춰야 해서, 평범한 버튼 + 눌림 상태가 더 정확하다.
 function renderTabs() {
     els.tabs.replaceChildren();
     GAMES.forEach(function (game) {
         var tab = document.createElement('button');
         tab.type = 'button';
         tab.className = 'game-tab';
-        tab.setAttribute('role', 'tab');
-        tab.setAttribute('aria-selected', String(game === currentGame));
+        tab.setAttribute('aria-pressed', String(game === currentGame));
         tab.dataset.game = game.id;
         tab.textContent = t(game.labelKey);
         els.tabs.appendChild(tab);

@@ -152,7 +152,7 @@
     cursor: pointer;
 }
 
-.game-tab[aria-selected="true"] {
+.game-tab[aria-pressed="true"] {
     border-bottom-color: #e8590c;
     font-weight: bold;
 }
@@ -464,7 +464,9 @@
    원판(conic-gradient 로 칸 색칠) + 칸마다 이름 + 위쪽 바늘 + 가운데 돌리기 버튼.
    원판만 돌고, 바늘과 버튼은 그 자리에 있다. 각도 기준: 0도 = 맨 위, 시계 방향. */
 .game-roulette {
-    --size: 300px;                             /* 원판 지름. */
+    /* 원판 지름. 보통 300px, 창이 좁으면 창 안쪽 폭에 맞춰 줄인다.
+       100vw - 424px = 넓은 화면 창 폭(100vw - 384px, 위 #game-hub:not(:modal)) - 창 좌우 여백(20px × 2) */
+    --size: min(300px, calc(100vw - 424px));
     position: relative;
     width: var(--size);
     height: var(--size);
