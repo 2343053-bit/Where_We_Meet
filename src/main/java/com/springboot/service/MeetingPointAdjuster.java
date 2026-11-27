@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 
 import com.springboot.client.KakaoLocalClient;
 import com.springboot.client.KakaoLocalClient.KakaoPlace;
@@ -52,8 +51,9 @@ public class MeetingPointAdjuster {
             findAnchor(lat, lng).ifPresentOrElse(
                     anchor -> moveTo(point, anchor),        // 거점이 있으면 옮긴다.
                     () -> point.setAnchorMissing(true));    // 없으면 못 찾았다고 표시한다.
-        } catch (RestClientException e) {
+        } catch (RuntimeException e) {
             // 카카오 호출이 실패해도 제출은 되어야 하므로, 조정하지 않고 평균 좌표를 그대로 쓴다.
+            // 네트워크 오류(RestClientException)뿐 아니라 응답 해석 실패(NPE, 숫자 변환 오류 등)도 모두 잡는다.
             log.warn("중간 지점 조정 실패, 평균 좌표를 그대로 사용합니다. ({}, {})", lat, lng, e);
         }
         return point;
