@@ -54,6 +54,20 @@
     overflow-y: auto;
 }
 
+/* 넓은 화면(show() 로 연 창): 지도 위 오른쪽, 패널 바로 왼쪽에 띄워서 패널을 가리지 않는다.
+   right 352px = 페이지 여백 16 + 패널 320 + 칸 사이 16. (main.css 의 #layout 과 맞춘 값)
+   화면이 좁아 지도 칸보다 창이 넓으면 왼쪽(입력 폼) 쪽으로 겹친다. 패널은 끝까지 안 가린다. */
+#game-hub:not(:modal) {
+    position: fixed;
+    top: 72px;
+    right: 352px;
+    left: auto;
+    margin: 0;
+    width: min(560px, calc(100vw - 384px));
+    max-height: calc(100vh - 88px);
+    z-index: 1000;   /* 카카오 지도 위로. */
+}
+
 #game-hub::backdrop {
     background: rgba(0, 0, 0, 0.5);   /* 창 뒤 화면을 어둡게. */
 }

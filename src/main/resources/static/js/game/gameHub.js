@@ -22,6 +22,7 @@ import dummy from './games/dummy.js';
 
 var GAMES = [dummy];        // 탭 순서. 새 게임은 import 하고 여기에 추가한다.
 var MAX_CANDIDATES = 8;     // 후보는 최대 8개. (룰렛 칸이 더 많으면 글자가 안 보인다)
+var NARROW_SCREEN = '(max-width: 700px)';   // 좁은 화면 기준. main.css·game.css 의 @media 와 같은 값.
 
 var candidates = [];        // 후보들. { index: 검색 결과에서 몇 번째인지, place: 카카오 장소 객체 }
 var currentGame = GAMES[0]; // 지금 고른 게임.
@@ -60,6 +61,14 @@ export function initGameHub() {
     }
 
     els.openButton.addEventListener('click', openGameHub);
+
+    // show() 로 연 창은 브라우저가 ESC 로 닫아 주지 않는다. 그래서 직접 닫는다.
+    // (패널의 🎯 를 누른 뒤라 포커스가 창 밖에 있어도 닫히게 document 에 붙인다. showModal 일 때 겹쳐 불려도 close() 는 한 번만 된다)
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && els.dialog.open) {
+            els.dialog.close();
+        }
+    });
 
     // ×, ESC, clearCandidates 등 어떤 방법으로 닫혀도 이 이벤트 하나에서 게임을 정리한다.
     els.dialog.addEventListener('close', function () {
@@ -109,6 +118,10 @@ export function addCandidate(index, place) {
 
     candidates.push({ index: index, place: place });
     updateCount();
+    if (els.dialog && els.dialog.open) {   // 창을 열어 둔 채로 추가했으면 목록을 바로 고치고, 늘어난 후보로 게임을 다시 시작한다.
+        renderCandidates();
+        startGame();
+    }
     return 'added';
 }
 
@@ -122,10 +135,16 @@ export function clearCandidates() {
 }
 
 // 창을 열고 지금 게임을 시작한다.
+//   넓은 화면 : show()      → 창이 떠 있어도 패널·지도를 누를 수 있다. (🎯 로 후보를 바로바로 추가)
+//   좁은 화면 : showModal() → 창이 화면 가득이라 패널이 어차피 안 보이므로, 뒤를 막고 배경을 어둡게.
 export function openGameHub() {
     if (els.dialog.open) return;
     renderCandidates();
-    els.dialog.showModal();
+    if (window.matchMedia(NARROW_SCREEN).matches) {
+        els.dialog.showModal();
+    } else {
+        els.dialog.show();
+    }
     startGame();
 }
 

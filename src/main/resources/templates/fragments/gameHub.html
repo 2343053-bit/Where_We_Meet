@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <!-- "게임으로 정하기" 창. 다른 페이지로 가지 않고 지금 화면 위에 뜬다. (game/gameHub.js 가 열고 닫는다)
-     - <dialog> : 브라우저 기본 모달. showModal() 로 열면 뒤 화면을 막고, ESC 로 닫히고, 배경(::backdrop)이 어두워진다.
+     - <dialog> : 브라우저 기본 창. 넓은 화면은 show() 로 열어 패널·지도를 계속 누를 수 있게 하고,
+                  좁은 화면은 showModal() 로 열어 뒤 화면을 막고 배경(::backdrop)을 어둡게 한다. (gameHub.js 의 openGameHub)
      - 후보 목록·게임 탭·게임 화면은 브라우저에서 바뀌므로 "틀"만 만들고 내용은 gameHub.js 가 채운다.
      - 게임 화면(#game-stage) 안은 각 게임(game/games/*.js)이 그린다. 게이트는 그 안을 건드리지 않는다. -->
 <dialog th:fragment="gameHub" id="game-hub" aria-labelledby="game-hub-title">
