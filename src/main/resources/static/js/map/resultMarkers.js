@@ -1,5 +1,16 @@
 import { t } from '../util/i18n.js';   // 다국어 처리. t('키') → 지금 언어의 문장 (messages.properties)
 
+var resultMarkers = []; // 지금 지도에 있는 중간 지점·평균 지점·참가자 마커들.
+var resultWindows = []; // 그 말풍선들.
+
+// 이전 결과의 마커와 말풍선을 모두 지운다. (다시 제출할 때)
+export function clearResult() {
+    resultMarkers.forEach(function (m) { m.setMap(null); });
+    resultWindows.forEach(function (w) { w.close(); });
+    resultMarkers = [];
+    resultWindows = [];
+}
+
 export function drawResult(map, meetingLat, meetingLng, participantList, averagePoint) {
     // 마커 위치들을 모아 둘 범위 상자. 나중에 이 범위가 다 보이게 지도를 맞춘다.
     var bounds = new kakao.maps.LatLngBounds();
@@ -32,6 +43,8 @@ export function drawResult(map, meetingLat, meetingLng, participantList, average
         kakao.maps.event.addListener(meetingMarker, 'mouseover', function () { meetingWindow.open(map, meetingMarker); });
         kakao.maps.event.addListener(meetingMarker, 'click', function () { meetingWindow.open(map, meetingMarker); });   // 휴대폰처럼 마우스가 없는 화면용.
         kakao.maps.event.addListener(meetingMarker, 'mouseout', function () { meetingWindow.close(); });
+        resultMarkers.push(meetingMarker); // 나중에 지우려고 모아 둔다.
+        resultWindows.push(meetingWindow); // 나중에 지우려고 모아 둔다.
     }
 
     // 조정 전 평균 지점(회색). 중간 지점이 옮겨졌을 때만 표시한다.
@@ -57,6 +70,8 @@ export function drawResult(map, meetingLat, meetingLng, participantList, average
         kakao.maps.event.addListener(averageMarker, 'mouseover', function () { averageWindow.open(map, averageMarker); });
         kakao.maps.event.addListener(averageMarker, 'click', function () { averageWindow.open(map, averageMarker); });
         kakao.maps.event.addListener(averageMarker, 'mouseout', function () { averageWindow.close(); });
+        resultMarkers.push(averageMarker); // 나중에 지우려고 모아 둔다.
+        resultWindows.push(averageWindow); // 나중에 지우려고 모아 둔다.
     }
 
     // ── 참가자 위치 마커 ───────────────────────
@@ -91,7 +106,9 @@ export function drawResult(map, meetingLat, meetingLng, participantList, average
             position: marker.getPosition(),
             content: nameBox
         });
-        infowindow.open(map, marker);                                                               // marker 위에 말풍선 열기.
+        infowindow.open(map, marker); // marker 위에 말풍선 열기.
+        resultMarkers.push(marker); // 나중에 지우려고 모아 둔다.
+        resultWindows.push(infowindow); // 나중에 지우려고 모아 둔다.
     }
     // 범위 상자에 좌표가 하나라도 있으면 그 좌표들이 다 보이게 지도 범위를 맞춘다.
     // 처음 접속하면 상자가 비어 있으므로 건너뛴다.
