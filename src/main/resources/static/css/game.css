@@ -604,3 +604,15 @@
         animation: none;
     }
 }
+
+/* ══ 게임: 마블 룰렛 (game/games/marble.js) ══════════════════════
+   코스는 캔버스에 직접 그린다. 캔버스 실제 크기는 360 × 460 (× 화면 배율)이고, 창이 좁으면 비율을 지키며 줄어든다. */
+.game-marble__canvas {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    height: auto;                              /* width·height 속성의 비율(360:460)대로. */
+    border-radius: 10px;
+    background: #f8f9fa;
+    box-shadow: inset 0 0 0 1px #dee2e6;
+}
