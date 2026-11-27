@@ -1,0 +1,606 @@
+/* "게임으로 정하기" 창과 열기 버튼. (fragments/gameHub.html, fragments/placePanel.html)
+   각 게임 안쪽 스타일은 게임 파일이 game-<게임id>__ 이름으로 따로 가진다. */
+
+/* ── 열기 버튼 (주변 장소 패널 제목 옆) ── */
+.place-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+#game-hub-open {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    padding: 4px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* 후보 개수 배지 */
+#game-hub-count {
+    min-width: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: #e8590c;
+    color: #fff;
+    font-size: 11px;
+    line-height: 18px;
+    text-align: center;
+}
+
+#game-hub-count[hidden] {
+    display: none;   /* display 를 위에서 정해서, hidden 만으로는 안 숨겨진다. */
+}
+
+/* 장소 카드의 🎯 버튼 (공유 버튼과 같은 크기) */
+.place-card__game {
+    font-size: 12px;
+    padding: 2px 8px;
+    cursor: pointer;
+}
+
+/* ── 창 ── */
+#game-hub {
+    width: min(640px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    box-sizing: border-box;
+    padding: 16px 20px 20px;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+    overflow-y: auto;
+}
+
+/* 넓은 화면(show() 로 연 창): 지도 위 오른쪽, 패널 바로 왼쪽에 띄워서 패널을 가리지 않는다.
+   right 352px = 페이지 여백 16 + 패널 320 + 칸 사이 16. (main.css 의 #layout 과 맞춘 값)
+   화면이 좁아 지도 칸보다 창이 넓으면 왼쪽(입력 폼) 쪽으로 겹친다. 패널은 끝까지 안 가린다. */
+#game-hub:not(:modal) {
+    position: fixed;
+    top: 72px;
+    right: 352px;
+    left: auto;
+    margin: 0;
+    width: min(560px, calc(100vw - 384px));
+    max-height: calc(100vh - 88px);
+    z-index: 1000;   /* 카카오 지도 위로. */
+}
+
+#game-hub::backdrop {
+    background: rgba(0, 0, 0, 0.5);   /* 창 뒤 화면을 어둡게. */
+}
+
+.game-hub__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.game-hub__header h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.game-hub__header form {
+    margin: 0;
+}
+
+.game-hub__close {
+    border: none;
+    background: none;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+/* ── ① 후보 목록 (이름표 모양으로 한 줄씩 채움) ── */
+.game-hub__candidates h3 {
+    margin: 16px 0 8px;
+    font-size: 14px;
+}
+
+#game-candidates-empty {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+}
+
+#game-candidates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.game-candidate {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 4px 3px 10px;
+    border-radius: 14px;
+    background: #eef2f7;
+    font-size: 13px;
+}
+
+.game-candidate__remove {
+    border: none;
+    background: none;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    color: #666;
+}
+
+/* ── ② 게임 탭 ── */
+#game-tabs {
+    display: flex;
+    gap: 6px;
+    margin: 16px 0 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.game-tab {
+    padding: 6px 12px;
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: none;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.game-tab[aria-pressed="true"] {
+    border-bottom-color: #e8590c;
+    font-weight: bold;
+}
+
+/* ── ③ 게임 화면 ── */
+#game-stage {
+    display: grid;
+    place-items: center;   /* 게임을 가운데에. */
+}
+
+#game-stage:empty {
+    display: none;         /* 게임이 없을 때(후보 부족 등)는 빈 칸을 차지하지 않게. */
+}
+
+#game-stage-status {
+    margin: 24px 0;
+    text-align: center;
+    color: #666;
+}
+
+/* ── ④ 결과창 ── */
+#game-result {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 10px;
+    background: #fff4e6;
+    text-align: center;
+}
+
+.game-result__title {
+    margin: 0 0 8px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+/* 당첨 장소 카드. 패널 카드(main.css 의 .place-card)를 그대로 쓰되, 눌러도 아무 일 없으니 손가락·배경 효과를 끈다. */
+#game-result-place {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: left;
+}
+
+#game-result-place .place-card {
+    border: none;
+    border-radius: 8px;
+    background: #fff;
+    cursor: default;
+}
+
+.game-result__actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.game-result__actions button {
+    padding: 6px 16px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#game-result-go {
+    border: none;
+    border-radius: 6px;
+    background: #e8590c;
+    color: #fff;
+}
+
+/* 결과창이 나타날 때: 작게 시작해서 살짝 크게 튀었다가 제자리로. 제목은 좌우로 흔들. */
+#game-result:not([hidden]) {
+    animation: game-result-pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+#game-result:not([hidden]) .game-result__title {
+    animation: game-result-cheer 0.6s ease-in-out 0.3s;
+}
+
+@keyframes game-result-pop {
+    from { opacity: 0; transform: scale(0.8); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes game-result-cheer {
+    0%, 100% { transform: rotate(0); }
+    25%      { transform: rotate(-4deg) scale(1.08); }
+    75%      { transform: rotate(4deg) scale(1.08); }
+}
+
+/* ── 색종이 캔버스 ── 창 안에 있지만 화면 전체를 덮는다. 클릭은 통과시켜 버튼을 누를 수 있게. */
+#game-confetti {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* "동작 줄이기"를 켠 사용자에게는 움직임을 끈다. (색종이는 gameHub.js 에서 따로 끈다) */
+@media (prefers-reduced-motion: reduce) {
+    #game-result:not([hidden]),
+    #game-result:not([hidden]) .game-result__title {
+        animation: none;
+    }
+}
+
+/* 좁은 화면(휴대폰)에서는 창을 화면 가득. */
+@media (max-width: 700px) {
+    #game-hub {
+        width: 100%;
+        max-width: none;
+        height: 100%;
+        max-height: none;
+        margin: 0;
+        border-radius: 0;
+    }
+}
+
+/* ══ 게임: 제비뽑기 (game/games/lottery.js) ══════════════════════
+   쪽지 한 장 = 아랫절반 + 덮개(윗절반). 처음엔 덮개가 아래로 접혀서 아랫절반을 덮고 있다. (덮개의 뒷면이 보인다)
+   고르면(is-open) 덮개가 가운데 접힌 선을 축으로 180도 펼쳐지며 윗절반이 된다.
+   이름은 쪼개지 않고 쪽지 전체 위에 한 장으로 얹어 두었다가, 다 펼쳐진 뒤에 나타난다. (반씩 나누면 접힌 선에서 잘려 보여서) */
+.game-lottery__hint {
+    margin: 4px 0 12px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.game-lottery__board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 110px);   /* 창 폭에 들어가는 만큼 한 줄에. */
+    gap: 6px 10px;
+    justify-content: center;
+    width: 100%;
+    max-width: 470px;                          /* 110 × 4 + 10 × 3. 넓어도 한 줄에 4장까지. 8장이면 두 줄. */
+}
+
+/* 버튼 = 펼친 쪽지 크기. 접혀 있을 땐 아래 절반만 차 있다. */
+.game-lottery__slip {
+    width: 110px;
+    height: 140px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    animation: game-lottery-deal 0.35s ease-out backwards;   /* backwards: 늦게 시작하는 쪽지도 시작 전엔 안 보이게. */
+}
+
+.game-lottery__slip:disabled {
+    cursor: default;
+}
+
+/* 쪽지 몸통. --tilt(쪽지마다 다른 기울기, lottery.js 가 넣음)만큼 돌려서 흩어 놓은 느낌. */
+.game-lottery__body {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    perspective: 500px;                        /* 덮개가 펼쳐질 때 입체감. */
+    transform: rotate(var(--tilt, 0deg));
+    transition: transform 0.25s;
+}
+
+.game-lottery__slip:not(:disabled):hover .game-lottery__body {
+    transform: rotate(var(--tilt, 0deg)) translateY(-6px);   /* 고르기 전: 마우스를 올리면 살짝 들린다. */
+}
+
+.game-lottery__slip.is-open .game-lottery__body {
+    transform: none;                           /* 펼치면 똑바로. */
+}
+
+/* 아랫절반과 덮개 공통: 쪽지 크기의 절반, 종이 색. */
+.game-lottery__half,
+.game-lottery__flap-face {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    overflow: hidden;                          /* 안쪽 이름(쪽지 전체 높이)을 절반만 보이게 자른다. */
+    background: #fffaf0;
+    border: 1px solid #e3d5b8;
+    box-sizing: border-box;
+}
+
+.game-lottery__half {
+    top: 50%;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.18);
+}
+
+/* 덮개. 아래쪽 변(= 가운데 접힌 선)을 축으로 돈다. 처음엔 -180도 = 아래로 접혀 아랫절반 위에 포개짐. */
+.game-lottery__flap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    transform-origin: bottom center;
+    transform: rotateX(-180deg);
+    transform-style: preserve-3d;              /* 앞면·뒷면이 입체로 붙어 있게. */
+    transition: transform 0.6s ease-in-out;
+}
+
+.game-lottery__slip.is-open .game-lottery__flap {
+    transform: rotateX(0deg);
+}
+
+.game-lottery__flap-face {
+    top: 0;
+    height: 100%;
+    backface-visibility: hidden;               /* 돌아가서 뒤를 보는 면은 숨긴다. */
+}
+
+.game-lottery__flap-face--front {
+    border-bottom: 1px dashed #e3d5b8;         /* 펼친 뒤 가운데 접힌 자국. */
+    border-radius: 6px 6px 0 0;
+}
+
+/* 덮개 뒷면 = 접혀 있을 때 보이는 면. 종이 뒷면이라 조금 진하고, 가운데에 ? 표시. */
+.game-lottery__flap-face--back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotateX(180deg);
+    background: linear-gradient(to bottom, #f1e4c8, #f8efdc);
+    border-radius: 0 0 6px 6px;                /* 접혀서 뒤집히면 이쪽이 아래 모서리가 된다. */
+    color: #c2a878;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+/* 이름. 펼친 쪽지 전체 위에 한 장으로 얹는다. 접혀 있을 땐 투명. */
+.game-lottery__text {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.25s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    box-sizing: border-box;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    overflow-wrap: anywhere;                   /* 긴 장소 이름도 쪽지 안에서 줄바꿈. */
+    word-break: keep-all;
+}
+
+.game-lottery__slip.is-open .game-lottery__text {
+    opacity: 1;
+    transition-delay: 0.45s;                   /* 덮개(0.6s)가 거의 다 펼쳐진 뒤에 나타난다. */
+}
+
+/* 고른 쪽지: 펼친 뒤 주황 테두리와 빛으로 강조.
+   (filter: drop-shadow 는 일부 브라우저에서 덮개의 입체 회전을 납작하게 만들어서 box-shadow 를 쓴다) */
+.game-lottery__slip.is-picked .game-lottery__half,
+.game-lottery__slip.is-picked .game-lottery__flap-face--front {
+    background: #fff4e6;
+    border-color: #e8590c;
+    box-shadow: 0 0 10px rgba(232, 89, 12, 0.45);
+}
+
+/* 안 고른 쪽지는 흐리게. */
+.game-lottery__slip.is-other {
+    opacity: 0.45;
+    transition: opacity 0.4s;
+}
+
+@keyframes game-lottery-deal {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: none; }
+}
+
+@media (max-width: 700px) {
+    .game-lottery__board {
+        grid-template-columns: repeat(auto-fit, 90px);
+        max-width: 390px;                      /* 90 × 4 + 10 × 3 */
+    }
+
+    .game-lottery__slip {
+        width: 90px;
+        height: 116px;
+    }
+
+    .game-lottery__text {
+        font-size: 12px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .game-lottery__slip {
+        animation: none;
+    }
+
+    .game-lottery__body,
+    .game-lottery__flap,
+    .game-lottery__slip.is-open .game-lottery__text {
+        transition: none;
+    }
+}
+
+/* ══ 게임: 룰렛 (game/games/roulette.js) ══════════════════════
+   원판(conic-gradient 로 칸 색칠) + 칸마다 이름 + 위쪽 바늘 + 가운데 돌리기 버튼.
+   원판만 돌고, 바늘과 버튼은 그 자리에 있다. 각도 기준: 0도 = 맨 위, 시계 방향. */
+.game-roulette {
+    /* 원판 지름. 보통 300px, 창이 좁으면 창 안쪽 폭에 맞춰 줄인다.
+       100vw - 424px = 넓은 화면 창 폭(100vw - 384px, 위 #game-hub:not(:modal)) - 창 좌우 여백(20px × 2) */
+    --size: min(300px, calc(100vw - 424px));
+    position: relative;
+    width: var(--size);
+    height: var(--size);
+    margin: 18px 0 8px;                        /* 위: 바늘이 원판 밖으로 나온 만큼. */
+}
+
+/* 원판을 담는 돌지 않는 동그란 틀. 테두리·그림자는 여기에.
+   overflow: hidden 이 꼭 필요하다. 원판은 동그랗게 보여도 실제로는 정사각형이라, 돌리면 모서리가 대각선만큼(최대 1.4배)
+   튀어나온다. 그걸 안 자르면 창이 내용 크기가 계속 바뀌는 줄 알고 스크롤바가 깜빡인다. */
+.game-roulette__dial {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 6px solid #fff;
+    box-sizing: border-box;
+    box-shadow: 0 0 0 3px #e8590c, 0 6px 16px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.game-roulette__wheel {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    /* 처음엔 빠르게, 끝에서 아주 천천히 멈춘다. 시간은 roulette.js 의 SPIN_MS 와 같아야 한다. */
+    transition: transform 4.5s cubic-bezier(0.15, 0.85, 0.2, 1);
+}
+
+/* 이름 한 칸. 원판 가운데에서 바깥쪽으로 칸 가운데 방향(--angle)을 향해 눕힌다.
+   왼쪽 끝(transform-origin)을 원판 중심에 두고 돌리므로, 글자는 중심 → 테두리 방향으로 놓인다.
+   rotate 에서 90도를 빼는 이유: 눕힌 글자는 처음에 오른쪽(90도)을 보고 있어서, 0도(위)를 기준으로 맞춘다. */
+.game-roulette__label {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(var(--size) / 2 - 14px);       /* 중심 ~ 테두리 조금 안쪽. */
+    height: 20px;
+    margin-top: -10px;                         /* 세로 가운데를 원판 중심에. */
+    padding: 0 8px 0 40px;                     /* 왼쪽 40px: 가운데 버튼에 가리지 않게. */
+    box-sizing: border-box;
+    transform-origin: 0 50%;
+    transform: rotate(calc(var(--angle) - 90deg));
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 20px;
+    color: #333;
+    text-align: right;                         /* 테두리 쪽에 붙여 읽기 쉽게. */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;                   /* 긴 이름은 … 로. (전체 이름은 마우스를 올리면 title 로) */
+}
+
+/* 왼쪽 절반(180도 넘는 칸): 위처럼 눕히면 글자가 거꾸로 보인다.
+   그래서 오른쪽 끝을 중심에 두고 반대쪽(+90도)으로 눕힌다. 이러면 글자는 테두리 → 중심 방향으로 바로 읽힌다. */
+.game-roulette__label.is-left {
+    left: auto;
+    right: 50%;
+    padding: 0 40px 0 8px;
+    transform-origin: 100% 50%;
+    transform: rotate(calc(var(--angle) + 90deg));
+    text-align: left;
+}
+
+.game-roulette__label.is-winner {
+    color: #c2410c;
+    text-decoration: underline;
+}
+
+/* 위쪽 바늘 (아래를 가리키는 삼각형). 테두리 두께로 삼각형을 만든다. */
+.game-roulette__pointer {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    z-index: 2;
+    width: 0;
+    height: 0;
+    margin-left: -14px;
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-top: 28px solid #e8590c;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+    transform-origin: 50% 0;
+}
+
+/* 도는 동안 바늘이 칸에 걸리듯 까딱까딱. */
+.game-roulette.is-spinning .game-roulette__pointer {
+    animation: game-roulette-tick 0.12s ease-in-out infinite alternate;
+}
+
+@keyframes game-roulette-tick {
+    from { transform: rotate(-8deg); }
+    to   { transform: rotate(8deg); }
+}
+
+/* 가운데 돌리기 버튼. */
+.game-roulette__spin {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+    width: 68px;
+    height: 68px;
+    margin: -34px 0 0 -34px;
+    border: 4px solid #e8590c;
+    border-radius: 50%;
+    background: #fff;
+    color: #e8590c;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.game-roulette__spin:not(:disabled):hover {
+    background: #fff4e6;
+}
+
+.game-roulette__spin:disabled {
+    cursor: default;
+    color: #aaa;
+    border-color: #ccc;
+}
+
+@media (max-width: 700px) {
+    .game-roulette {
+        --size: 260px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .game-roulette__wheel {
+        transition: none;                      /* 바로 결과 칸으로. (roulette.js 도 기다리지 않는다) */
+    }
+
+    .game-roulette.is-spinning .game-roulette__pointer {
+        animation: none;
+    }
+}

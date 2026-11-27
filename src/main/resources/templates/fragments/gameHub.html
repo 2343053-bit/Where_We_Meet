@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- "게임으로 정하기" 창. 다른 페이지로 가지 않고 지금 화면 위에 뜬다. (game/gameHub.js 가 열고 닫는다)
+     - <dialog> : 브라우저 기본 창. 넓은 화면은 show() 로 열어 패널·지도를 계속 누를 수 있게 하고,
+                  좁은 화면은 showModal() 로 열어 뒤 화면을 막고 배경(::backdrop)을 어둡게 한다. (gameHub.js 의 openGameHub)
+     - 후보 목록·게임 탭·게임 화면은 브라우저에서 바뀌므로 "틀"만 만들고 내용은 gameHub.js 가 채운다.
+     - 게임 화면(#game-stage) 안은 각 게임(game/games/*.js)이 그린다. 게이트는 그 안을 건드리지 않는다. -->
+<dialog th:fragment="gameHub" id="game-hub" aria-labelledby="game-hub-title">
+    <!-- 당첨 때 색종이를 그리는 캔버스. 화면 전체를 덮지만 클릭은 통과시킨다. (game.css)
+         dialog 는 페이지 맨 위 층에 떠서, 페이지에 깐 캔버스는 창 뒤에 가려진다. 그래서 창 "안"에 둔다. -->
+    <canvas id="game-confetti" aria-hidden="true"></canvas>
+    <div class="game-hub__header">
+        <h2 id="game-hub-title" th:text="#{game.title}">게임으로 정하기</h2>
+        <!-- method="dialog" 폼의 버튼은 누르면 dialog 를 닫는다. (JS 없이) -->
+        <form method="dialog">
+            <button type="submit" class="game-hub__close" th:aria-label="#{game.close}" aria-label="닫기">×</button>
+        </form>
+    </div>
+
+    <!-- ① 후보 목록. 장소 카드의 🎯 버튼으로 추가한 장소들. -->
+    <section class="game-hub__candidates">
+        <h3 th:text="#{game.candidates}">후보</h3>
+        <p id="game-candidates-empty" th:text="#{game.candidatesEmpty}">
+            장소 카드의 🎯 버튼을 눌러 후보를 추가하세요.
+        </p>
+        <ul id="game-candidates"></ul>
+    </section>
+
+    <!-- ② 게임 고르기 탭. 버튼은 gameHub.js 가 게임 목록(GAMES)으로 만든다. -->
+    <div id="game-tabs"></div>
+
+    <!-- ③ 게임 화면. 고른 게임이 이 안에 그린다. -->
+    <div id="game-stage"></div>
+    <!-- 후보가 부족하거나 많을 때 게임 대신 보여 주는 안내. -->
+    <p id="game-stage-status" role="status" hidden></p>
+
+    <!-- ④ 결과창. 게임이 당첨을 알려 주면 보인다. -->
+    <section id="game-result" hidden>
+        <p class="game-result__title" th:text="#{game.resultTitle}">🎉 여기 어때?</p>
+        <!-- 당첨 장소 카드. 패널의 카드(<li>)를 그대로 복제해 넣으므로 <ul> 로 감싼다. -->
+        <ul id="game-result-place"></ul>
+        <div class="game-result__actions">
+            <button type="button" id="game-result-go" th:text="#{game.go}">여기로 가기</button>
+            <button type="button" id="game-result-retry" th:text="#{game.retry}">다시 하기</button>
+        </div>
+    </section>
+</dialog>
+</html>

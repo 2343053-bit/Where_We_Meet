@@ -6,7 +6,14 @@
        그래서 이 조각은 "틀"과 "카드 1개 모양(template)"만 만들고, 내용은 placePanel.js 가 채운다.
        (참가자 입력칸의 participant-template 과 같은 방식) -->
 <aside th:fragment="placePanel(searched)" id="place-panel">
-    <h2 th:text="#{panel.title}">주변 장소</h2>
+    <div class="place-panel__header">
+        <h2 th:text="#{panel.title}">주변 장소</h2>
+        <!-- "게임으로 정하기" 창을 연다. (game/gameHub.js) 숫자 배지 = 지금 후보 수, 0개면 숨긴다. -->
+        <button type="button" id="game-hub-open">
+            <span>🎲 <span th:text="#{game.open}">게임으로 정하기</span></span>
+            <span id="game-hub-count" hidden>0</span>
+        </button>
+    </div>
 
     <!-- 안내 문구. 제출 전 / 검색 중 / 결과 없음 / 오류일 때 보이고, 결과가 있으면 JS 가 숨긴다.
          조건 ? A : B  → searched 가 true 면 A(찾는 중), 아니면 B(제출 안내). A, B 자리에 #{키} 를 바로 쓸 수 있다. -->
@@ -34,6 +41,9 @@
                     <a class="place-card__link" target="_blank" rel="noopener" th:text="#{panel.viewOnKakaoMap}">카카오맵에서 보기</a>
                     <!-- 누르면 카카오맵 장소 상세 주소를 클립보드에 복사한다. type="button" : 폼 안에 들어가도 제출 버튼이 되지 않게. -->
                     <button type="button" class="place-card__share" th:text="#{panel.share}">공유</button>
+                    <!-- 누르면 이 장소를 "게임으로 정하기" 후보에 넣는다. (game/gameHub.js) 글자가 🎯 뿐이라 설명은 title·aria-label 로. -->
+                    <button type="button" class="place-card__game"
+                            th:title="#{game.addCandidate}" th:aria-label="#{game.addCandidate}">🎯</button>
                 </div>
             </div>
             <!-- 장소 사진(카드 오른쪽). 지금은 카테고리별 기본 이미지(/images/places/)를 쓴다.

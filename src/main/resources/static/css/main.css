@@ -79,6 +79,13 @@ body {
     background: #f3f6fb;
 }
 
+/* 지금 고른 장소의 카드. (카드·마커 클릭, 게임 당첨 → placePanel.js 의 highlightPlaceCard)
+   왼쪽 주황 막대(inset 그림자)는 칸 크기를 바꾸지 않아서 카드가 밀리지 않는다. */
+.place-card.is-selected {
+    background: #fff4e6;
+    box-shadow: inset 4px 0 0 #e8590c;
+}
+
 .place-card h3,
 .place-card p {
     margin: 0 0 4px;
