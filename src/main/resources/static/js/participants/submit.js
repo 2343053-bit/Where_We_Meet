@@ -1,7 +1,8 @@
 import { addressToCoords } from '../api/geocoder.js';   // participants/ 에서 한 칸 위로
 import { t } from '../util/i18n.js';                   // 다국어 처리. t('키', 값) → 사전의 {0} 자리에 값을 채운 문장
 
-export function initSubmit(form, participantsEl) {
+// onSubmit(participants) : 좌표 변환이 끝나면 불린다. 서버 요청과 화면 그리기는 부르는 쪽(main.js)이 맡는다.
+export function initSubmit(form, participantsEl, onSubmit) {
     form.addEventListener("submit", async (e) => {
         e.preventDefault();                       // ← 반드시 첫 줄. await 보다 먼저.
         const fieldsets = [...participantsEl.querySelectorAll("fieldset")];
@@ -22,11 +23,18 @@ export function initSubmit(form, participantsEl) {
             return;
         }
 
-        // 3) 숨김 칸 채우고 진짜 제출
-        results.forEach((r, i) => {
-            fieldsets[i].querySelector(`[name="participants[${i}].latitude"]`).value = r.value.lat;
-            fieldsets[i].querySelector(`[name="participants[${i}].longitude"]`).value = r.value.lng;
-        });
-        form.submit();   // submit 이벤트를 다시 부르지 않아서 무한 반복되지 않는다.
+        // 3) 서버로 보낼 참가자 목록을 만들어 넘긴다. (페이지를 새로 열지 않는다)
+        const participants = fieldsets.map((fs, i) => ({
+            participantName: fs.querySelector('input[name$=".participantName"]').value,
+            address: addresses[i],
+            latitude: results[i].value.lat,
+            longitude: results[i].value.lng
+        }));
+
+        // 서버 답이 올 때까지 제출 버튼을 잠가서 두 번 보내지 않게 한다.
+        const submitButton = form.querySelector('[type="submit"]');
+        submitButton.disabled = true;
+        Promise.resolve(onSubmit(participants)).finally(() => { submitButton.disabled = false; }); // 서버 답이 오면 다시 잠금 해제
+
     });
 }

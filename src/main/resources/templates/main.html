@@ -14,14 +14,10 @@
     <header
         th:replace="${isAuthenticated} ? ~{fragments/header_mypage :: siteHeader} : ~{fragments/header :: siteHeader}">
     </header>
-    <!-- 중간 지점을 옮겼거나, 옮길 곳을 못 찾았을 때 안내. -->
-    <th:block th:if="${meetingPoint != null}">
-        <p class="meeting-notice" role="status" th:if="${meetingPoint.adjusted}"
-            th:text="#{meeting.adjusted(${meetingPoint.anchorName})}">○○역 기준으로 찾았어요.</p>
-        <p class="meeting-notice meeting-notice--warning" role="status" th:if="${meetingPoint.anchorMissing}"
-            th:text="#{meeting.anchorMissing}">만날 곳을 찾지 못했어요.</p>
-    </th:block>
-
+    <!-- 중간 지점을 옮겼거나, 옮길 곳을 못 찾았을 때 안내. 제출 결과에 따라 main.js 가 보이거나 숨긴다. -->
+    <p id="meeting-notice-adjusted" class="meeting-notice" role="status" hidden></p>
+    <p id="meeting-notice-missing" class="meeting-notice meeting-notice--warning" role="status" hidden
+        th:text="#{meeting.anchorMissing}">만날 곳을 찾지 못했어요.</p>
     <!-- 폼(왼쪽) | 지도(가운데) | 주변 장소 패널(오른쪽). 패널 HTML 은 fragments/placePanel.html 에 있다. -->
     <main id="layout">
         <!-- id="participantForm" : 아래 스크립트에서 제출 이벤트를 가로채려고 폼에 id 를 붙였다. -->
@@ -52,7 +48,7 @@
         </section>
 
         <!-- 오른쪽: 주변 장소 패널 -->
-        <aside th:replace="~{fragments/placePanel :: placePanel(${meetingPoint != null})}"></aside>
+        <aside th:replace="~{fragments/placePanel :: placePanel(false)}"></aside>
     </main>
 
     <!-- 지도 스크립트는 반드시 폼 "뒤"에 둔다. 폼 앞에 긴 스크립트가 있으면 Thymeleaf 가 화면을 먼저 보내 버려서
@@ -61,17 +57,7 @@
     <script th:src="@{https://dapi.kakao.com/v2/maps/sdk.js(appkey=${kakaoJsKey},libraries='services')}"></script>
     <!-- 다음(카카오) 우편번호 서비스. "주소 검색" 버튼을 누르면 뜨는 주소 검색 팝업(daum.Postcode)을 쓰려고 추가했다. (키 필요 없음) -->
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-        <!-- th:inline="javascript" : 이 <script> 안에서도 Thymeleaf 가 서버 값을 넣어 주도록 켜는 설정
-    (없으면 아래 /*[[...]]*/ 부분이 그대로 브라우저로 가서 주석 취급 → 값이 항상 null.) -->
-
-    <script th:inline="javascript">
-        window.APP_DATA = { // window.APP_DATA : 전역 변수로 만들어서 다른 스크립트에서도 접근 가능.
-            meetingPoint: /*[[${meetingPoint}]]*/ null,
-            participants: /*[[${participantForm?.participants}]]*/[],
-            friends: /*[[${friends}]]*/[]
-        };
-    </script>
-    <!-- JS 에서 쓰는 번역 문장 (APP_DATA.messages). APP_DATA 뒤, main.js 앞에 둔다. -->
+    <!-- JS 에서 쓰는 번역 문장 (APP_DATA.messages). main.js 앞에 둔다. -->
     <script th:replace="~{fragments/jsMessages :: jsMessages}"></script>
     <script type="module" th:src="@{/js/main.js}"></script>
 </body>
