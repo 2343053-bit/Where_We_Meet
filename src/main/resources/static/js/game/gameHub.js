@@ -18,9 +18,9 @@
 //   };
 import { t } from '../util/i18n.js';
 import { createStandalonePlaceCard } from '../map/placePanel.js';
-import dummy from './games/dummy.js';
+import lottery from './games/lottery.js';
 
-var GAMES = [dummy];        // 탭 순서. 새 게임은 import 하고 여기에 추가한다.
+var GAMES = [lottery];      // 탭 순서. 새 게임은 import 하고 여기에 추가한다.
 var MAX_CANDIDATES = 8;     // 후보는 최대 8개. (룰렛 칸이 더 많으면 글자가 안 보인다)
 var NARROW_SCREEN = '(max-width: 700px)';   // 좁은 화면 기준. main.css·game.css 의 @media 와 같은 값.
 
