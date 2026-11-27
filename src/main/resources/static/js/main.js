@@ -5,6 +5,7 @@ import { drawResult } from "./map/resultMarkers.js";
 import { searchNearbyPlaces } from "./map/places.js";
 import { initParticipantList } from "./participants/participantList.js";
 import { initAddressSearch } from "./participants/addressSearch.js";
+import { initFriendSelect } from "./participants/friendSelect.js";
 import { initSubmit } from "./participants/submit.js";
 import { coordsToAddress } from "./api/geocoder.js";
 import { initMessages, t } from "./util/i18n.js"; // { 이름1, 이름2 } : 한 파일에서 여러 개를 한 번에 가져온다.
@@ -28,6 +29,7 @@ initParticipantList(
   document.getElementById("participant-template"),
 );
 initAddressSearch(participantsEl);
+initFriendSelect(participantsEl, appData.friends);
 initSubmit(document.getElementById("participantForm"), participantsEl);
 // 결과 화면에서 언어를 바꾸면 폼을 다시 제출해서 결과를 유지한다. (처음 화면에서는 링크 그대로)
 initLangSwitch(

@@ -1,4 +1,4 @@
-package com.springboot.repository;
+package com.springboot.dto;
 
 import com.springboot.domain.ParticipantLocation;
 import java.util.ArrayList;
