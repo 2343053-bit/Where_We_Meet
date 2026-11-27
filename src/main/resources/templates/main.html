@@ -21,7 +21,7 @@
     <!-- 폼(왼쪽) | 지도(가운데) | 주변 장소 패널(오른쪽). 패널 HTML 은 fragments/placePanel.html 에 있다. -->
     <main id="layout">
         <!-- id="participantForm" : 아래 스크립트에서 제출 이벤트를 가로채려고 폼에 id 를 붙였다. -->
-        <form id="participantForm" th:action="@{/main}" th:object="${participantForm}" method="post">
+        <form id="participantForm" th:object="${participantForm}">
             <label for="keyword" th:text="#{search.keyword}">검색어:</label>
             <input type="text" th:field="*{keyword}" id="keyword" th:placeholder="#{search.keywordPlaceholder}">
 
