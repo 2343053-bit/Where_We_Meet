@@ -100,5 +100,7 @@
 
     // 지금 언어 코드. ${...} 는 서버 값이고, #locale 은 Thymeleaf 가 알려 주는 지금 Locale(언어)이다. → "ko" / "en"
     window.APP_DATA.lang = /*[[${#locale.language}]]*/ 'ko';
+    // 공통 경로. @{/} 는 Thymeleaf 가 context-path 를 붙인 주소 → "/where-we-meet/". JS 는 util/url.js 의 appUrl() 로 쓴다.
+    window.APP_DATA.contextPath = /*[[@{/}]]*/ '/';
 </script>
 </html>

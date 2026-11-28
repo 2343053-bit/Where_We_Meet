@@ -1,10 +1,12 @@
+import { appUrl } from '../util/url.js';   // 우리 서버 주소에 공통 경로를 붙인다.
+
 // 참가자 목록을 서버에 보내 중간 지점을 받아 온다.
 // 응답: { meetingLatitude, meetingLongitude, adjusted, averageLatitude, averageLongitude, anchorName, anchorMissing }
 export function fetchMeetingPoint(participants) {
     const token = document.querySelector('meta[name="_csrf"]').content;
     const header = document.querySelector('meta[name="_csrf_header"]').content;
 
-    return fetch('/api/meeting-points', {
+    return fetch(appUrl('api/meeting-points'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', [header]: token }, // [header] : 변수 값을 키 이름으로 쓴다.
         body: JSON.stringify(participants)

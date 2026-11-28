@@ -14,7 +14,7 @@
             <dl>
                 <dt th:text="#{member.profileImage}">프로필 이미지: </dt>
                 <dd>
-                    <img th:src="${#strings.isEmpty(member.profileImagePath) ? '/images/profile/profile_default.png' : member.profileImagePath}"
+                    <img th:src="${#strings.isEmpty(member.profileImagePath)} ? @{/images/profile/profile_default.png} : @{${member.profileImagePath}}"
                          alt="not found"
                          width="100"
                          height="100">

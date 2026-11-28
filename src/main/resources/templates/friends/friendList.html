@@ -22,7 +22,7 @@
 
         <ul th:if="${!#lists.isEmpty(friends)}">
             <li th:each="friend : ${friends}">
-                <img th:src="${#strings.isEmpty(friend.profileImagePath) ? '/images/profile/profile_default.png' : friend.profileImagePath}"
+                <img th:src="${#strings.isEmpty(friend.profileImagePath)} ? @{/images/profile/profile_default.png} : @{${friend.profileImagePath}}"
                     th:alt="#{friend.profile.image.alt}"
                     alt="프로필 이미지"
                     width="40" height="40" />

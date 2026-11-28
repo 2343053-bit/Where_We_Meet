@@ -5,7 +5,7 @@
 <body>
 <h3 th:text="#{title.deleted}">회원탈퇴 완료</h3>
 <h5 th:text="#{deleted.message}">회원탈퇴가 완료되었습니다.</h5>
-<p><a href="/login" th:text="#{fail.toLogin}">로그인 화면으로 이동</a></p>
+<p><a th:href="@{/login}" href="/login" th:text="#{fail.toLogin}">로그인 화면으로 이동</a></p>
 <form th:action="@{/main}" method="get">
     <button type="submit" th:text="#{common.home}">홈으로</button>
 </form>

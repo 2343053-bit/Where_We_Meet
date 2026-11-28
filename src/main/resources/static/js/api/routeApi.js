@@ -1,10 +1,12 @@
+import { appUrl } from '../util/url.js';   // 우리 서버 주소에 공통 경로를 붙인다.
+
 // 출발 → 도착 승용차 경로. 응답: { seconds, path: [[위도, 경도], ...] } (실패 시 seconds = -1)
 export function fetchCarRoute(origin, dest) {
     const params = new URLSearchParams({
         originLat: origin.lat, originLng: origin.lng,
         destLat: dest.lat, destLng: dest.lng
     });
-    return fetch(`/api/route/car/path?${params}`).then((response) => {
+    return fetch(appUrl(`api/route/car/path?${params}`)).then((response) => {
         if (!response.ok) throw new Error(`경로 API 오류: ${response.status}`);
         return response.json();
     });
