@@ -4,6 +4,8 @@
      페이지 전용 CSS 는 각 페이지에서 이 조각 "아래"에 추가한다. (base.css 가 먼저 와야 덮어쓸 수 있음) -->
 <th:block th:fragment="common(title)">
     <meta charset="UTF-8">
+    <!-- 휴대폰에서도 화면 폭에 맞게 보이게 한다. (없으면 PC 화면을 작게 줄여서 보여 준다) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${title}">Where We Meet</title>
     <link rel="stylesheet" th:href="@{/css/base.css}">
 </th:block>

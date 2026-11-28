@@ -3,75 +3,6 @@
 
 <head>
     <th:block th:replace="~{fragments/head :: common(#{title.signup})}"></th:block>
-    <style>
-        .signup-form {
-            width: 360px;
-            margin: 40px auto;
-            padding: 24px;
-            border: 1px solid #aaa;
-            border-radius: 8px;
-            box-sizing: border-box;
-        }
-
-        .signup-form label {
-            display: block;
-            margin-top: 12px;
-        }
-
-        .signup-form input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #aaa;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        .signup-form button {
-            width: 100%;
-            margin-top: 16px;
-            padding: 8px;
-        }
-
-        .address-row {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 8px;
-        }
-
-        .address-row button {
-            width: auto;
-            margin-top: 0;
-            white-space: nowrap;
-        }
-        .required-mark {
-            color: red;
-            font-weight: bold;
-            margin-left: 0.2em;
-        }
-        .signup-form {
-            position: relative;
-        }
-
-        .signup-errors {
-            position: absolute;
-            top: 24px;
-            left: calc(100% + 16px);
-            width: 240px;
-            color: red;
-        }
-
-        .signup-errors p {
-            margin: 0 0 8px;
-        }
-
-        @media (max-width: 700px) {
-            .signup-errors {
-                position: static;
-                width: auto;
-                margin-bottom: 12px;
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -81,8 +12,11 @@
    th:text="#{${errorMessage}}"
    hidden></p>
 
-    <form class="signup-form" th:action="@{/signup}" th:object="${memberForm}" method="post">
-        <div class="signup-errors"
+    <main>
+    <h1 th:text="#{title.signup}">회원가입</h1>
+    <form th:action="@{/signup}" th:object="${memberForm}" method="post">
+        <!-- 오류 문구 상자. 꾸밈은 css/base.css 의 .alert -->
+        <div class="alert alert--error"
             th:if="${errorMessage != null or #fields.hasErrors('*')}">
             <p th:if="${errorMessage != null}"
             th:text="#{${errorMessage}}"></p>
@@ -116,6 +50,7 @@
 
         <button type="submit" th:text="#{signup.submit}">회원가입</button>
     </form>
+    </main>
     <script th:src="@{/js/member/signupError.js}"></script>
     <script src="https://t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script th:src="@{/js/member/addressSearch.js}"></script>

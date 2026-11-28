@@ -11,7 +11,7 @@
     <main>
         <!-- errorMessage 에는 문장이 아니라 사전 키가 들어 있다. (예: member.nicknameTaken, service/MemberService.java)
              #{${키가 든 변수}} : 변수 값을 키로 써서 사전에서 문장을 찾는다. -->
-        <p th:if="${errorMessage != null}" th:text="#{${errorMessage}}"></p>
+        <p class="alert alert--error" th:if="${errorMessage != null}" th:text="#{${errorMessage}}"></p>
 
         <form th:action="@{/mypage/edit}" th:object="${memberForm}" method="post" enctype="multipart/form-data">
             <fieldset>

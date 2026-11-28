@@ -38,7 +38,7 @@
                 <dd th:text="${member.address}"></dd>
             </dl>
         </fieldset>
-        <div style="display: flex; gap: 8px; align-items: center;">
+        <div class="button-row">
             <form th:action="@{/main}" method="get">
                 <button type="submit" th:text="#{common.home}">홈으로</button>
             </form>

@@ -1,34 +1,131 @@
+/* 메인 지도 화면 전용. (templates/main.html)
+   색 같은 값은 base.css 의 :root 변수를 쓴다. */
+
 /* 페이지를 브라우저 창 높이에 딱 맞춘다. 헤더·안내 문구를 뺀 나머지 높이를 #layout 이 전부 쓴다. */
 body {
-    margin: 0;
-    padding: 8px 16px;
-    box-sizing: border-box;   /* padding 까지 포함해서 100vh. (없으면 padding 만큼 넘쳐서 아래가 잘린다) */
     height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
-/* 폼(왼쪽 300px) | 지도(가운데, 남는 폭 전부) | 주변 장소 패널(오른쪽 320px) */
+/* 폼(왼쪽 320px) | 지도(가운데, 남는 폭 전부) | 주변 장소 패널(오른쪽 340px) */
 #layout {
+    box-sizing: border-box;
     flex: 1;                              /* body 에서 남는 높이 전부. */
     min-height: 0;                        /* 내용이 많아도 창 밖으로 늘어나지 않게. */
     display: grid;
-    grid-template-columns: 300px minmax(0, 1fr) 320px;
+    grid-template-columns: 320px minmax(0, 1fr) 340px;
     grid-template-rows: minmax(0, 1fr);   /* 한 줄 높이 = #layout 높이. 각 칸은 그 안에서 스크롤. */
     gap: 16px;
+    padding: 16px;
 }
 
+/* ── 왼쪽: 참가자 입력 폼 ── */
 /* 참가자가 많으면 폼 안에서만 스크롤. */
 #participantForm {
+    box-sizing: border-box;   /* padding 까지 포함해서 높이 100%. (없으면 아래가 잘린다) */
     height: 100%;
     overflow-y: auto;
-    box-sizing: border-box;
+    padding: 20px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
 }
 
-/* 가운데 열: 지도 + 현재 위치 안내 문구를 세로로. 안내 문구가 나오면 지도가 그만큼 줄어든다. */
+#participantForm > label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#participants {
+    margin-top: 16px;
+}
+
+/* 참가자 한 명 = 작은 카드 */
+#participants fieldset {
+    display: grid;
+    gap: 8px;
+    margin: 0 0 12px;
+    padding: 14px;
+    min-width: 0;   /* fieldset 은 기본으로 내용보다 좁아지지 않아서 폼 밖으로 삐져나갈 수 있다. */
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+}
+
+#participants legend {
+    padding: 0 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+#participants input {
+    width: 100%;
+}
+
+/* 폼 안의 버튼 공통 */
+#participantForm button {
+    padding: 9px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+#participantForm button:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+#participantForm button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* - / + 버튼은 반씩 나란히 */
+#removeParticipant,
+#addParticipant {
+    width: calc(50% - 4px);
+    font-size: 18px;
+    line-height: 1;
+}
+
+#removeParticipant {
+    margin-right: 4px;
+}
+
+/* 제출 버튼은 폭 전체, 주황 */
+#participantForm button[type="submit"] {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 15px;
+}
+
+#participantForm button[type="submit"]:hover:not(:disabled) {
+    background: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+    color: #fff;
+}
+
+/* ── 가운데: 지도 ── */
+/* 지도 + 현재 위치 안내 문구를 세로로. 안내 문구가 나오면 지도가 그만큼 줄어든다. */
 #map-column {
     display: flex;
     flex-direction: column;
+    gap: 8px;
     height: 100%;
     min-height: 0;
 }
@@ -37,53 +134,117 @@ body {
     flex: 1;          /* 열에서 남는 높이 전부. */
     width: 100%;
     min-height: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden; /* 지도 그림이 둥근 모서리 밖으로 나가지 않게. */
+    box-shadow: var(--shadow);
 }
 
+#current-location-status {
+    margin: 0;
+    font-size: 13px;
+    color: var(--color-muted);
+}
+
+/* ── 오른쪽: 주변 장소 패널 ── */
 /* 카드가 많으면 패널 안에서만 스크롤. */
 #place-panel {
+    box-sizing: border-box;   /* padding 까지 포함해서 높이 100%. */
     height: 100%;
     overflow-y: auto;
-    padding: 0 12px;
-    border: 1px solid #aaa;
-    box-sizing: border-box;
+    padding: 16px 16px 8px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+#place-panel h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+/* "게임으로 정하기" 열기 버튼. (크기·배지는 game.css. 여기서는 색만 맞춘다)
+   .place-panel__header 를 앞에 붙여서 game.css 의 #game-hub-open 보다 우선하게 한다. */
+.place-panel__header #game-hub-open {
+    border: 1px solid var(--color-primary);
+    border-radius: 999px;
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.place-panel__header #game-hub-open:hover {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+#place-status {
+    color: var(--color-muted);
+    font-size: 14px;
 }
 
 #place-list {
     list-style: none;
-    margin: 0;
+    margin: 8px 0 0;
     padding: 0;
 }
 
-/* 카드를 누르면 지도가 그 장소로 이동하므로, 누를 수 있다는 표시(손가락 모양, 마우스를 올리면 배경색). */
-/* 정보(왼쪽, 남는 폭 전부)와 사진(오른쪽, 72px)을 나란히. */
+/* 장소 카드. 정보(왼쪽, 남는 폭 전부)와 사진(오른쪽, 72px)을 나란히.
+   누르면 지도가 그 장소로 이동하므로, 누를 수 있다는 표시(손가락 모양, 마우스를 올리면 배경색). */
 .place-card {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 72px;
-    gap: 10px;
+    column-gap: 10px;
     align-items: start;
-    padding: 10px 8px;
-    border-bottom: 1px solid #ddd;
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
     cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.place-card:hover {
+    background: var(--color-bg);
+}
+
+/* 지금 고른 장소의 카드. (카드·마커 클릭, 게임 당첨 → placePanel.js 의 highlightPlaceCard)
+   왼쪽 주황 막대(inset 그림자)는 칸 크기를 바꾸지 않아서 카드가 밀리지 않는다. */
+.place-card.is-selected {
+    background: var(--color-primary-soft);
+    box-shadow: inset 4px 0 0 var(--color-primary);
 }
 
 .place-card__photo {
     display: block;
     width: 72px;
     height: 72px;
-    object-fit: cover;
-    /* 나중에 실제 사진(가로·세로 비율이 제각각)을 넣어도 찌그러지지 않고 칸에 맞게 잘린다. */
-    border-radius: 8px;
+    object-fit: cover;   /* 나중에 실제 사진(가로·세로 비율이 제각각)을 넣어도 찌그러지지 않고 칸에 맞게 잘린다. */
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
 }
 
-.place-card:hover {
-    background: #f3f6fb;
+/* 카드 배치:  [이름·종류·주소·전화·거리 | 사진]
+               [카카오맵에서 보기 ······· 공유 🎯]   ← 버튼 줄은 두 칸 전체 폭이라, 버튼이 사진 아래 오른쪽 끝에 붙는다.
+   템플릿에서는 버튼 줄이 왼쪽 정보 상자(.place-card__body) 안에 있다.
+   display: contents 로 그 상자를 풀어서, 안의 줄들이 카드 격자에 바로 놓이게 한다. */
+.place-card__body {
+    display: contents;
 }
 
-/* 지금 고른 장소의 카드. (카드·마커 클릭, 게임 당첨 → placePanel.js 의 highlightPlaceCard)
-   왼쪽 주황 막대(inset 그림자)는 칸 크기를 바꾸지 않아서 카드가 밀리지 않는다. */
-.place-card.is-selected {
-    background: #fff4e6;
-    box-shadow: inset 4px 0 0 #e8590c;
+.place-card__body > * {
+    grid-column: 1;               /* 정보 줄은 왼쪽 칸. 위에서부터 차례로 쌓인다. */
+}
+
+.place-card__photo-link {
+    grid-column: 2;
+    grid-row: 1 / span 4;         /* 오른쪽 위. 정보 줄 4줄 높이만큼 차지한다. (전화번호가 없는 카드도 정보는 4줄) */
+}
+
+.place-card__body > .place-card__actions {
+    grid-column: 1 / -1;          /* 버튼 줄만 두 칸 전체. 정보 줄과 사진 아래에 온다. */
 }
 
 .place-card h3,
@@ -95,10 +256,15 @@ body {
     font-size: 16px;
 }
 
-.place-card__category,
+.place-card__category {
+    font-size: 12px;
+    color: var(--color-muted);
+}
+
 .place-card__distance {
     font-size: 12px;
-    color: #666;
+    font-weight: 600;
+    color: var(--color-primary);
 }
 
 .place-card__address,
@@ -107,34 +273,98 @@ body {
     font-size: 13px;
 }
 
-/* "카카오맵에서 보기" 링크와 "공유" 버튼을 한 줄에. */
+/* "카카오맵에서 보기" 링크(왼쪽)와 "공유"·🎯 버튼(오른쪽 끝)을 한 줄에. */
 .place-card__actions {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-top: 6px;
+    gap: 6px;
+    margin-top: 8px;
 }
 
+/* 링크는 줄바꿈하지 않는다. 칸이 아주 좁으면 끝을 "…" 로 줄인다. */
+.place-card__link {
+    min-width: 0;             /* flex 안에서 글자 길이보다 좁아질 수 있게. (없으면 ellipsis 가 안 된다) */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* margin-left: auto : 남는 공간을 왼쪽에 몰아서 공유 버튼부터 오른쪽 끝으로 민다. (🎯 는 그 옆에 붙는다) */
 .place-card__share {
+    margin-left: auto;
+}
+
+.place-card__share,
+.place-card__game {
+    flex-shrink: 0;           /* 칸이 좁아도 버튼은 줄어들지 않게. */
+    white-space: nowrap;      /* "공유" 가 세로로 한 글자씩 꺾이지 않게. */
     font-size: 12px;
-    padding: 2px 10px;
+    padding: 3px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: inherit;
     cursor: pointer;
 }
 
-#participants fieldset {
-    display: grid;
-    gap: 8px;
-    margin-bottom: 8px;
-    min-width: 0;   /* fieldset 은 기본으로 내용보다 좁아지지 않아서 폼 밖으로 삐져나갈 수 있다. */
+.place-card__share:hover,
+.place-card__game:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
 }
 
-#participants input {
-    width: 100%;
-    box-sizing: border-box;   /* 테두리·여백까지 포함해서 100%. (없으면 칸 밖으로 몇 px 넘쳐 가로 스크롤이 생긴다) */
+/* ── 중간 지점 안내 (지도 위) ── */
+.meeting-notice {
+    margin: 12px 16px 0;
+    padding: 10px 14px;
+    border-left: 4px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+    background: var(--color-primary-soft);
+    font-size: 14px;
 }
 
+.meeting-notice--warning {
+    border-left-color: #f08c00;
+    background: #fff9db;
+}
+
+/* ── 지도 말풍선 (카카오 InfoWindow 안에 넣는 내용) ── */
+.info-window {
+    padding: 6px 8px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.info-window--place {
+    font-size: 12px;
+    font-weight: normal;
+    white-space: normal;
+}
+
+.bAddr {
+    box-sizing: border-box;
+    width: 260px;
+    padding: 8px 10px;
+    line-height: 1.5;
+    font-size: 13px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}
+
+.bAddr > div:first-child {   /* 말풍선 제목 ("중간 지점" / "현위치") */
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.bAddr > div + div {
+    margin-top: 4px;
+}
+
+/* ── 좁은 화면 (휴대폰) ── */
 @media (max-width: 700px) {
-    /* 좁은 화면에서는 한 줄로 쌓고, 높이 고정을 풀어서 페이지 전체가 스크롤되게 한다. */
+    /* 한 줄로 쌓고, 높이 고정을 풀어서 페이지 전체가 스크롤되게 한다. */
     body {
         height: auto;
     }
@@ -142,6 +372,7 @@ body {
     #layout {
         grid-template-columns: 1fr;        /* 폼 → 지도 → 패널 순서로 쌓는다. */
         grid-template-rows: none;
+        padding: 12px;
     }
 
     #participantForm,
@@ -157,40 +388,6 @@ body {
 
     #place-panel {
         height: auto;
-        max-height: 50vh;
+        max-height: 60vh;
     }
-}
-
-/* 중간 지점 안내 (지도 위) */
-.meeting-notice {
-    margin: 8px 0;
-    padding: 10px 12px;
-    border-radius: 6px;
-    background: #E3ECF8;
-}
-
-.meeting-notice--warning {
-    background: #FFF3CD;
-}
-
-.info-window {
-    padding: 5px;
-}
-
-.info-window--place {
-    font-size: 12px;
-}
-
-.bAddr {
-    width: 260px;
-    box-sizing: border-box;
-    padding: 8px 10px;
-    line-height: 1.5;
-    font-size: 13px;
-    word-break: keep-all;
-    overflow-wrap: break-word;
-}
-
-.bAddr>div+div {
-    margin-top: 4px;
 }

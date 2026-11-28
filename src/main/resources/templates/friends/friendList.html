@@ -11,8 +11,8 @@
     <main>
         <h1 th:text="#{friend.list.heading}">친구 목록</h1>
 
-        <div>
-            <a th:href="@{/friends/requests/new}" th:text="#{friend.request.send}">친구 요청 보내기</a> |
+        <div class="sub-nav">
+            <a th:href="@{/friends/requests/new}" th:text="#{friend.request.send}">친구 요청 보내기</a>
             <a th:href="@{/friends/requests/received}" th:text="#{friend.request.received}">받은 친구 요청</a>
         </div>
 
