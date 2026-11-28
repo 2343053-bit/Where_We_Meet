@@ -37,7 +37,7 @@ public class FriendshipController {
 
     //친구 삭제 버튼
     @PostMapping("/delete")
-    public String deleteFriend(Authentication authentication, @RequestParam String friendId) {
+    public String deleteFriend(Authentication authentication, @RequestParam("friendId") String friendId) {
         String myId = authentication.getName();
         friendshipService.deleteFriend(myId, friendId);
         return "redirect:/friends";
@@ -55,14 +55,14 @@ public class FriendshipController {
 
         //친구 수락 버튼
     @PostMapping("/accept")
-    public String acceptRequest(Authentication authentication, @RequestParam Long requestId) {
+    public String acceptRequest(Authentication authentication, @RequestParam("requestId") Long requestId) {
         friendshipService.acceptRequest(requestId);
         return "redirect:/friends/requests/received";
     }
 
     //친구 거절 버튼
     @PostMapping("/reject")
-    public String rejectRequest(Authentication authentication, @RequestParam Long requestId) {
+    public String rejectRequest(Authentication authentication, @RequestParam("requestId") Long requestId) {
         friendshipService.rejectRequest(requestId);
         return "redirect:/friends/requests/received";
     }
@@ -75,7 +75,7 @@ public class FriendshipController {
 
     //친구 요청 보내기 버튼
     @PostMapping("/requests/new")
-    public String sendRequest(Authentication authentication, @RequestParam String friendId, RedirectAttributes redirectAttributes) {
+    public String sendRequest(Authentication authentication, @RequestParam("friendId") String friendId, RedirectAttributes redirectAttributes) {
         String myId = authentication.getName();
         
     try {
