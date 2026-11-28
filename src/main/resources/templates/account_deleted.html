@@ -1,13 +1,27 @@
+<!DOCTYPE html>
 <html lang="ko" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<title th:text="#{title.deleted}">회원탈퇴 완료</title>
+    <th:block th:replace="~{fragments/head :: common(#{title.deleted})}"></th:block>
 </head>
+
 <body>
-<h3 th:text="#{title.deleted}">회원탈퇴 완료</h3>
-<h5 th:text="#{deleted.message}">회원탈퇴가 완료되었습니다.</h5>
-<p><a href="/login" th:text="#{fail.toLogin}">로그인 화면으로 이동</a></p>
-<form th:action="@{/main}" method="get">
-    <button type="submit" th:text="#{common.home}">홈으로</button>
-</form>
+    <!-- 탈퇴하면서 로그아웃됐으므로 항상 로그인 전 메뉴. -->
+    <header th:replace="~{fragments/header :: siteHeader}"></header>
+
+    <main class="message-page">
+        <h1 th:text="#{title.deleted}">회원탈퇴 완료</h1>
+        <p th:text="#{deleted.message}">회원탈퇴가 완료되었습니다.</p>
+        <div class="button-row">
+            <form th:action="@{/main}" method="get">
+                <button type="submit" th:text="#{common.home}">홈으로</button>
+            </form>
+            <!-- class="primary" : GET 폼 버튼은 기본이 흰 버튼이라, 주요 동작은 주황으로. (css/base.css) -->
+            <form th:action="@{/login}" method="get">
+                <button type="submit" class="primary" th:text="#{fail.toLogin}">로그인 화면으로 이동</button>
+            </form>
+        </div>
+    </main>
 </body>
+
 </html>

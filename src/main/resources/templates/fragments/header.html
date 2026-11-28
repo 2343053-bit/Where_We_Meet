@@ -2,11 +2,12 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <!-- 로그인 전 상단 메뉴. (로그인한 뒤 메뉴는 fragments/header_mypage.html)
      메뉴를 추가/변경할 때는 두 파일을 같이 고친다. 한쪽만 고치면 로그인 전/후 화면이 달라진다. (예: 언어 전환 줄) -->
-<header th:fragment="siteHeader">
-    <nav>
+<header th:fragment="siteHeader" class="site-header">
+    <a class="site-logo" th:href="@{/main}">📍 Where We Meet</a>
+    <nav class="site-nav">
         <!-- th:text="#{키}" : 지금 언어의 사전(messages*.properties)에서 키를 찾아 글자를 바꿔 넣는다. 태그 안 글자는 기본값(미리보기용). -->
-        <a th:href="@{/main}" th:text="#{header.main}">홈으로</a> |
-        <a th:href="@{/login}" th:text="#{header.login}">로그인</a> | 
+        <a th:href="@{/main}" th:text="#{header.main}">홈으로</a>
+        <a th:href="@{/login}" th:text="#{header.login}">로그인</a>
         <a th:href="@{/signup}" th:text="#{header.signup}">회원가입</a>
     </nav>
     <!-- 언어 전환 (한국어 | English). 내용은 fragments/langSwitch.html -->

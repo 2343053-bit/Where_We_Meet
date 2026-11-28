@@ -2,6 +2,7 @@
 // 값은 전부 textContent 로 넣는다. (innerHTML 을 쓰면 장소 이름 속 <, > 같은 글자가 HTML 로 실행될 수 있다)
 import { copyText } from '../util/clipboard.js';   // map/ 에서 한 칸 위로
 import { t, getLang } from '../util/i18n.js';      // 다국어 처리. t('키') → 지금 언어의 문장, getLang() → 지금 언어 코드
+import { appUrl } from '../util/url.js';           // 우리 서버 주소에 공통 경로를 붙인다.
 
 // 안내 문구를 보여 주고 목록은 비운다. (결과 없음, 오류 등)
 export function showPlaceStatus(message) {
@@ -160,14 +161,14 @@ function getCategoryText(place) {
 // 카테고리별 기본 이미지. 키는 카카오의 category_group_code. (CE7 = 카페, FD6 = 음식점)
 // 다른 카테고리 이미지를 추가하려면 /images/places/ 에 그림을 넣고 여기에 한 줄 추가한다.
 var PLACE_IMAGES = {
-    CE7: '/images/places/cafe.svg',
-    FD6: '/images/places/restaurant.svg'
+    CE7: 'images/places/cafe.svg',
+    FD6: 'images/places/restaurant.svg'
 };
 
 // 장소의 카테고리에 맞는 기본 이미지 주소를 돌려준다. 목록에 없는 카테고리(또는 코드가 빈 장소)는 default.
 // 나중에 실제 사진(카카오 이미지 검색 등)으로 바꿀 때는 이 함수만 고치면 된다.
 function getPlaceImage(place) {
-    return PLACE_IMAGES[place.category_group_code] || '/images/places/default.svg';
+    return appUrl(PLACE_IMAGES[place.category_group_code] || 'images/places/default.svg');   // 공통 경로를 붙인다.
 }
 
 // 카카오가 주는 거리(m, 글자)를 보기 좋게 바꾼다. 예) "350" → "350m", "1234" → "1.2km"

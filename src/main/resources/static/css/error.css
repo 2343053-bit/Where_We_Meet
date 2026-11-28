@@ -1,15 +1,24 @@
-/* 공통 오류 화면 (templates/error.html) 전용 스타일. 디자인은 임시로 가운데 정렬만 잡아 둔다. */
+/* 공통 오류 화면 (templates/error.html) 전용 스타일.
+   카드 모양은 base.css 의 main 스타일을 그대로 쓰고, 폭·가운데 정렬만 바꾼다.
+   :not(#layout) 까지 붙이는 이유: base.css 의 main:not(#layout) 보다 우선해야 폭·여백이 바뀐다. */
 
-.error-page {
+main.error-page:not(#layout) {
     max-width: 480px;
-    margin: 80px auto;    /* 위아래 80px, 좌우 auto = 가운데 */
-    padding: 0 16px;
+    margin: 80px auto;
     text-align: center;
 }
 
 .error-page__status {     /* 큰 오류 번호 (404, 500 ...) */
     margin: 0;
     font-size: 64px;
-    font-weight: bold;
-    color: #9f9f9f;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.error-page h1 {
+    font-size: 22px;
+}
+
+.error-page p {
+    color: var(--color-muted);
 }

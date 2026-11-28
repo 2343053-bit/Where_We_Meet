@@ -11,8 +11,8 @@
     <main>
         <h1 th:text="#{friend.list.heading}">친구 목록</h1>
 
-        <div>
-            <a th:href="@{/friends/requests/new}" th:text="#{friend.request.send}">친구 요청 보내기</a> |
+        <div class="sub-nav">
+            <a th:href="@{/friends/requests/new}" th:text="#{friend.request.send}">친구 요청 보내기</a>
             <a th:href="@{/friends/requests/received}" th:text="#{friend.request.received}">받은 친구 요청</a>
         </div>
 
@@ -22,7 +22,7 @@
 
         <ul th:if="${!#lists.isEmpty(friends)}">
             <li th:each="friend : ${friends}">
-                <img th:src="${#strings.isEmpty(friend.profileImagePath) ? '/images/profile/profile_default.png' : friend.profileImagePath}"
+                <img th:src="${#strings.isEmpty(friend.profileImagePath)} ? @{/images/profile/profile_default.png} : @{${friend.profileImagePath}}"
                     th:alt="#{friend.profile.image.alt}"
                     alt="프로필 이미지"
                     width="40" height="40" />

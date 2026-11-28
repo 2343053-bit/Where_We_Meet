@@ -11,16 +11,16 @@
     <main>
         <h1 th:text="#{friend.request.send.heading}">친구 요청 보내기</h1>
 
-        <div>
-            <a th:href="@{/friends}" th:text="#{friend.list.back}">친구 목록으로</a> |
+        <div class="sub-nav">
+            <a th:href="@{/friends}" th:text="#{friend.list.back}">친구 목록으로</a>
             <a th:href="@{/friends/requests/received}" th:text="#{friend.request.received}">받은 친구 요청</a>
         </div>
 
-        <div th:if="${errorMessageKey != null}" style="color: red;">
+        <div th:if="${errorMessageKey != null}" class="alert alert--error">
             <p th:text="#{${errorMessageKey}}">오류 메시지</p>
         </div>
 
-        <div th:if="${successMessageKey != null}" style="color: green;">
+        <div th:if="${successMessageKey != null}" class="alert alert--success">
             <p th:text="#{${successMessageKey}}">성공 메시지</p>
         </div>
 

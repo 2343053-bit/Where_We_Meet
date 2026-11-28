@@ -1,4 +1,5 @@
 import { t } from '../util/i18n.js';   // 다국어 처리. t('키') → 지금 언어의 문장 (messages.properties)
+import { appUrl } from '../util/url.js';   // 우리 서버 주소에 공통 경로를 붙인다.
 
 var resultMarkers = []; // 지금 지도에 있는 중간 지점·평균 지점·참가자 마커들.
 var resultWindows = []; // 그 말풍선들.
@@ -56,7 +57,7 @@ export function drawResult(map, meetingLat, meetingLng, participantList, average
             position: averagePosition,
             zIndex: -1,   // 다른 마커보다 아래에.
             image: new kakao.maps.MarkerImage(
-                '/images/markers/average-point.svg',
+                appUrl('/images/markers/average-point.svg'),
                 new kakao.maps.Size(24, 35),
                 { offset: new kakao.maps.Point(12, 35) })
         });

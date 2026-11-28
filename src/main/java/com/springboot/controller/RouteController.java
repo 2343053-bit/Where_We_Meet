@@ -29,10 +29,10 @@ public class RouteController {
     // 응답 예) { "seconds": 2346 }   (실패하면 { "seconds": -1 })
     // @RequestParam : 주소 뒤 ?이름=값 부분을 같은 이름의 매개변수로 받는다. (문자 "37.4979" 를 double 로 자동 변환)
     @GetMapping("/car")
-    public Map<String, Integer> getCarDuration(@RequestParam double originLat,
-                                               @RequestParam double originLng,
-                                               @RequestParam double destLat,
-                                               @RequestParam double destLng) {
+    public Map<String, Integer> getCarDuration(@RequestParam("originLat") double originLat,
+                                               @RequestParam("originLng") double originLng,
+                                               @RequestParam("destLat") double destLat,
+                                               @RequestParam("destLng") double destLng) {
         int seconds = routeService.getCarDurationSeconds(originLat, originLng, destLat, destLng);
 
         // Map.of("seconds", 값) 을 돌려주면 Spring 이 자동으로 JSON { "seconds": 값 } 으로 바꿔서 보낸다.
@@ -42,10 +42,10 @@ public class RouteController {
     // 승용차 이동시간 + 경로 좌표 조회. (지도에 경로 선을 그리기 위해)
     // record(CarRoute)를 그대로 돌려주면 Spring 이 필드 이름(seconds, path) 그대로 JSON 으로 바꿔서 보낸다.
     @GetMapping("/car/path")
-    public RouteService.CarRoute getCarRoute(@RequestParam double originLat,
-                                             @RequestParam double originLng,
-                                             @RequestParam double destLat,
-                                             @RequestParam double destLng) {
+    public RouteService.CarRoute getCarRoute(@RequestParam("originLat") double originLat,
+                                             @RequestParam("originLng") double originLng,
+                                             @RequestParam("destLat") double destLat,
+                                             @RequestParam("destLng") double destLng) {
         return routeService.getCarRoute(originLat, originLng, destLat, destLng);
     }
 }

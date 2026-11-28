@@ -73,7 +73,7 @@ kakao.js-key=발급받은_JavaScript_키
 - **VS Code**: Extension Pack for Java, Spring Boot Extension Pack 설치 → 폴더 열기 → Spring Boot Dashboard에서 실행
 - **터미널**: `./gradlew bootRun` (Windows는 `gradlew.bat bootRun`)
 
-실행 후 http://localhost:8080 접속
+실행 후 http://localhost:8080/where-we-meet 접속
 
 ## 협업 규칙
 
